@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#0E0E0E">
 
     <title>КОМЕТА — Web3-агентство полного цикла: маркетинг, дизайн, разработка</title>
@@ -29,8 +29,11 @@
         content="Performance-маркетинг, дизайн и разработка для Web3-проектов по всему миру.">
     <meta name="twitter:image" content="https://kometa.agency/assets/images/earth.png">
 
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-    <link rel="manifest" href="/site.webmanifest">
+    <link rel="icon" href="./favicon.ico" sizes="any">
+    <link rel="icon" href="./favicon-32.png" type="image/png" sizes="32x32">
+    <link rel="icon" href="./favicon-16.png" type="image/png" sizes="16x16">
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png">
+    <link rel="manifest" href="./site.webmanifest">
 
     <link rel="preload" href="./assets/fonts/Nekst-Regular.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="./assets/css/main.css">
@@ -47,7 +50,6 @@
                 "url": "https://kometa.agency/",
                 "logo": "https://kometa.agency/assets/images/kometa.png",
                 "description": "Web3-агентство полного цикла: маркетинг, дизайн и разработка.",
-                "email": "hello@kometa.agency",
                 "sameAs": ["https://t.me/"]
             },
             {
@@ -57,21 +59,13 @@
                 "name": "КОМЕТА",
                 "inLanguage": "ru-RU",
                 "publisher": { "@id": "https://kometa.agency/#organization" }
-            },
-            {
-                "@type": "WebPage",
-                "@id": "https://kometa.agency/#webpage",
-                "url": "https://kometa.agency/",
-                "name": "КОМЕТА — Web3-агентство полного цикла",
-                "isPartOf": { "@id": "https://kometa.agency/#website" },
-                "about": { "@id": "https://kometa.agency/#organization" }
             }
         ]
     }
     </script>
 </head>
 
-<body class="is-locked">
+<body>
     <a class="skip-link" href="#main">Перейти к содержимому</a>
 
     <div class="loader" data-loader role="status" aria-live="polite">
@@ -109,48 +103,29 @@
             <path d="M0.467966 0.467954L0.467954 8.89844L8.89844 8.89843M0.467954 8.89844L8.89843 0.467966" fill="none"
                 stroke="currentColor" stroke-width="0.93672" stroke-linecap="round" stroke-linejoin="round" />
         </symbol>
-
-        <symbol id="close" viewBox="0 0 16 16">
-            <path d="M2 2 14 14M14 2 2 14" fill="none" stroke="currentColor" stroke-width="1.6"
-                stroke-linecap="round" />
-        </symbol>
     </svg>
 
     <header class="header">
         <span class="header__spacer" aria-hidden="true"></span>
 
         <div class="header__bar">
-            <a class="logo" href="/" aria-label="КОМЕТА — на главную">
+            <a class="logo" href="./" aria-label="КОМЕТА — на главную">
                 <picture>
                     <source srcset="./assets/images/kometa.webp" type="image/webp">
                     <img src="./assets/images/kometa.png" width="700" height="159" alt="КОМЕТА" fetchpriority="high">
                 </picture>
             </a>
 
-            <nav class="nav" id="nav" data-menu aria-label="Основная навигация">
+            <nav class="nav" aria-label="Основная навигация">
                 <ul class="nav__list">
                     <li><a class="nav__link" href="#directions">Направления</a></li>
                     <li><a class="nav__link" href="#team">Команда</a></li>
                     <li><a class="nav__link" href="#cases">Кейсы</a></li>
                     <li><a class="nav__link" href="#contacts">Контакты</a></li>
                 </ul>
-
-                <a class="nav__tg" href="https://t.me/" target="_blank" rel="noopener noreferrer">
-                    <svg class="icon" aria-hidden="true">
-                        <use href="#telegram"></use>
-                    </svg>
-                    <span>Telegram</span>
-                </a>
-
-                <button class="btn-request btn-request--menu" type="button" data-modal-open>Оставить заявку</button>
             </nav>
 
-            <button class="btn-request btn-request--bar" type="button" data-modal-open>Оставить заявку</button>
-
-            <button class="burger" type="button" data-menu-toggle aria-label="Открыть меню" aria-expanded="false"
-                aria-controls="nav">
-                <span></span><span></span><span></span>
-            </button>
+            <button class="btn-request" type="button">Оставить заявку</button>
         </div>
 
         <a class="tg-corner" href="https://t.me/" target="_blank" rel="noopener noreferrer" aria-label="Мы в Telegram">
@@ -160,83 +135,82 @@
         </a>
     </header>
 
-    <main class="layout" id="main">
+    <main id="main">
 
-        <section class="intro" data-intro aria-labelledby="hero-title">
-            <div class="intro__sticky">
-                <div class="intro__media" aria-hidden="true">
-                    <canvas class="intro__stars" data-starfield></canvas>
-                    <div class="intro__earth-wrap" data-intro-earth>
-                        <picture>
-                            <source srcset="./assets/images/earth.webp" type="image/webp">
-                            <img class="intro__earth" src="./assets/images/earth.png" width="1600" height="1600" alt=""
-                                fetchpriority="high" decoding="async">
-                        </picture>
-                    </div>
-                </div>
+        <section class="hero" aria-labelledby="hero-title">
+            <div class="hero__media" aria-hidden="true">
+                <picture>
+                    <source srcset="./assets/images/earth.webp" type="image/webp">
+                    <img class="hero__earth" src="./assets/images/earth.png" width="1600" height="1600" alt=""
+                        fetchpriority="high">
+                </picture>
+            </div>
 
-                <div class="intro__stage" data-stage="hero">
-                    <h1 class="hero__title title-gradient" id="hero-title">
-                        Результат —<br>
-                        <span>это наша орбита</span>
-                    </h1>
+            <div class="hero__inner layout">
+                <h1 class="hero__title title-gradient" id="hero-title">
+                    Результат —<br>
+                    <span>это наша орбита</span>
+                </h1>
 
-                    <a class="btn-dream" href="#directions">
-                        <span class="btn-dream__text">Исполни свою мечту</span>
-                        <svg class="icon icon--arrow" aria-hidden="true">
-                            <use href="#arrow"></use>
-                        </svg>
-                    </a>
-                </div>
-
-                <div class="intro__stage" data-stage="welcome">
-                    <div class="welcome__head">
-                        <h2 class="welcome__title title-gradient">Welcome</h2>
-                        <p class="welcome__subtitle">В маркетинг будущего</p>
-                        <span class="welcome__divider" aria-hidden="true"></span>
-                        <p class="welcome__text">Уже более 5 лет мы закрываем любые запросы для ведущих бизнесов по
-                            всему миру</p>
-                    </div>
-
-                    <ul class="brands" aria-label="Клиенты агентства">
-                        <li class="brands__item brands__item--1">
-                            <picture>
-                                <source srcset="./assets/images/abbis_logo.webp" type="image/webp">
-                                <img src="./assets/images/abbis_logo.png" alt="Абисс" loading="lazy" decoding="async">
-                            </picture>
-                        </li>
-                        <li class="brands__item brands__item--2">
-                            <picture>
-                                <source srcset="./assets/images/business-line.webp" type="image/webp">
-                                <img src="./assets/images/business-line.png" alt="Business Line" loading="lazy"
-                                    decoding="async">
-                            </picture>
-                        </li>
-                        <li class="brands__item brands__item--3">
-                            <picture>
-                                <source srcset="./assets/images/guardant_logo.webp" type="image/webp">
-                                <img src="./assets/images/guardant_logo.png" alt="Guardant" loading="lazy"
-                                    decoding="async">
-                            </picture>
-                        </li>
-                        <li class="brands__item brands__item--4">
-                            <picture>
-                                <source srcset="./assets/images/assetdata_logo.webp" type="image/webp">
-                                <img src="./assets/images/assetdata_logo.png" alt="Assetdata" loading="lazy"
-                                    decoding="async">
-                            </picture>
-                        </li>
-                    </ul>
-                </div>
+                <a class="btn-dream" href="#directions">
+                    <span class="btn-dream__text">Исполни свою мечту</span>
+                    <svg class="icon icon--arrow" aria-hidden="true">
+                        <use href="#arrow"></use>
+                    </svg>
+                </a>
             </div>
         </section>
 
-        <section class="directions" id="directions" aria-labelledby="directions-title">
-            <div class="directions__sky" aria-hidden="true">
-                <canvas class="sky__canvas" data-starfield></canvas>
-                <div class="sky__static"></div>
+        <section class="welcome" aria-labelledby="welcome-title">
+            <div class="welcome__media" aria-hidden="true">
+                <picture>
+                    <source srcset="./assets/images/earth_zoom.webp" type="image/webp">
+                    <img class="welcome__earth" src="./assets/images/earth_zoom.png" width="1400" height="1552" alt=""
+                        loading="lazy" decoding="async">
+                </picture>
             </div>
 
+            <div class="welcome__inner layout">
+                <div class="welcome__head">
+                    <h2 class="welcome__title title-gradient" id="welcome-title">Welcome</h2>
+                    <p class="welcome__subtitle">В маркетинг будущего</p>
+                    <span class="welcome__divider" aria-hidden="true"></span>
+                    <p class="welcome__text">Уже более 5 лет мы закрываем любые запросы для ведущих бизнесов по всему
+                        миру</p>
+                </div>
+
+                <ul class="brands" aria-label="Клиенты агентства">
+                    <li class="brands__item brands__item--1">
+                        <picture>
+                            <source srcset="./assets/images/abbis_logo.webp" type="image/webp">
+                            <img src="./assets/images/abbis_logo.png" alt="Абисс" loading="lazy" decoding="async">
+                        </picture>
+                    </li>
+                    <li class="brands__item brands__item--2">
+                        <picture>
+                            <source srcset="./assets/images/business-line.webp" type="image/webp">
+                            <img src="./assets/images/business-line.png" alt="Business Line" loading="lazy"
+                                decoding="async">
+                        </picture>
+                    </li>
+                    <li class="brands__item brands__item--3">
+                        <picture>
+                            <source srcset="./assets/images/guardant_logo.webp" type="image/webp">
+                            <img src="./assets/images/guardant_logo.png" alt="Guardant" loading="lazy" decoding="async">
+                        </picture>
+                    </li>
+                    <li class="brands__item brands__item--4">
+                        <picture>
+                            <source srcset="./assets/images/assetdata_logo.webp" type="image/webp">
+                            <img src="./assets/images/assetdata_logo.png" alt="Assetdata" loading="lazy"
+                                decoding="async">
+                        </picture>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="directions layout" id="directions" aria-labelledby="directions-title">
             <picture>
                 <source srcset="./assets/images/comet-left.webp" type="image/webp">
                 <img class="comet comet--left" src="./assets/images/comet-left.png" width="300" height="321" alt=""
@@ -248,18 +222,18 @@
                     aria-hidden="true" loading="lazy" decoding="async">
             </picture>
 
-            <h2 class="directions__title" id="directions-title" data-reveal>
+            <h2 class="directions__title">
                 <span class="title-gradient">Наши ключевые</span><br>
                 <span class="accent">Направления</span>
             </h2>
 
             <ul class="cards">
-                <li class="card" data-reveal data-reveal-delay="80">
+                <li class="card">
                     <div class="card__visual">
                         <span class="card__decor card__decor--top" aria-hidden="true"></span>
                         <span class="card__decor card__decor--bottom" aria-hidden="true"></span>
 
-                        <span class="card__num" aria-hidden="true">01</span>
+                        <span class="card__num">01</span>
 
                         <ul class="tags">
                             <li class="tag">Амбассадорские программы</li>
@@ -269,9 +243,8 @@
                     </div>
 
                     <div class="card__footer">
-                        <h3 class="card__title">Реклама<br>и продвижение</h3>
-                        <button class="card__arrow" type="button" data-modal-open
-                            aria-label="Обсудить рекламу и продвижение">
+                        <h3 class="card__title">Реклама<br>и продвижение:</h3>
+                        <button class="card__arrow" type="button" aria-label="Подробнее">
                             <svg class="icon icon--card-arrow" aria-hidden="true">
                                 <use href="#arrow-corner"></use>
                             </svg>
@@ -279,18 +252,18 @@
                     </div>
                 </li>
 
-                <li class="card" data-reveal data-reveal-delay="180">
+                <li class="card">
                     <div class="card__visual">
                         <span class="card__decor card__decor--top" aria-hidden="true"></span>
                         <span class="card__decor card__decor--bottom" aria-hidden="true"></span>
 
-                        <span class="card__num" aria-hidden="true">02</span>
+                        <span class="card__num">02</span>
 
                         <ul class="tags">
                             <li class="tag">Упаковка соц сетей</li>
                             <li class="tag">Motion</li>
                             <li class="tag">Веб-дизайн</li>
-                            <li class="tag">Баннеры</li>
+                            <li class="tag">Банеры</li>
                             <li class="tag">Презентации</li>
                             <li class="tag">3D</li>
                             <li class="tag">Брендинг</li>
@@ -298,8 +271,8 @@
                     </div>
 
                     <div class="card__footer">
-                        <h3 class="card__title">Визуал<br>и дизайн</h3>
-                        <button class="card__arrow" type="button" data-modal-open aria-label="Обсудить визуал и дизайн">
+                        <h3 class="card__title">Визуал<br>и дизайн:</h3>
+                        <button class="card__arrow" type="button" aria-label="Подробнее">
                             <svg class="icon icon--card-arrow" aria-hidden="true">
                                 <use href="#arrow-corner"></use>
                             </svg>
@@ -307,12 +280,12 @@
                     </div>
                 </li>
 
-                <li class="card" data-reveal data-reveal-delay="280">
+                <li class="card">
                     <div class="card__visual">
                         <span class="card__decor card__decor--top" aria-hidden="true"></span>
                         <span class="card__decor card__decor--bottom" aria-hidden="true"></span>
 
-                        <span class="card__num" aria-hidden="true">03</span>
+                        <span class="card__num">03</span>
 
                         <ul class="tags">
                             <li class="tag">Сайты</li>
@@ -327,7 +300,7 @@
 
                     <div class="card__footer">
                         <h3 class="card__title">Разработка<br>ПО</h3>
-                        <button class="card__arrow" type="button" data-modal-open aria-label="Обсудить разработку">
+                        <button class="card__arrow" type="button" aria-label="Подробнее">
                             <svg class="icon icon--card-arrow" aria-hidden="true">
                                 <use href="#arrow-corner"></use>
                             </svg>
@@ -336,20 +309,20 @@
                 </li>
             </ul>
 
-            <div class="personal" data-reveal data-reveal-delay="360">
+            <div class="personal">
                 <h3 class="personal__title">
                     <span class="accent">Персональное</span><br>решение
                 </h3>
 
                 <div class="personal__tags">
-                    <div class="personal__row">
+                    <div class="personal__row personal__row--1">
                         <span class="tag tag--accent tag--events">Организация мероприятий</span>
                     </div>
-                    <div class="personal__row">
+                    <div class="personal__row personal__row--2">
                         <span class="tag tag--accent tag--podcast">Подкасты</span>
                         <span class="tag tag--accent tag--smm">SMM/продакшн</span>
                     </div>
-                    <div class="personal__row">
+                    <div class="personal__row personal__row--3">
                         <span class="tag tag--accent tag--shoot">Съемки</span>
                         <span class="tag tag--accent tag--edit">Монтаж</span>
                         <span class="tag tag--accent tag--any">Любое пожелание</span>
@@ -358,8 +331,6 @@
             </div>
         </section>
     </main>
-
-    <div class="offline" data-offline role="status" aria-live="polite">Нет соединения — проверьте интернет</div>
 
     <script type="module" src="./assets/js/main.js"></script>
 </body>

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>КОМЕТА — Web3 Agency</title>
+  <link rel="stylesheet" href="./index.css">
+</head>
+
+<body>
+
+  <!-- ============ SVG-СПРАЙТ ============ -->
+  <svg class="sprite" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+    <symbol id="telegram" viewBox="0 0 70 70">
+      <path
+        d="M16.3125 33.238C27.9469 28.1703 35.7032 24.8292 39.5813 23.2148C50.667 18.6053 52.9677 17.8047 54.4703 17.7776C54.8008 17.7723 55.5365 17.854 56.0166 18.2421C56.4156 18.5694 56.5278 19.0121 56.584 19.3229C56.6338 19.6334 56.7024 20.3411 56.6463 20.8935C56.0478 27.2032 53.4478 42.515 52.126 49.5823C51.5711 52.5726 50.4675 53.5752 49.4013 53.673C47.0819 53.8863 45.3237 52.1418 43.0791 50.6709C39.5688 48.3684 37.5861 46.9356 34.1756 44.6891C30.2351 42.0929 32.7914 40.6657 35.036 38.3339C35.6221 37.7235 45.8349 28.4365 46.0282 27.5942C46.0531 27.4888 46.0781 27.096 45.8412 26.889C45.6105 26.6814 45.2675 26.7525 45.0182 26.8086C44.6628 26.8884 39.0575 30.5969 28.1838 37.9336C26.5939 39.0272 25.1536 39.5603 23.8568 39.5322C22.4352 39.5017 19.6918 38.7267 17.653 38.0645C15.159 37.2521 13.1701 36.8225 13.3447 35.4427C13.432 34.7245 14.4233 33.9894 16.3125 33.238Z"
+        fill="currentColor" />
+    </symbol>
+
+    <symbol id="arrow" viewBox="0 0 21 21">
+      <path
+        d="M18.8887 20.7776C19.9319 20.7776 20.7775 19.932 20.7775 18.8888L20.7776 1.88876C20.7776 0.845559 19.9319 -0.000126958 18.8887 -0.0001297C17.8455 -0.000132442 16.9998 0.845549 16.9998 1.88875L16.9998 16.9999L1.88867 16.9998C0.845471 16.9998 -0.000214696 17.8455 -0.000217438 18.8887C-0.00022018 19.9319 0.845461 20.7776 1.88867 20.7776L18.8887 20.7776ZM1.88867 1.88867L0.553023 3.22431L17.553 20.2244L18.8887 18.8887L20.2243 17.5531L3.22432 0.55303L1.88867 1.88867Z"
+        fill="currentColor" />
+    </symbol>
+
+    <symbol id="arrow-corner" viewBox="0 0 10 10">
+      <path d="M0.467966 0.467954L0.467954 8.89844L8.89844 8.89843M0.467954 8.89844L8.89843 0.467966" fill="none"
+        stroke="currentColor" stroke-width="0.93672" stroke-linecap="round" stroke-linejoin="round" />
+    </symbol>
+  </svg>
+
+  <!-- ============ ШАПКА ============ -->
+  <header class="header">
+    <span class="header__spacer" aria-hidden="true"></span>
+
+    <div class="header__bar">
+      <a class="logo" href="#">
+        <img class="logo__img" src="./assets/images/kometa.png" alt="Комета">
+      </a>
+
+      <nav class="nav" id="nav">
+        <ul class="nav__list">
+          <li><a class="nav__link" href="#directions">Направления</a></li>
+          <li><a class="nav__link" href="#team">Команда</a></li>
+          <li><a class="nav__link" href="#cases">Кейсы</a></li>
+          <li><a class="nav__link" href="#contacts">Контакты</a></li>
+        </ul>
+
+        <a class="nav__tg" href="https://t.me/" target="_blank" rel="noopener">
+          <svg class="icon" aria-hidden="true">
+            <use href="#telegram"></use>
+          </svg>
+          <span>Telegram</span>
+        </a>
+
+        <button class="btn-request btn-request--menu" type="button">Оставить заявку</button>
+      </nav>
+
+      <button class="btn-request btn-request--bar" type="button">Оставить заявку</button>
+
+      <button class="burger" id="burger" type="button" aria-label="Меню" aria-expanded="false" aria-controls="nav">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+
+    <a class="tg-corner" href="https://t.me/" target="_blank" rel="noopener" aria-label="Telegram">
+      <svg class="icon icon--tg" aria-hidden="true">
+        <use href="#telegram"></use>
+      </svg>
+    </a>
+  </header>
+
+  <main class="layout">
+
+    <!-- ============ INTRO: HERO + WELCOME ============ -->
+    <div class="intro" id="intro">
+      <div class="intro__sticky">
+        <div class="intro__media">
+          <div class="intro__earth-wrap" id="introEarth">
+            <img class="intro__earth" src="./assets/images/earth.png" alt="">
+          </div>
+        </div>
+
+        <!-- экран 1 -->
+        <div class="intro__stage intro__stage--hero" data-stage="hero">
+          <h1 class="hero__title title-gradient">
+            Результат —<br>
+            <span>это наша орбита</span>
+          </h1>
+
+          <a class="btn-dream" href="#directions">
+            <span class="btn-dream__text">Исполни свою мечту</span>
+            <svg class="icon icon--arrow" aria-hidden="true">
+              <use href="#arrow"></use>
+            </svg>
+          </a>
+        </div>
+
+        <!-- экран 2 -->
+        <div class="intro__stage intro__stage--welcome" data-stage="welcome">
+          <div class="welcome__head">
+            <h2 class="welcome__title title-gradient">Welcome</h2>
+            <p class="welcome__subtitle">В маркетинг будущего</p>
+            <span class="welcome__divider"></span>
+            <p class="welcome__text">Уже более 5 лет мы закрываем любые запросы для ведущих бизнесов по всему миру</p>
+          </div>
+
+          <ul class="brands">
+            <li class="brands__item brands__item--1"><img src="./assets/images/abbis_logo.png" alt="Абисс"></li>
+            <li class="brands__item brands__item--2"><img src="./assets/images/business-line.png" alt="Business Line">
+            </li>
+            <li class="brands__item brands__item--3"><img src="./assets/images/guardant_logo.png" alt="Guardant"></li>
+            <li class="brands__item brands__item--4"><img src="./assets/images/assetdata_logo.png" alt="Assetdata"></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ НАПРАВЛЕНИЯ ============ -->
+    <section class="directions" id="directions">
+      <div class="directions-cover">
+
+        <!-- кометы вне контента секции -->
+        <img class="comet comet--left" src="./assets/images/comet-left.png" alt="" aria-hidden="true">
+        <img class="comet comet--right" src="./assets/images/comet-right.png" alt="" aria-hidden="true">
+
+        <h2 class="directions__title" id="directions-title">
+          <span class="title-gradient">Наши ключевые</span><br>
+          <span class="title-gradient">Направления</span>
+        </h2>
+
+        <ul class="cards">
+          <li class="card">
+            <div class="card__visual">
+              <span class="card__decor card__decor--top" aria-hidden="true"></span>
+              <span class="card__decor card__decor--bottom" aria-hidden="true"></span>
+
+              <span class="card__num">01</span>
+
+              <ul class="tags">
+                <li class="tag">Амбассадорские программы</li>
+                <li class="tag">Performance marketing</li>
+                <li class="tag">Закупка</li>
+              </ul>
+            </div>
+
+            <div class="card__footer">
+              <h3 class="card__title">Реклама<br>и продвижение:</h3>
+              <button class="card__arrow" type="button" aria-label="Подробнее">
+                <svg class="icon icon--card-arrow" aria-hidden="true">
+                  <use href="#arrow-corner"></use>
+                </svg>
+              </button>
+            </div>
+          </li>
+
+          <li class="card">
+            <div class="card__visual">
+              <span class="card__decor card__decor--top" aria-hidden="true"></span>
+              <span class="card__decor card__decor--bottom" aria-hidden="true"></span>
+
+              <span class="card__num">02</span>
+
+              <ul class="tags">
+                <li class="tag">Упаковка соц сетей</li>
+                <li class="tag">Motion</li>
+                <li class="tag">Веб-дизайн</li>
+                <li class="tag">Банеры</li>
+                <li class="tag">Презентации</li>
+                <li class="tag">3D</li>
+                <li class="tag">Брендинг</li>
+              </ul>
+            </div>
+
+            <div class="card__footer">
+              <h3 class="card__title">Визуал<br>и дизайн:</h3>
+              <button class="card__arrow" type="button" aria-label="Подробнее">
+                <svg class="icon icon--card-arrow" aria-hidden="true">
+                  <use href="#arrow-corner"></use>
+                </svg>
+              </button>
+            </div>
+          </li>
+
+          <li class="card">
+            <div class="card__visual">
+              <span class="card__decor card__decor--top" aria-hidden="true"></span>
+              <span class="card__decor card__decor--bottom" aria-hidden="true"></span>
+
+              <span class="card__num">03</span>
+
+              <ul class="tags">
+                <li class="tag">Сайты</li>
+                <li class="tag">CRM</li>
+                <li class="tag">Мобильные приложения</li>
+                <li class="tag">Web платформы</li>
+                <li class="tag">Mini-App</li>
+                <li class="tag">Экосистемы</li>
+                <li class="tag">ПО</li>
+              </ul>
+            </div>
+
+            <div class="card__footer">
+              <h3 class="card__title">Разработка<br>ПО</h3>
+              <button class="card__arrow" type="button" aria-label="Подробнее">
+                <svg class="icon icon--card-arrow" aria-hidden="true">
+                  <use href="#arrow-corner"></use>
+                </svg>
+              </button>
+            </div>
+          </li>
+        </ul>
+
+        <div class="personal">
+          <h3 class="personal__title">
+            <span class="accent">Персональное</span><br>решение
+          </h3>
+
+          <div class="personal__tags">
+            <div class="personal__row personal__row--1">
+              <span class="tag tag--accent tag--events">Организация мероприятий</span>
+            </div>
+            <div class="personal__row personal__row--2">
+              <span class="tag tag--accent tag--podcast">Подкасты</span>
+              <span class="tag tag--accent tag--smm">SMM/продакшн</span>
+            </div>
+            <div class="personal__row personal__row--3">
+              <span class="tag tag--accent tag--shoot">Съемки</span>
+              <span class="tag tag--accent tag--edit">Монтаж</span>
+              <span class="tag tag--accent tag--any">Любое пожелание</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer"></footer>
+
+  <script src="./intro.js"></script>
+</body>
+
+</html>

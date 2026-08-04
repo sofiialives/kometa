@@ -3,7 +3,7 @@ const MIN_VISIBLE = 1400;
 const MAX_VISIBLE = 4000;
 const ONCE_PER_SESSION = false;
 
-export function initLoader({ loader, reduceMotion = false }) {
+export function initLoader({ loader }) {
     if (!loader) return;
 
     const seen = ONCE_PER_SESSION && sessionStorage.getItem(STORAGE_KEY) === '1';
@@ -16,10 +16,10 @@ export function initLoader({ loader, reduceMotion = false }) {
         sessionStorage.setItem(STORAGE_KEY, '1');
         setTimeout(() => {
             loader.hidden = true;
-        }, 700);
+        }, 600);
     };
 
-    if (seen || reduceMotion) {
+    if (seen) {
         loader.hidden = true;
         document.body.classList.remove('is-locked');
         return;
