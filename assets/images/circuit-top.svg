@@ -1,0 +1,53 @@
+<svg viewBox="0 0 282 161" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
+<mask id="mask0_208_13753" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="282" height="161">
+<rect x="0" y="0" width="282" height="161" fill="url(#paint0_radial_208_13753)"/>
+</mask>
+<g mask="url(#mask0_208_13753)">
+<mask id="mask1_208_13753" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="8" y="5" width="262" height="148">
+<path d="M18.75 6.74902H260C262.58 6.74902 264.863 7.42476 266.468 8.45801C268.084 9.49878 268.886 10.8036 268.886 12.0752V145.705C268.886 146.977 268.084 148.281 266.468 149.321C264.863 150.355 262.58 151.03 260 151.03H18.75C16.1703 151.03 13.8866 150.355 12.2822 149.321C10.6664 148.281 9.86439 146.977 9.86426 145.705V12.0752C9.86426 10.8036 10.6662 9.49877 12.2822 8.45801C13.8866 7.42476 16.1703 6.74902 18.75 6.74902Z" fill="white" stroke="white" stroke-width="2.22868"/>
+</mask>
+<g mask="url(#mask1_208_13753)">
+<path d="M-16.875 49.9104H137.044L155.188 34.2129H273.125" stroke="currentColor" stroke-width="2.22868" stroke-linecap="round"/>
+<path d="M-13.125 45.885H130.977L149.93 30.1875H273.125" stroke="currentColor" stroke-width="2.22868" stroke-linecap="round"/>
+<path d="M-18.125 41.8596H123.176L143.169 26.1621H273.125" stroke="currentColor" stroke-width="2.22868" stroke-linecap="round"/>
+<path d="M-14.375 37.8352H117.109L137.911 22.1377H273.125" stroke="currentColor" stroke-width="2.22868" stroke-linecap="round"/>
+<path d="M-18.75 33.8098H109.741L131.526 18.1123H273.125" stroke="currentColor" stroke-width="2.22868" stroke-linecap="round"/>
+<path d="M-16.25 29.7854H102.808L125.516 14.0879H273.125" stroke="currentColor" stroke-width="2.22868" stroke-linecap="round"/>
+<path d="M-18.75 25.76H96.74L120.258 10.0625H273.125" stroke="currentColor" stroke-width="2.22868" stroke-linecap="round"/>
+<path d="M-16.25 21.7346H89.8057L114.248 6.03711H273.125" stroke="currentColor" stroke-width="2.22868" stroke-linecap="round"/>
+<path d="M-14.375 17.7102H82.4382L107.863 2.0127H273.125" stroke="currentColor" stroke-width="2.22868" stroke-linecap="round"/>
+<path d="M-20.625 13.6848H78.1044L104.108 -2.0127L273.125 -2.01269" stroke="currentColor" stroke-width="2.22868" stroke-linecap="round"/>
+<path d="M-15.625 9.66039H72.9038L99.6 -6.03711L273.125 -6.03711" stroke="currentColor" stroke-width="2.22868" stroke-linecap="round"/>
+<path d="M-25.625 5.635H65.97L93.5907 -10.0625H273.125" stroke="currentColor" stroke-width="2.22868" stroke-linecap="round"/>
+<path d="M64.375 53.9348H139.727L158.68 38.2373H281.875" stroke="currentColor" stroke-width="2.22868" stroke-linecap="round"/>
+<path d="M64.375 57.9602H142.409L162.172 42.2627H290.625" stroke="currentColor" stroke-width="2.22868" stroke-linecap="round"/>
+<path d="M64.375 61.9846H145.093L165.663 46.2871H299.375" stroke="currentColor" stroke-width="2.22868" stroke-linecap="round"/>
+<path d="M8.125 87.3428H137.044L155.188 103.04H273.125" stroke="currentColor" stroke-width="2.22868" stroke-linecap="round"/>
+<path d="M5.625 91.3672H130.977L149.93 107.065H273.125" stroke="currentColor" stroke-width="2.22868" stroke-linecap="round"/>
+<path d="M6.875 95.3926H123.176L143.169 111.09H273.125" stroke="currentColor" stroke-width="2.22868" stroke-linecap="round"/>
+<path d="M4.375 99.418H117.109L137.911 115.115H273.125" stroke="currentColor" stroke-width="2.22868" stroke-linecap="round"/>
+<path d="M6.25 103.442H109.741L131.526 119.14H273.125" stroke="currentColor" stroke-width="2.22868" stroke-linecap="round"/>
+<path d="M8.75 107.468H102.808L125.516 123.165H273.125" stroke="currentColor" stroke-width="2.22868" stroke-linecap="round"/>
+<path d="M6.25 111.492H96.74L120.258 127.19H273.125" stroke="currentColor" stroke-width="2.22868" stroke-linecap="round"/>
+<path d="M8.75 115.518H89.8057L114.248 131.215H273.125" stroke="currentColor" stroke-width="2.22868" stroke-linecap="round"/>
+<path d="M-1.875 119.543H82.4382L107.863 135.24H273.125" stroke="currentColor" stroke-width="2.22868" stroke-linecap="round"/>
+<path d="M-8.125 123.567H78.1044L104.108 139.265H273.125" stroke="currentColor" stroke-width="2.22868" stroke-linecap="round"/>
+<path d="M-15.625 127.593H72.9038L99.6 143.29H273.125" stroke="currentColor" stroke-width="2.22868" stroke-linecap="round"/>
+<path d="M-25.625 131.617H65.97L93.5907 147.315H273.125" stroke="currentColor" stroke-width="2.22868" stroke-linecap="round"/>
+<path d="M-30 135.643H62.9363L90.9613 151.34H273.125" stroke="currentColor" stroke-width="2.22868" stroke-linecap="round"/>
+<path d="M-36.25 139.668H58.6025L87.2057 155.365H273.125" stroke="currentColor" stroke-width="2.22868" stroke-linecap="round"/>
+<path d="M-44.375 143.692H52.9687L82.3232 159.39H273.125" stroke="currentColor" stroke-width="2.22868" stroke-linecap="round"/>
+<path d="M8.125 83.3174H139.727L158.68 99.0149H281.875" stroke="currentColor" stroke-width="2.22868" stroke-linecap="round"/>
+<path d="M64.375 79.293H142.409L162.172 94.9905H290.625" stroke="currentColor" stroke-width="2.22868" stroke-linecap="round"/>
+<path d="M64.375 75.2676H145.093L165.663 90.9651H299.375" stroke="currentColor" stroke-width="2.22868" stroke-linecap="round"/>
+</g>
+</g>
+<defs>
+<radialGradient id="paint0_radial_208_13753" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(141 80.5) scale(178 116)">
+<stop stop-color="#FFFFFF"/>
+<stop offset="0.42" stop-color="#FFFFFF" stop-opacity="0.85"/>
+<stop offset="0.72" stop-color="#FFFFFF" stop-opacity="0.35"/>
+<stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+</radialGradient>
+</defs>
+</svg>

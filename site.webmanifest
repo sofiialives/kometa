@@ -1,0 +1,14 @@
+{
+    "name": "КОМЕТА — Web3 Agency",
+    "short_name": "КОМЕТА",
+    "description": "Web3-агентство полного цикла: маркетинг, дизайн и разработка.",
+    "lang": "ru",
+    "start_url": "/",
+    "scope": "/",
+    "display": "standalone",
+    "background_color": "#0E0E0E",
+    "theme_color": "#0E0E0E",
+    "icons": [
+        { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+    ]
+}
