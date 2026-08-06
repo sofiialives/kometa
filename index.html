@@ -139,9 +139,18 @@
 
         <section class="hero" aria-labelledby="hero-title">
             <div class="hero__media" aria-hidden="true">
+                <div class="hero__comet">
+                    <span class="hero__comet-glow"></span>
+                    <picture>
+                        <source srcset="./assets/images/comet-hero.webp" type="image/webp">
+                        <img class="hero__comet-img" src="./assets/images/comet-hero.png" width="1022" height="712"
+                            alt="" decoding="async">
+                    </picture>
+                </div>
+
                 <picture>
                     <source srcset="./assets/images/earth.webp" type="image/webp">
-                    <img class="hero__earth" src="./assets/images/earth.png" width="1600" height="1600" alt=""
+                    <img class="hero__earth" src="./assets/images/earth.png" width="2560" height="2560" alt=""
                         fetchpriority="high">
                 </picture>
             </div>
@@ -165,7 +174,7 @@
             <div class="welcome__media" aria-hidden="true">
                 <picture>
                     <source srcset="./assets/images/earth_zoom.webp" type="image/webp">
-                    <img class="welcome__earth" src="./assets/images/earth_zoom.png" width="1400" height="1552" alt=""
+                    <img class="welcome__earth" src="./assets/images/earth_zoom.png" width="2200" height="2439" alt=""
                         loading="lazy" decoding="async">
                 </picture>
             </div>
