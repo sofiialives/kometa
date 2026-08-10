@@ -1,42 +1,31 @@
-const STORAGE_KEY = 'kometa:intro-shown';
-const MIN_VISIBLE = 1400;
-const MAX_VISIBLE = 4000;
-const ONCE_PER_SESSION = false;
+const MIN_VISIBLE = 900;
+const MAX_VISIBLE = 10000;
 
 export function initLoader({ loader }) {
-    if (!loader) return;
+    if (!loader) return null;
 
-    const seen = ONCE_PER_SESSION && sessionStorage.getItem(STORAGE_KEY) === '1';
+    const shownAt = performance.now();
+    let hidden = false;
 
     const hide = () => {
-        if (loader.classList.contains('is-done')) return;
+        if (hidden) return;
+        hidden = true;
         loader.classList.add('is-done');
         loader.setAttribute('aria-hidden', 'true');
         document.body.classList.remove('is-locked');
-        sessionStorage.setItem(STORAGE_KEY, '1');
         setTimeout(() => {
             loader.hidden = true;
         }, 600);
     };
 
-    if (seen) {
-        loader.hidden = true;
-        document.body.classList.remove('is-locked');
-        return;
-    }
+    const safety = setTimeout(hide, MAX_VISIBLE);
 
-    const shownAt = performance.now();
-
-    const finish = () => {
-        const elapsed = performance.now() - shownAt;
-        setTimeout(hide, Math.max(0, MIN_VISIBLE - elapsed));
+    return {
+        release() {
+            clearTimeout(safety);
+            const elapsed = performance.now() - shownAt;
+            setTimeout(hide, Math.max(0, MIN_VISIBLE - elapsed));
+        },
+        hide
     };
-
-    if (document.readyState === 'complete') {
-        finish();
-    } else {
-        window.addEventListener('load', finish, { once: true });
-    }
-
-    setTimeout(hide, MAX_VISIBLE);
 }

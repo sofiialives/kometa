@@ -1,7 +1,19 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="КОМЕТА">
+    <defs>
+        <linearGradient id="t" x1="10" y1="54" x2="45" y2="19" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#4BBCFC" stop-opacity="0"/>
+            <stop offset=".55" stop-color="#7CD0FF" stop-opacity=".5"/>
+            <stop offset="1" stop-color="#EAF6FF"/>
+        </linearGradient>
+        <radialGradient id="h" cx="45" cy="19" r="13" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#DDF1FF" stop-opacity=".95"/>
+            <stop offset=".45" stop-color="#7CD0FF" stop-opacity=".45"/>
+            <stop offset="1" stop-color="#4BBCFC" stop-opacity="0"/>
+        </radialGradient>
+    </defs>
     <rect width="64" height="64" rx="14" fill="#0E0E0E"/>
-    <path d="M8 52 38 22" stroke="#4BBCFC" stroke-width="3" stroke-linecap="round" opacity=".55"/>
-    <path d="M14 54 42 26" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" opacity=".35"/>
-    <circle cx="44" cy="20" r="8" fill="#FFFFFF"/>
-    <circle cx="44" cy="20" r="12" fill="#4BBCFC" opacity=".28"/>
+    <path d="M11 53 45 19" stroke="url(#t)" stroke-width="9" stroke-linecap="round" opacity=".75"/>
+    <path d="M13 55 45 20" stroke="url(#t)" stroke-width="3.4" stroke-linecap="round"/>
+    <circle cx="45" cy="19" r="12" fill="url(#h)"/>
+    <circle cx="45" cy="19" r="4.6" fill="#FFFFFF"/>
 </svg>

@@ -2,4 +2,12 @@ User-agent: *
 Allow: /
 Disallow: /404.html
 
+User-agent: GPTBot
+Allow: /
+
+User-agent: Yandex
+Allow: /
+Clean-param: utm_source&utm_medium&utm_campaign&utm_term&utm_content&fbclid&gclid&yclid
+
+Host: https://kometa.agency
 Sitemap: https://kometa.agency/sitemap.xml
