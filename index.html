@@ -135,89 +135,17 @@
         </a>
     </header>
 
+    <div class="scroll-video" data-video-holder aria-hidden="true">
+        <video class="scroll-video__el" data-scroll-video muted playsinline preload="auto"
+            poster="./assets/images/earth.png">
+            <source src="./assets/video/hero.webm" type="video/webm">
+            <source src="./assets/video/hero.mp4" type="video/mp4">
+        </video>
+    </div>
+
     <main id="main">
 
-        <section class="hero" aria-labelledby="hero-title">
-            <div class="hero__media" aria-hidden="true">
-                <div class="hero__comet">
-                    <span class="hero__comet-glow"></span>
-                    <picture>
-                        <source srcset="./assets/images/comet-hero.webp" type="image/webp">
-                        <img class="hero__comet-img" src="./assets/images/comet-hero.png" width="1022" height="712"
-                            alt="" decoding="async">
-                    </picture>
-                </div>
-
-                <picture>
-                    <source srcset="./assets/images/earth.webp" type="image/webp">
-                    <img class="hero__earth" src="./assets/images/earth.png" width="2560" height="2560" alt=""
-                        fetchpriority="high">
-                </picture>
-            </div>
-
-            <div class="hero__inner layout">
-                <h1 class="hero__title title-gradient" id="hero-title">
-                    Результат —<br>
-                    <span>это наша орбита</span>
-                </h1>
-
-                <a class="btn-dream" href="#directions">
-                    <span class="btn-dream__text">Исполни свою мечту</span>
-                    <svg class="icon icon--arrow" aria-hidden="true">
-                        <use href="#arrow"></use>
-                    </svg>
-                </a>
-            </div>
-        </section>
-
-        <section class="welcome" aria-labelledby="welcome-title">
-            <div class="welcome__media" aria-hidden="true">
-                <picture>
-                    <source srcset="./assets/images/earth_zoom.webp" type="image/webp">
-                    <img class="welcome__earth" src="./assets/images/earth_zoom.png" width="2200" height="2439" alt=""
-                        loading="lazy" decoding="async">
-                </picture>
-            </div>
-
-            <div class="welcome__inner layout">
-                <div class="welcome__head">
-                    <h2 class="welcome__title title-gradient" id="welcome-title">Welcome</h2>
-                    <p class="welcome__subtitle">В маркетинг будущего</p>
-                    <span class="welcome__divider" aria-hidden="true"></span>
-                    <p class="welcome__text">Уже более 5 лет мы закрываем любые запросы для ведущих бизнесов по всему
-                        миру</p>
-                </div>
-
-                <ul class="brands" aria-label="Клиенты агентства">
-                    <li class="brands__item brands__item--1">
-                        <picture>
-                            <source srcset="./assets/images/abbis_logo.webp" type="image/webp">
-                            <img src="./assets/images/abbis_logo.png" alt="Абисс" loading="lazy" decoding="async">
-                        </picture>
-                    </li>
-                    <li class="brands__item brands__item--2">
-                        <picture>
-                            <source srcset="./assets/images/business-line.webp" type="image/webp">
-                            <img src="./assets/images/business-line.png" alt="Business Line" loading="lazy"
-                                decoding="async">
-                        </picture>
-                    </li>
-                    <li class="brands__item brands__item--3">
-                        <picture>
-                            <source srcset="./assets/images/guardant_logo.webp" type="image/webp">
-                            <img src="./assets/images/guardant_logo.png" alt="Guardant" loading="lazy" decoding="async">
-                        </picture>
-                    </li>
-                    <li class="brands__item brands__item--4">
-                        <picture>
-                            <source srcset="./assets/images/assetdata_logo.webp" type="image/webp">
-                            <img src="./assets/images/assetdata_logo.png" alt="Assetdata" loading="lazy"
-                                decoding="async">
-                        </picture>
-                    </li>
-                </ul>
-            </div>
-        </section>
+        <div class="stage" data-video-scene></div>
 
         <section class="directions layout" id="directions" aria-labelledby="directions-title">
             <picture>

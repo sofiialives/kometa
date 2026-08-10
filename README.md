@@ -1,10 +1,10 @@
 # КОМЕТА — Web3 Agency
 
-Одностраничный сайт агентства: скролл-сцена с планетой, звёздное небо на canvas, карточки направлений.
+Одностраничный сайт агентства. Первые две секции — 3D-глобус на Three.js: планета вращается вокруг оси, при скролле камера приближается. Третья секция статичная.
 
 ## Стек
 
-Vanilla HTML / CSS / JavaScript (ES Modules). Без сборщика и зависимостей.
+Vanilla HTML / CSS / JavaScript (ES Modules) + Three.js. Без сборщика.
 
 ## Структура
 
@@ -12,24 +12,41 @@ Vanilla HTML / CSS / JavaScript (ES Modules). Без сборщика и зав�
 .
 ├── index.html
 ├── 404.html
-├── favicon.svg
 ├── robots.txt
 ├── sitemap.xml
 ├── site.webmanifest
+├── favicon.ico
+├── favicon-16.png
+├── favicon-32.png
+├── apple-touch-icon.png
+├── icon-192.png
+├── icon-512.png
 └── assets
-    ├── css/main.css
-    ├── fonts/
-    ├── images/
+    ├── css
+    │   └── main.css
+    ├── fonts
+    │   ├── Nekst-Regular.woff2
+    │   ├── Nekst-Medium.woff2
+    │   ├── Nekst-Bold.woff2
+    │   └── Radiotechnika.woff2
+    ├── images
+    │   ├── earth-map.webp        текстура Земли для глобуса (4096×2048)
+    │   ├── earth-map-2k.webp     облегчённая версия (2048×1024)
+    │   ├── earth.png / .webp     статичный фолбэк первой секции
+    │   ├── earth_zoom.png/.webp  статичный фолбэк второй секции
+    │   ├── stars.png / .webp     звёздный фон
+    │   ├── comet-hero.png/.webp  комета в первой секции
+    │   ├── comet-left / -right   кометы третьей секции
+    │   ├── card-bg, card-outer-bg, personal-bg
+    │   ├── circuit-top.svg, circuit-bottom.svg
+    │   └── логотипы клиентов
     └── js
-        ├── main.js
-        └── modules
-            ├── intro.js
-            ├── loader.js
-            ├── menu.js
-            ├── modal.js
-            ├── network.js
-            ├── reveal.js
-            └── starfield.js
+        ├── main.js               точка входа
+        ├── modules
+        │   ├── globe.js          3D-сцена: вращение и зум
+        │   └── loader.js         прелоадер
+        └── vendor
+            └── three.module.js   Three.js 0.160
 ```
 
 ## Запуск
@@ -38,40 +55,35 @@ ES-модули требуют HTTP, через `file://` работать не 
 
 ```bash
 npx serve .
-# или
-python3 -m http.server 5500
 ```
 
-## Модули
+Откроется на http://localhost:3000
 
-| Модуль | Задача |
+## Глобус
+
+Сцена живёт в `<div class="stage" data-globe-scene>`, который оборачивает первые две секции. Канвас лежит `position: fixed` под контентом и показывается только пока `.stage` в зоне видимости.
+
+Настройки — в начале `assets/js/modules/globe.js`:
+
+| Константа | Назначение |
 | --- | --- |
-| `intro.js` | Скролл-сцена: зум планеты, смена экранов, блокировка обратной прокрутки |
-| `starfield.js` | Звёзды на canvas: 3 слоя параллакса, мерцание, пролетающие кометы |
-| `menu.js` | Бургер-меню: focus trap, Escape, клик вне зоны |
-| `modal.js` | Модалка заявки: валидация, состояния loading/success/error |
-| `reveal.js` | Появление блоков по IntersectionObserver |
-| `loader.js` | Прелоадер-созвездие, один раз за сессию |
-| `network.js` | Индикатор потери соединения |
+| `SPIN_SPEED` | Скорость вращения вокруг оси |
+| `CAM_START` | Дистанция камеры в начале первой секции |
+| `CAM_END` | Дистанция в конце второй секции |
+| `TILT` | Наклон оси планеты |
+| `LIGHT_DIR` | Направление солнца |
 
-## Настройка
+Атмосферное свечение задаётся шейдером в том же файле: `uColor` — цвет, `uStrength` — сила, `uPower` — резкость края.
 
-Токены дизайн-системы — в `:root` файла `assets/css/main.css`: цвета, типографическая шкала (`--step-*`), отступы, радиусы, длительности анимаций, `--side` и `--content` для сетки.
-
-Параметры сцены — константы в начале `assets/js/modules/intro.js`.
-Плотность звёзд и частота комет — массив `LAYERS` и `COMET_*` в `assets/js/modules/starfield.js`.
+Если WebGL недоступен или JS отключён, класс `globe-ready` не появится и останутся статичные `earth.png` и `earth_zoom.png` — вёрстка не сломается.
 
 ## Перед деплоем
 
 1. Заменить `https://kometa.agency/` на реальный домен в `index.html`, `robots.txt`, `sitemap.xml`.
 2. Указать ссылку на Telegram вместо `https://t.me/`.
-3. Подключить приём заявок: функция `send()` в `assets/js/modules/modal.js` сейчас имитирует запрос.
-4. Включить сжатие (Brotli/gzip) и кэширование статики на сервере.
+3. Повесить обработчик на кнопку «Оставить заявку».
+4. Включить сжатие и кэширование статики на сервере.
 
-## Доступность
+## Деплой
 
-Семантические теги, `aria-*` на интерактивных элементах, skip-link, видимый фокус, focus trap в меню и модалке, полная поддержка `prefers-reduced-motion`.
-
-## Производительность
-
-Изображения в WebP с PNG-фолбэком, `loading="lazy"` вне первого экрана, `width`/`height` против CLS, preload основного шрифта, `font-display: swap`, canvas останавливается вне вьюпорта и при скрытой вкладке, `devicePixelRatio` ограничен двойкой.
+Инструкция по GitHub Pages — в `DEPLOY.md`.

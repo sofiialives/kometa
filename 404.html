@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#0E0E0E">
     <title>Страница не найдена — КОМЕТА</title>
     <meta name="description" content="Страница улетела с орбиты. Вернитесь на главную сайта агентства КОМЕТА.">
@@ -14,19 +14,12 @@
 </head>
 
 <body>
-    <a class="skip-link" href="#main">Перейти к содержимому</a>
-
     <main class="error-page" id="main">
-        <div class="directions__sky" aria-hidden="true">
-            <canvas class="sky__canvas" data-starfield></canvas>
-            <div class="sky__static"></div>
-        </div>
-
         <div>
             <p class="error-page__code title-gradient">404</p>
             <h1 class="error-page__title">Страница ушла с орбиты</h1>
-            <p class="error-page__text">Адрес не существует или материал перенесён. Вернитесь на главную — там всё
-                на своих местах.</p>
+            <p class="error-page__text">Адрес не существует или материал перенесён. Вернитесь на главную — там всё на
+                своих местах.</p>
 
             <div class="error-page__actions">
                 <a class="btn btn--primary" href="/">На главную</a>
@@ -34,17 +27,6 @@
             </div>
         </div>
     </main>
-
-    <script type="module">
-        import { initStarfield } from './assets/js/modules/starfield.js';
-
-        document.documentElement.classList.remove('no-js');
-
-        initStarfield({
-            canvas: document.querySelector('[data-starfield]'),
-            reduceMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches
-        });
-    </script>
 </body>
 
 </html>
