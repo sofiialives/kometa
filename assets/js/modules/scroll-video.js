@@ -1,8 +1,13 @@
-export function initScrollVideo({ video, scene, holder, hint, reduceMotion = false }) {
+const SWITCH_DELAY = 120;
+const UNLOCK_DELAY = 2130;
+
+export function initScrollVideo({ video, scene, holder, hint, screens, reduceMotion = false }) {
     if (!video || !scene || !holder) return;
 
     let started = false;
-    let finished = false;
+    let unlocked = false;
+    let switchTimer = 0;
+    let unlockTimer = 0;
 
     const detach = () => {
         window.removeEventListener('wheel', onWheel);
@@ -10,22 +15,24 @@ export function initScrollVideo({ video, scene, holder, hint, reduceMotion = fal
         window.removeEventListener('keydown', onKey);
     };
 
-    const finish = () => {
-        if (finished) return;
-        finished = true;
-        try {
-            video.pause();
-        } catch (e) {}
+    const showWelcome = () => {
+        clearTimeout(switchTimer);
+        screens?.switch();
+    };
+
+    const unlock = () => {
+        if (unlocked) return;
+        unlocked = true;
+        clearTimeout(unlockTimer);
         document.body.classList.remove('is-locked');
-        holder.classList.add('is-done');
         if (hint) hint.classList.remove('is-visible');
         detach();
     };
 
     const start = () => {
-        if (started || finished) return;
+        if (started) return;
         started = true;
-        holder.classList.add('is-playing', 'is-ready');
+        holder.classList.add('is-playing');
         if (hint) hint.classList.remove('is-visible');
 
         if (video.readyState === 0) video.load();
@@ -35,9 +42,13 @@ export function initScrollVideo({ video, scene, holder, hint, reduceMotion = fal
         if (promise && typeof promise.catch === 'function') {
             promise.catch((error) => {
                 console.warn('[kometa] воспроизведение отклонено:', error && error.name);
-                finish();
+                showWelcome();
+                unlock();
             });
         }
+
+        switchTimer = setTimeout(showWelcome, SWITCH_DELAY);
+        unlockTimer = setTimeout(unlock, UNLOCK_DELAY);
     };
 
     const atScene = () => {
@@ -46,8 +57,7 @@ export function initScrollVideo({ video, scene, holder, hint, reduceMotion = fal
     };
 
     function onWheel(event) {
-        if (finished) return;
-        if (!atScene()) return;
+        if (unlocked || !atScene()) return;
         if (event.deltaY <= 0) return;
         event.preventDefault();
         start();
@@ -57,30 +67,27 @@ export function initScrollVideo({ video, scene, holder, hint, reduceMotion = fal
 
     const onTouchStart = (event) => {
         touchY = event.touches[0].clientY;
+        if (!unlocked && atScene()) start();
     };
 
     function onTouchMove(event) {
-        if (finished) return;
-        if (!atScene()) return;
+        if (unlocked || !atScene()) return;
         event.preventDefault();
-        if (event.touches[0].clientY < touchY) start();
+        start();
     }
 
     const KEYS = [32, 33, 34, 35, 36, 38, 40];
 
     function onKey(event) {
-        if (finished) return;
-        if (!atScene()) return;
+        if (unlocked || !atScene()) return;
         if (KEYS.indexOf(event.keyCode) === -1) return;
         event.preventDefault();
         start();
     }
 
-    video.addEventListener('ended', finish);
-
-    video.addEventListener('timeupdate', () => {
-        if (!started || !video.duration) return;
-        if (video.currentTime >= video.duration - 0.06) finish();
+    video.addEventListener('ended', () => {
+        showWelcome();
+        unlock();
     });
 
     video.addEventListener('loadeddata', () => {
@@ -90,10 +97,15 @@ export function initScrollVideo({ video, scene, holder, hint, reduceMotion = fal
     video.addEventListener('error', () => {
         console.warn('[kometa] видео не загрузилось');
         holder.classList.add('is-ready');
+        showWelcome();
+        unlock();
     }, { once: true });
 
     const sync = () => {
-        if (finished || started) return;
+        const rect = scene.getBoundingClientRect();
+        holder.classList.toggle('is-past', rect.bottom <= 0);
+
+        if (unlocked || started) return;
 
         if (atScene()) {
             document.body.classList.add('is-locked');
@@ -113,12 +125,12 @@ export function initScrollVideo({ video, scene, holder, hint, reduceMotion = fal
     window.addEventListener('keydown', onKey);
 
     holder.addEventListener('click', start);
+    scene.addEventListener('click', start);
 
     if (reduceMotion) {
-        video.addEventListener('loadeddata', () => {
-            video.currentTime = Math.max((video.duration || 1) - 0.05, 0);
-            finish();
-        }, { once: true });
+        screens?.showAll();
+        unlock();
+        return;
     }
 
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
