@@ -405,12 +405,26 @@ button {
 /* =========================================================
    НАПРАВЛЕНИЯ
    ========================================================= */
-.directions {
+.sky {
     position: relative;
     z-index: 2;
-    padding-block: 124px;
+    isolation: isolate;
+}
+
+.sky::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--bg) url('../images/stars.png') left top repeat;
+    pointer-events: none;
+}
+
+.directions {
+    position: relative;
+    padding-block: 124px 0;
     padding-inline: var(--side);
-    background: var(--bg) url('../images/stars.png') center / cover no-repeat;
+    overflow: hidden;
 }
 
 /* --- кометы в боковых полях --- */
@@ -843,11 +857,22 @@ button {
     border-color: var(--white);
 }
 
-.js body {
-    background: var(--bg) url('../images/stars.png') center top / cover no-repeat fixed;
-}
+@media (prefers-reduced-motion: reduce) {
+    [data-reveal] {
+        opacity: 1;
+        transform: none;
+        transition: none;
+    }
 
-@media (prefers-reduced-motion: reduce) {}
+    .astronaut__stage {
+        animation: none;
+    }
+
+    .astronaut__title .char {
+        opacity: 1;
+        animation: none;
+    }
+}
 
 @supports (background-image: image-set(url("x.webp") type("image/webp"))) {
     body {
@@ -891,11 +916,6 @@ button {
         background-image: -webkit-image-set(url('../images/personal-bg.webp') type('image/webp'),
                 url('../images/personal-bg.png') type('image/png'));
     }
-}
-
-.directions {
-    content-visibility: auto;
-    contain-intrinsic-size: auto 1400px;
 }
 
 @supports not ((-webkit-mask-composite: source-in) or (mask-composite: intersect)) {
@@ -1335,8 +1355,8 @@ button {
 .scroll-hint {
     position: fixed;
     right: var(--side);
-    bottom: 28px;
-    left: auto;
+    bottom: 22%;
+    left: 16%;
     z-index: 5;
     display: flex;
     flex-direction: column;
@@ -1495,6 +1515,11 @@ button {
     }
 }
 
+
+.js body {
+    background: var(--bg);
+}
+
 .no-js .anim {
     opacity: 1;
 }
@@ -1507,36 +1532,10 @@ button {
     opacity: 0;
 }
 
-.astronaut,
 .crew {
     position: relative;
-    z-index: 2;
-}
-
-.astronaut {
-    position: relative;
-    padding-block: 40px 0;
+    padding-block: 0 124px;
     padding-inline: var(--side);
-    background: url('../images/stars.png') center / cover no-repeat;
-}
-
-.astronaut picture {
-    display: block;
-    width: 100%;
-    max-width: var(--content);
-    margin-inline: auto;
-}
-
-.astronaut__img {
-    width: 100%;
-    height: auto;
-}
-
-.crew {
-    position: relative;
-    padding-block: 124px;
-    padding-inline: var(--side);
-    background: url('../images/stars.png') center / cover no-repeat;
 }
 
 .crew__title {
@@ -1605,6 +1604,7 @@ button {
     height: 100%;
     object-fit: cover;
     display: block;
+    padding: 15px 0 15px 15px;
 }
 
 .crew-card__body {
@@ -1641,7 +1641,8 @@ button {
 }
 
 @supports (background-image: image-set(url("x.webp") type("image/webp"))) {
-    .directions {
+
+    .sky::before {
         background-image: image-set(url('../images/stars.webp') type('image/webp'),
                 url('../images/stars.png') type('image/png'));
     }
@@ -1665,4 +1666,150 @@ button {
         background-image: image-set(url('../images/crew4-card-bg.webp') type('image/webp'),
                 url('../images/crew4-card-bg.png') type('image/png'));
     }
+}
+
+.astronaut__img {
+    width: 724px;
+    display: block;
+}
+
+.astronaut__line {
+    display: block;
+    white-space: nowrap;
+}
+
+.no-js .astronaut__title .char {
+    opacity: 1;
+    filter: none;
+    transform: none;
+}
+
+.astronaut__glow {
+    position: absolute;
+    z-index: 1;
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: .4;
+}
+
+.astronaut__glow--white {
+    left: -30%;
+    bottom: 62%;
+    width: 52vw;
+    height: 52vw;
+    background: radial-gradient(circle, #FFFFFF 0%, rgba(255, 255, 255, .55) 38%, rgba(255, 255, 255, 0) 72%);
+    filter: blur(120px);
+}
+
+.astronaut__glow--blue {
+    right: -30%;
+    top: 36%;
+    width: 52vw;
+    height: 52vw;
+    background: radial-gradient(circle, #4BBCFC 0%, rgba(75, 188, 252, .55) 40%, rgba(75, 188, 252, 0) 74%);
+    filter: blur(120px);
+}
+
+@keyframes astroFloat {
+    0% {
+        transform: scale(1) translate3d(0, 0, 0) rotate(0deg);
+    }
+
+    22% {
+        transform: scale(1.05) translate3d(-14px, -18px, 0) rotate(-1.4deg);
+    }
+
+    46% {
+        transform: scale(1.11) translate3d(10px, -6px, 0) rotate(1.1deg);
+    }
+
+    68% {
+        transform: scale(1.06) translate3d(18px, 14px, 0) rotate(1.8deg);
+    }
+
+    86% {
+        transform: scale(1.02) translate3d(-8px, 10px, 0) rotate(-.8deg);
+    }
+
+    100% {
+        transform: scale(1) translate3d(0, 0, 0) rotate(0deg);
+    }
+}
+
+.astronaut__title {
+    position: absolute;
+    right: 3%;
+    top: 20%;
+    z-index: 3;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    font-size: clamp(22px, 2.7vw, 50px);
+    line-height: 1.05;
+    letter-spacing: 0;
+    text-transform: uppercase;
+    text-align: left;
+    color: #EAF9FF;
+    text-shadow:
+        0 0 0 #FFFFFF,
+        0 0 4px rgba(180, 240, 255, .95),
+        0 0 14px rgba(90, 210, 255, .9),
+        0 0 30px rgba(60, 190, 255, .8),
+        0 0 70px rgba(40, 170, 255, .55),
+        0 0 10px rgba(40, 170, 255, .35);
+    transform: perspective(400px) rotateY(32deg) rotateZ(8deg);
+    transform-origin: left center;
+    pointer-events: none;
+}
+
+
+.astronaut__line {
+    display: block;
+    white-space: nowrap;
+}
+
+.no-js .astronaut__title .char {
+    opacity: 1;
+    animation: none;
+}
+
+.astronaut__title .char {
+    display: inline-block;
+    visibility: hidden;
+}
+
+.astronaut__title .char.is-typed {
+    visibility: visible;
+}
+
+.astronaut__caret {
+    display: inline-block;
+    width: .5ch;
+    visibility: visible !important;
+    animation: caretBlink .8s steps(1, end) infinite;
+}
+
+@keyframes caretBlink {
+
+    0%,
+    49% {
+        opacity: 1;
+    }
+
+    50%,
+    100% {
+        opacity: 0;
+    }
+}
+
+
+.astronaut__stage {
+    transform-origin: 38% 55%;
+    animation: astroFloat 20s ease-in-out infinite;
+    will-change: transform;
+}
+
+.astronaut__figure {
+    display: block;
+    width: 100%;
 }
