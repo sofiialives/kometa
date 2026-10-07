@@ -4,8 +4,12 @@ import { initScreens } from './modules/screens.js';
 import { initScrollVideo } from './modules/scroll-video.js';
 import { initReveal } from './modules/reveal.js';
 import { initNav } from './modules/nav.js';
+import { initMenu } from './modules/menu.js';
+import { initCarousel } from './modules/carousel.js';
+import { initCrewSlider } from './modules/crew-slider.js';
 
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const isPhone = window.matchMedia('(max-width: 767.98px)').matches;
 const root = document.documentElement;
 
 root.classList.remove('no-js');
@@ -14,46 +18,70 @@ root.classList.add('js');
 const $ = (selector) => document.querySelector(selector);
 
 const loader = initLoader({ loader: $('[data-loader]') });
+const videoEl = $('[data-scroll-video]');
+const videoHolder = $('[data-video-holder]');
 
-const screens = initScreens({ root: $('[data-screens]') });
+if (isPhone) {
+    videoEl?.remove();
+    loader?.release();
+} else {
+    const screens = initScreens({ root: $('[data-screens]') });
 
-initScrollVideo({
-    video: $('[data-scroll-video]'),
-    scene: $('[data-video-scene]'),
-    holder: $('[data-video-holder]'),
-    hint: $('[data-scroll-hint]'),
-    screens,
-    reduceMotion
-});
+    if (videoEl) videoEl.preload = 'auto';
 
-initMediaProgress({
-    video: $('[data-scroll-video]'),
-    holder: $('[data-video-holder]'),
-    bar: $('[data-loader-bar]'),
-    fill: $('[data-loader-fill]'),
-    hint: $('[data-loader-hint]'),
-    onReady: (reason) => {
-        console.info('[kometa] видео готово:', reason);
-        loader?.release();
-        if (!reduceMotion) screens?.intro();
+    initScrollVideo({
+        video: videoEl,
+        scene: $('[data-video-scene]'),
+        holder: videoHolder,
+        hint: $('[data-scroll-hint]'),
+        screens,
+        reduceMotion
+    });
+
+    initMediaProgress({
+        video: videoEl,
+        holder: videoHolder,
+        bar: $('[data-loader-bar]'),
+        fill: $('[data-loader-fill]'),
+        hint: $('[data-loader-hint]'),
+        onReady: (reason) => {
+            console.info('[kometa] видео готово:', reason);
+            loader?.release();
+            if (!reduceMotion) screens?.intro();
+        }
+    });
+
+    if (videoEl && videoHolder) {
+        const hideVideo = () => videoHolder.classList.add('is-finished');
+
+        videoEl.addEventListener('ended', hideVideo);
+
+        videoEl.addEventListener('timeupdate', () => {
+            if (videoEl.duration && videoEl.currentTime >= videoEl.duration - 0.08) hideVideo();
+        });
     }
-});
+}
 
 initReveal({ reduceMotion });
 initNav();
 
-const videoEl = document.querySelector('[data-scroll-video]');
-const videoHolder = document.querySelector('[data-video-holder]');
+initMenu({
+    header: $('.header'),
+    burger: $('[data-burger]'),
+    nav: $('[data-nav]')
+});
 
-if (videoEl && videoHolder) {
-    const hideVideo = () => videoHolder.classList.add('is-finished');
+initCarousel({
+    track: $('[data-carousel]'),
+    progress: $('[data-carousel-progress]')
+});
 
-    videoEl.addEventListener('ended', hideVideo);
-
-    videoEl.addEventListener('timeupdate', () => {
-        if (videoEl.duration && videoEl.currentTime >= videoEl.duration - 0.08) hideVideo();
-    });
-}
+initCrewSlider({
+    root: $('[data-crew]'),
+    list: $('[data-crew-list]'),
+    prev: $('[data-crew-prev]'),
+    next: $('[data-crew-next]')
+});
 
 function initAstronaut() {
     const title = document.querySelector('[data-astro-title]');
@@ -64,6 +92,8 @@ function initAstronaut() {
 
     const STEP = 60;
     const LINE_PAUSE = 260;
+    const ERASE_STEP = 35;
+    const ERASE_LINE_PAUSE = 140;
     const HOLD = 2600;
     const RESTART = 700;
 
@@ -100,26 +130,41 @@ function initAstronaut() {
 
     let timer = 0;
     let index = 0;
+    let erasing = false;
 
     const clearAll = () => {
         chars.forEach((c) => c.el.classList.remove('is-typed'));
     };
 
     const step = () => {
-        if (index >= chars.length) {
-            timer = setTimeout(() => {
-                clearAll();
-                index = 0;
-                timer = setTimeout(step, RESTART);
-            }, HOLD);
+        if (!erasing) {
+            if (index >= chars.length) {
+                erasing = true;
+                index = chars.length - 1;
+                timer = setTimeout(step, HOLD);
+                return;
+            }
+
+            const current = chars[index];
+            current.el.classList.add('is-typed');
+            index += 1;
+
+            timer = setTimeout(step, current.endOfLine ? LINE_PAUSE : STEP);
+            return;
+        }
+
+        if (index < 0) {
+            erasing = false;
+            index = 0;
+            timer = setTimeout(step, RESTART);
             return;
         }
 
         const current = chars[index];
-        current.el.classList.add('is-typed');
-        index += 1;
+        current.el.classList.remove('is-typed');
+        index -= 1;
 
-        timer = setTimeout(step, current.endOfLine ? LINE_PAUSE : STEP);
+        timer = setTimeout(step, current.endOfLine ? ERASE_LINE_PAUSE : ERASE_STEP);
     };
 
     const observer = 'IntersectionObserver' in window
@@ -132,6 +177,7 @@ function initAstronaut() {
                     timer = 0;
                     clearAll();
                     index = 0;
+                    erasing = false;
                 }
             });
         }, { threshold: 0.25 })

@@ -110,10 +110,7 @@
         }
     </style>
 
-    <link rel="stylesheet" href="./assets/css/main.css" media="print" onload="this.media='all';this.onload=null">
-    <noscript>
-        <link rel="stylesheet" href="./assets/css/main.css">
-    </noscript>
+    <link rel="stylesheet" href="./assets/css/main.css">
 
     <script type="application/ld+json">
     {
@@ -216,6 +213,16 @@
                 fill="currentColor" />
         </symbol>
 
+        <symbol id="chevron" viewBox="0 0 16 10">
+            <path d="M1 9L8 2L15 9" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                stroke-linejoin="round" />
+        </symbol>
+
+        <symbol id="chevron-down" viewBox="0 0 16 8">
+            <path d="M1 1L8 7L15 1" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                stroke-linejoin="round" />
+        </symbol>
+
         <symbol id="arrow-corner" viewBox="0 0 10 10">
             <path d="M0.467966 0.467954L0.467954 8.89844L8.89844 8.89843M0.467954 8.89844L8.89843 0.467966" fill="none"
                 stroke="currentColor" stroke-width="0.93672" stroke-linecap="round" stroke-linejoin="round" />
@@ -233,16 +240,24 @@
                 </picture>
             </a>
 
-            <nav class="nav" aria-label="Основная навигация">
+            <nav class="nav" id="site-nav" aria-label="Основная навигация" data-nav>
                 <ul class="nav__list">
                     <li><a class="nav__link" href="#directions">Направления</a></li>
-                    <li><a class="nav__link" href="#team">Команда</a></li>
+                    <li><a class="nav__link" href="#crew">Команда</a></li>
                     <li><a class="nav__link" href="#cases">Кейсы</a></li>
                     <li><a class="nav__link" href="#contacts">Контакты</a></li>
                 </ul>
+                <a class="btn-request nav__cta" href="#contacts">Оставить заявку</a>
             </nav>
 
-            <button class="btn-request" type="button">Оставить заявку</button>
+            <a class="btn-request header__cta" href="#contacts">Оставить заявку</a>
+
+            <button class="burger" type="button" aria-expanded="false" aria-controls="site-nav"
+                aria-label="Открыть меню" data-burger>
+                <span class="burger__line" aria-hidden="true"></span>
+                <span class="burger__line" aria-hidden="true"></span>
+                <span class="burger__line" aria-hidden="true"></span>
+            </button>
         </div>
 
         <a class="tg-corner" href="https://t.me/" target="_blank" rel="noopener noreferrer" aria-label="Мы в Telegram">
@@ -253,7 +268,7 @@
     </header>
 
     <div class="scroll-video" data-video-holder aria-hidden="true">
-        <video class="scroll-video__el" data-scroll-video muted playsinline preload="auto"
+        <video class="scroll-video__el" data-scroll-video muted playsinline preload="none"
             poster="./assets/video/poster.webp?v=3" disablepictureinpicture disableremoteplayback>
             <source src="./assets/video/hero.webm?v=3" type="video/webm">
             <source src="./assets/video/hero.mp4?v=3" type="video/mp4">
@@ -267,6 +282,27 @@
 
     <main id="main">
         <h1 class="visually-hidden">КОМЕТА — Web3-агентство полного цикла: маркетинг, дизайн и разработка</h1>
+
+        <section class="hero-static" aria-labelledby="hero-static-title">
+            <img class="hero-static__earth" src="./assets/images/hero-earth.webp" width="1000" height="996" alt=""
+                aria-hidden="true" decoding="async">
+            <img class="hero-static__comet" src="./assets/images/hero-comet.webp" width="840" height="380" alt=""
+                aria-hidden="true" decoding="async">
+
+            <div class="hero-static__inner layout">
+                <h2 class="hero-static__title title-gradient" id="hero-static-title">
+                    Результат —<br>
+                    <span>это наша орбита</span>
+                </h2>
+
+                <a class="btn-dream" href="#directions">
+                    <span class="btn-dream__text">Исполни свою мечту</span>
+                    <svg class="icon icon--arrow" aria-hidden="true">
+                        <use href="#arrow"></use>
+                    </svg>
+                </a>
+            </div>
+        </section>
 
         <div class="stage" data-video-scene>
             <div class="stage__sticky" data-screens>
@@ -362,7 +398,7 @@
                     <span class="accent">Направления</span>
                 </h2>
 
-                <ul class="cards" aria-label="Ключевые направления агентства">
+                <ul class="cards" aria-label="Ключевые направления агентства" data-carousel>
                     <li class="card" data-reveal data-reveal-delay="80">
                         <div class="card__visual">
                             <span class="card__decor card__decor--top" aria-hidden="true"></span>
@@ -444,6 +480,8 @@
                     </li>
                 </ul>
 
+                <span class="cards__progress" aria-hidden="true" data-carousel-progress></span>
+
                 <div class="personal" aria-labelledby="personal-title" data-reveal data-reveal-delay="340">
                     <h3 class="personal__title" id="personal-title">
                         <span class="accent">Персональное</span><br>решение
@@ -471,7 +509,7 @@
                     <div class="astronaut__stage">
                         <picture class="astronaut__figure">
                             <source srcset="./assets/images/astronaut.webp" type="image/webp">
-                            <img class="astronaut__img" src="./assets/images/astronaut.png" width="1400" height="798"
+                            <img class="astronaut__img" src="./assets/images/astronaut.png" width="1500" height="857"
                                 alt="Космонавт КОМЕТА с телефоном" loading="lazy" decoding="async">
                         </picture>
 
@@ -493,62 +531,229 @@
                     <span class="accent">Комета</span>
                 </h2>
 
-                <ul class="crew__list">
+                <div class="crew__slider" data-crew>
+                    <ul class="crew__list" data-crew-list>
                     <li class="crew-card">
                         <picture class="crew-card__media">
-                            <img src="./assets/images/crew-1.png" width="279" height="298" alt="Василиса Премудрая"
+                            <source srcset="./assets/images/crew-1.webp" type="image/webp">
+                            <img src="./assets/images/crew-1.png" width="279" height="298" alt="Ян"
                                 loading="lazy" decoding="async">
                         </picture>
 
                         <div class="crew-card__body">
-                            <p class="crew-card__name">Василиса<br>Премудрая</p>
-                            <p class="crew-card__role">продюсер</p>
-                            <p class="crew-card__badge">клиент с 2005</p>
+                            <p class="crew-card__role">CEO</p>
+                            <p class="crew-card__name">Ян</p>
+                            <p class="crew-card__text">Ключевое звено взаимодействия, драйвер всех процессов агентства
+                                — от стратегии до финального результата</p>
                         </div>
                     </li>
 
                     <li class="crew-card">
                         <picture class="crew-card__media">
-                            <img src="./assets/images/crew-2.png" width="279" height="298" alt="Василиса Премудрая"
+                            <source srcset="./assets/images/crew-2.webp" type="image/webp">
+
+                            <img src="./assets/images/crew-2.png" width="279" height="298" alt="Артем"
                                 loading="lazy" decoding="async">
                         </picture>
 
                         <div class="crew-card__body">
-                            <p class="crew-card__name">Василиса<br>Премудрая</p>
-                            <p class="crew-card__role">продюсер</p>
-                            <p class="crew-card__badge">клиент с 2005</p>
+                            <p class="crew-card__role">COO</p>
+                            <p class="crew-card__name">Артем</p>
+                            <p class="crew-card__text">
+                                Отвечает за управление внутренними процессами — следит, чтобы каждый проект двигался
+                                слаженно
+                                и в срок
+                            </p>
                         </div>
                     </li>
 
                     <li class="crew-card">
                         <picture class="crew-card__media">
-                            <img src="./assets/images/crew-3.png" width="279" height="298" alt="Василиса Премудрая"
+                            <source srcset="./assets/images/crew-3.webp" type="image/webp">
+                            <img src="./assets/images/crew-3.png" width="279" height="298" alt="София"
                                 loading="lazy" decoding="async">
                         </picture>
 
                         <div class="crew-card__body">
-                            <p class="crew-card__name">Василиса<br>Премудрая</p>
-                            <p class="crew-card__role">продюсер</p>
-                            <p class="crew-card__badge">клиент с 2005</p>
+                            <p class="crew-card__role">CTO</p>
+                            <p class="crew-card__name">София</p>
+                            <p class="crew-card__text">Технический директор, внедряет инновационные решения и технологии
+                                для устойчивого роста бизнеса клиентов</p>
                         </div>
                     </li>
 
                     <li class="crew-card">
                         <picture class="crew-card__media">
-                            <img src="./assets/images/crew-3.png" width="279" height="298" alt="Василиса Премудрая"
+                            <source srcset="./assets/images/crew-4.webp" type="image/webp">
+                            <img src="./assets/images/crew-4.png" width="279" height="298" alt="Иван"
                                 loading="lazy" decoding="async">
                         </picture>
 
                         <div class="crew-card__body">
-                            <p class="crew-card__name">Василиса<br>Премудрая</p>
-                            <p class="crew-card__role">продюсер</p>
-                            <p class="crew-card__badge">клиент с 2005</p>
+                            <p class="crew-card__role">CMO</p>
+                            <p class="crew-card__name">Иван</p>
+                            <p class="crew-card__text">Формирует маркетинговые стратегии под задачи клиента — рост,
+                                узнаваемость, результат</p>
                         </div>
                     </li>
-                </ul>
+                    </ul>
+
+                    <div class="crew__controls" data-crew-controls>
+                        <button class="crew__btn" type="button" aria-label="Предыдущий участник" data-crew-prev>
+                            <svg class="icon icon--chevron" aria-hidden="true">
+                                <use href="#chevron"></use>
+                            </svg>
+                        </button>
+                        <button class="crew__btn crew__btn--next" type="button" aria-label="Следующий участник"
+                            data-crew-next>
+                            <svg class="icon icon--chevron" aria-hidden="true">
+                                <use href="#chevron"></use>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="cases" id="cases" aria-labelledby="cases-title">
+                <h2 class="section-title" id="cases-title">
+                    <span class="title-gradient">Наши</span>
+                    <span class="accent">кейсы</span>
+                </h2>
+
+                <ol class="cases__list">
+                    <li class="case case--gold" data-reveal>
+                        <div class="case__body">
+                            <span class="case__num" aria-hidden="true">01</span>
+                            <p class="case__tagline">Cosmic Essentials</p>
+                            <h3 class="case__title">Choose Your Space Adventure!</h3>
+                            <p class="case__text">Forem ipsum dolor sit amet, consectetur adipiscing elit. Etiam eu turpis molestie, dictum est a, mattis tellus. Sed dignissim, metus nec fringilla accumsan, risus sem sollicitudin lacus, ut interdum tellus elit sed risus. Maecenas eget condimentum velit, sit amet feugiat lectus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Praesent auctor purus luctus enim egestas, ac scelerisque ante pulvinar. Donec ut rhoncus ex.</p>
+                        </div>
+
+                        <figure class="case__media">
+                            <img src="./assets/images/case-ship-1.png" width="571" height="571" alt="Кейс 01: космический корабль"
+                                loading="lazy" decoding="async">
+                        </figure>
+                    </li>
+                    <li class="case case--gold" data-reveal>
+                        <div class="case__body">
+                            <span class="case__num" aria-hidden="true">02</span>
+                            <p class="case__tagline">Cosmic Essentials</p>
+                            <h3 class="case__title">Choose Your Space Adventure!</h3>
+                            <p class="case__text">Forem ipsum dolor sit amet, consectetur adipiscing elit. Etiam eu turpis molestie, dictum est a, mattis tellus. Sed dignissim, metus nec fringilla accumsan, risus sem sollicitudin lacus, ut interdum tellus elit sed risus. Maecenas eget condimentum velit, sit amet feugiat lectus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Praesent auctor purus luctus enim egestas, ac scelerisque ante pulvinar. Donec ut rhoncus ex.</p>
+                        </div>
+
+                        <figure class="case__media">
+                            <img src="./assets/images/case-ship-2.png" width="571" height="571" alt="Кейс 02: космический корабль"
+                                loading="lazy" decoding="async">
+                        </figure>
+                    </li>
+                    <li class="case case--blue" data-reveal>
+                        <div class="case__body">
+                            <span class="case__num" aria-hidden="true">03</span>
+                            <p class="case__tagline">Cosmic Essentials</p>
+                            <h3 class="case__title">Choose Your Space Adventure!</h3>
+                            <p class="case__text">Forem ipsum dolor sit amet, consectetur adipiscing elit. Etiam eu turpis molestie, dictum est a, mattis tellus. Sed dignissim, metus nec fringilla accumsan, risus sem sollicitudin lacus, ut interdum tellus elit sed risus. Maecenas eget condimentum velit, sit amet feugiat lectus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Praesent auctor purus luctus enim egestas, ac scelerisque ante pulvinar. Donec ut rhoncus ex.</p>
+                        </div>
+
+                        <figure class="case__media">
+                            <img src="./assets/images/case-ship-3.png" width="571" height="571" alt="Кейс 03: космический корабль"
+                                loading="lazy" decoding="async">
+                        </figure>
+                    </li>
+                </ol>
+            </section>
+
+            <section class="start" id="contacts" aria-labelledby="start-title">
+                <img class="start__comet" src="./assets/images/comet-start.png" width="1247" height="438" alt=""
+                    aria-hidden="true" loading="lazy" decoding="async">
+
+                <div class="start__inner">
+                    <h2 class="section-title section-title--left" id="start-title">
+                        <span class="title-gradient">Готовы</span><br>
+                        <span class="accent">стартовать?</span>
+                    </h2>
+
+                    <form class="form" action="#" method="post" novalidate data-form>
+                        <div class="field">
+                            <label class="visually-hidden" for="f-name">Имя</label>
+                            <input class="field__control" id="f-name" name="name" type="text" placeholder="Иван"
+                                autocomplete="name" required>
+                        </div>
+
+                        <div class="field">
+                            <label class="visually-hidden" for="f-telegram">Telegram</label>
+                            <input class="field__control" id="f-telegram" name="telegram" type="text"
+                                placeholder="@alexpure" autocomplete="username">
+                        </div>
+
+                        <div class="field">
+                            <label class="visually-hidden" for="f-phone">Телефон</label>
+                            <input class="field__control" id="f-phone" name="phone" type="tel"
+                                placeholder="+7 (900) 123-45-67" autocomplete="tel" inputmode="tel">
+                        </div>
+
+                        <div class="field field--select">
+                            <label class="visually-hidden" for="f-service">Направление</label>
+                            <select class="field__control" id="f-service" name="service">
+                                <option value="performance">Performance-маркетинг</option>
+                                <option value="design">Визуал и дизайн</option>
+                                <option value="dev">Разработка ПО</option>
+                                <option value="custom">Персональное решение</option>
+                            </select>
+                            <svg class="icon icon--select" aria-hidden="true">
+                                <use href="#chevron-down"></use>
+                            </svg>
+                        </div>
+
+                        <div class="field">
+                            <label class="visually-hidden" for="f-request">Персональный запрос</label>
+                            <input class="field__control" id="f-request" name="request" type="text"
+                                placeholder="Персональный запрос">
+                        </div>
+
+                        <div class="field field--area">
+                            <label class="visually-hidden" for="f-message">Описание</label>
+                            <textarea class="field__control" id="f-message" name="message" rows="3"
+                                placeholder="Описание"></textarea>
+                        </div>
+
+                        <button class="btn-send" type="submit">Отправить заявку</button>
+                    </form>
+
+                    <div class="start__art" aria-hidden="true">
+                        <img class="start__art-item start__art-item--star" src="./assets/images/holo-star.png"
+                            width="420" height="420" alt="" loading="lazy" decoding="async">
+                        <img class="start__art-item start__art-item--ring" src="./assets/images/holo-ring.png"
+                            width="360" height="360" alt="" loading="lazy" decoding="async">
+                        <img class="start__art-item start__art-item--spring" src="./assets/images/holo-spring.png"
+                            width="560" height="560" alt="" loading="lazy" decoding="async">
+                    </div>
+                </div>
             </section>
         </div>
     </main>
+
+    <footer class="footer sky">
+        <div class="footer__inner">
+            <a class="footer__brand" href="./" aria-label="КОМЕТА — на главную">
+                <span class="footer__logo title-gradient">Комета</span>
+                <span class="footer__tagline title-gradient">Web3 Agency</span>
+            </a>
+
+            <nav class="footer__nav" aria-label="Навигация в подвале">
+                <ul class="footer__list">
+                    <li><a class="footer__link footer__link--current" href="./" aria-current="page">Главная</a></li>
+                    <li><a class="footer__link" href="#directions">Наши направления</a></li>
+                    <li><a class="footer__link" href="#crew">Наша команда</a></li>
+                    <li><a class="footer__link" href="#cases">Наши кейсы</a></li>
+                    <li><a class="footer__link" href="#contacts">Наши контакты</a></li>
+                    <li><a class="footer__link" href="#blog">Наш блог</a></li>
+                </ul>
+            </nav>
+
+            <p class="footer__copy">Copyright 2026 КОМЕТА, Inc. Terms &amp; Privacy</p>
+        </div>
+    </footer>
 
     <noscript>
         <style>
