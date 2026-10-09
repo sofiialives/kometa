@@ -2694,7 +2694,7 @@ button {
     .tag {
         height: var(--tag-h);
         padding: var(--tag-py) var(--tag-px);
-        font-size: var(--tag-fs);
+        font-size: 10px;
         white-space: normal;
     }
 
