@@ -48,7 +48,7 @@
     --glass-dark: rgba(0, 0, 0, .1);
 
     --grad-text: linear-gradient(88.61deg, #737373 -30.22%, #D9D9D9 57.44%, #868686 131.14%);
-    --grad-num: linear-gradient(90deg, #737373 0%, #D9D9D9 54.33%, #868686 100%);
+    --grad-num: linear-gradient(90deg, #737373 0%, #D9D9D9 54%, #868686 100%);
     --grad-border: radial-gradient(102.35% 145.98% at 27.35% 75.89%,
             rgba(255, 255, 255, .2) 48.1%,
             rgba(255, 255, 255, 0) 100%);
@@ -1144,6 +1144,14 @@ button {
     pointer-events: none;
     max-width: none;
     height: auto;
+}
+
+.directions__glow {
+    display: none;
+}
+
+.br-m {
+    display: none;
 }
 
 .comet--left {
@@ -2528,6 +2536,276 @@ button {
 
 .btn--ghost:hover {
     border-color: var(--white);
+}
+
+/* --- телефоны: карусель направлений по макету (кадр 375px) ---
+   главная карточка 201×230, соседние 140×182 с зазором 8px,
+   активная начинается на 86px слева, подложка card__visual выступает вверх на 26px */
+@media (max-width: 767.98px) {
+    .directions__title {
+        font-size: 24px;
+    }
+
+    .cards {
+        margin-top: 12px;
+        gap: 8px;
+        padding: 30px 0 0 86px;
+        padding-inline-end: calc(100vw - 86px - 201px);
+        align-items: flex-start;
+        scroll-padding-inline: 86px 0;
+    }
+
+    .card {
+        --cw: 140px;
+        --ch: 182px;
+        --vw: 119px;
+        --vh: 157.5px;
+        --vt: -9px;
+        --vl: 9.5px;
+        --card-r: 11px;
+        --dt: 4px;
+        --dl: 33px;
+        --dw: 70px;
+        --dh: 40px;
+        --num-fs: 17px;
+        --tag-h: 14px;
+        --tag-fs: 6px;
+        --tag-px: 8px;
+        --tag-py: 0px;
+        --wide-py: 3px;
+        --wide-px: 8px;
+        --tag-gx: 5.2px;
+        --tag-gy: 6.2px;
+        --title-fs: 8.3px;
+        --title-l: 10.6px;
+        --title-b: 8.3px;
+        --arrow-w: 16px;
+        --arrow-h: 12.6px;
+        --arrow-r: 8px;
+        --arrow-rad: 4px;
+        --arrow-ico: 2.9px;
+        flex: 0 0 var(--cw);
+        width: var(--cw);
+        height: var(--ch);
+        aspect-ratio: auto;
+        border-radius: var(--card-r);
+        overflow: visible;
+    }
+
+    .card.is-current,
+    .cards:not(.has-current) .card:first-child {
+        --cw: 201px;
+        --ch: 230px;
+        --vw: 177px;
+        --vh: 210px;
+        --vt: -26px;
+        --vl: 13px;
+        --card-r: 15px;
+        --dt: 6px;
+        --dl: 49px;
+        --dw: 104px;
+        --dh: 60px;
+        --num-fs: 26px;
+        --tag-h: auto;
+        --tag-fs: 12px;
+        --tag-px: 10px;
+        --tag-py: 8px;
+        --wide-py: 10px;
+        --wide-px: 18px;
+        --tag-gx: 5px;
+        --tag-gy: 5px;
+        --title-fs: 12px;
+        --title-l: 13px;
+        --title-b: 12px;
+        --arrow-w: 24px;
+        --arrow-h: 20px;
+        --arrow-r: 11px;
+        --arrow-rad: 7px;
+        --arrow-ico: 6px;
+    }
+
+    /* карточка 02: теги как в 01 — первый ряд справа (мимо выреза), 5 рядов в подложку */
+    .cards .card:nth-child(2) .tag:nth-child(4) { order: 1; margin-left: auto; }
+    .cards .card:nth-child(2) .tag:nth-child(6) { order: 2; }
+    .cards .card:nth-child(2) .tag:nth-child(1) { order: 3; }
+    .cards .card:nth-child(2) .tag:nth-child(2) { order: 4; }
+    .cards .card:nth-child(2) .tag:nth-child(7) { order: 5; }
+    .cards .card:nth-child(2) .tag:nth-child(3) { order: 6; }
+    .cards .card:nth-child(2) .tag:nth-child(5) { order: 7; }
+
+    /* карточка 03: 5 рядов, у карточки 6px по вертикали, иначе 7 тегов не помещаются */
+    .cards .card.is-current:nth-child(3) {
+        --tag-py: 6px;
+        --wide-py: 8px;
+        --wide-px: 14px;
+    }
+
+    .cards .card:nth-child(3) .tag:nth-child(1) { margin-left: auto; }
+    .cards .card:nth-child(3) .tag:nth-child(6) { order: 1; }
+
+    .card__visual {
+        position: absolute;
+        top: var(--vt);
+        left: var(--vl);
+        width: var(--vw);
+        height: var(--vh);
+        flex: none;
+        margin: 0;
+        padding: 0 15px 18px;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+    }
+
+    /* схема сверху: новая картинка 104×60, отступ сверху 6px, слева 9px от выреза */
+    .card__decor--bottom {
+        clip-path: inset(0 0 7.3cqw 0);
+    }
+
+    .card__decor--top {
+        top: var(--dt);
+        left: var(--dl);
+        width: var(--dw);
+        height: var(--dh);
+        background: url('../images/circuit-top-mobile.png') 0 0 / 100% 100% no-repeat;
+        -webkit-mask: none;
+        mask: none;
+    }
+
+    /* цифра: от низа цифры до верха карты всегда 8px */
+    .card__num {
+        position: absolute;
+        top: calc(-1 * var(--vt) - 8px - .79 * var(--num-fs));
+        left: 0;
+        margin: 0;
+        font-size: var(--num-fs);
+        font-weight: 500;
+        line-height: 1;
+        opacity: .3;
+        -webkit-mask: none;
+        mask: none;
+    }
+
+    .tags {
+        margin: 0;
+        gap: var(--tag-gy) var(--tag-gx);
+    }
+
+    .tag {
+        height: var(--tag-h);
+        padding: var(--tag-py) var(--tag-px);
+        font-size: var(--tag-fs);
+        white-space: normal;
+    }
+
+    .tag--end {
+        margin-left: auto;
+    }
+
+    .tag--wide {
+        height: auto;
+        padding: var(--wide-py) var(--wide-px);
+        white-space: nowrap;
+    }
+
+    .br-m {
+        display: inline;
+    }
+
+    .card__footer {
+        position: absolute;
+        left: var(--title-l);
+        right: var(--arrow-r);
+        bottom: var(--title-b);
+        margin: 0;
+        gap: 6px;
+        align-items: flex-end;
+    }
+
+    .card__title {
+        font-size: var(--title-fs);
+        line-height: 1.03;
+    }
+
+    .card__arrow {
+        align-self: flex-end;
+        width: var(--arrow-w);
+        height: var(--arrow-h);
+        border-radius: var(--arrow-rad);
+    }
+
+    .icon--card-arrow {
+        width: var(--arrow-ico);
+        height: var(--arrow-ico);
+    }
+
+    .cards__progress {
+        width: 138px;
+        margin-top: 8px;
+    }
+
+    .cards__progress::after {
+        width: 42px;
+        translate: calc(var(--progress) * 96px) 0;
+    }
+
+    /* --- стекло: карточка и подложка без картинок, звезда и кометы под ними --- */
+    .directions {
+        overflow-x: clip;
+    }
+
+    .cards {
+    }
+
+    .cards .card {
+        isolation: isolate;
+        background: url('../images/card-bg-outer-mobile.png') center / 100% 100% no-repeat;
+        background-image: image-set(url('../images/card-bg-outer-mobile.webp') type('image/webp'),
+                url('../images/card-bg-outer-mobile.png') type('image/png'));
+        background-color: transparent;
+        border: 0;
+        box-shadow: none;
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+    }
+
+    .cards .card .card__visual {
+        overflow: visible;
+        z-index: 1;
+        background: url('../images/card-bg-mobile.png') center / 100% 100% no-repeat;
+        background-image: image-set(url('../images/card-bg-mobile.webp') type('image/webp'),
+                url('../images/card-bg-mobile.png') type('image/png'));
+    }
+
+    /* кометы: comet-left скрыт, comet-right зеркально слева, наполовину за краем экрана */
+    .comet--left {
+        display: none;
+    }
+
+    .comet--right {
+        top: 100px;
+        right: auto;
+        left: -82px;
+        width: 165px;
+        height: 210px;
+        object-fit: contain;
+        transform: scaleX(-1);
+    }
+
+    .directions__glow {
+        display: block;
+        position: absolute;
+        z-index: 0;
+        top: 122px;
+        left: -82px;
+        width: 165px;
+        height: 165px;
+        border-radius: 50%;
+        background: #fff;
+        opacity: .4;
+        filter: blur(82.8px);
+        pointer-events: none;
+    }
 }
 
 /* =========================================================
