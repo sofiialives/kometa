@@ -48,7 +48,7 @@
 
     <link rel="preload" href="./assets/fonts/Nekst-Regular.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="./assets/fonts/Nekst-Bold.woff2" as="font" type="font/woff2" crossorigin>
-    <link rel="preload" href="./assets/video/poster.webp?v=3" as="image" type="image/webp" fetchpriority="high">
+    <link rel="preload" href="./assets/video/poster.png?v=3" as="image" type="image/png" fetchpriority="high">
 
     <style>
         :root {
@@ -230,17 +230,22 @@
     </svg>
 
     <header class="header">
+        <span class="nav-scrim" aria-hidden="true" data-nav-scrim></span>
         <span class="header__spacer" aria-hidden="true"></span>
 
         <div class="header__bar">
             <a class="logo" href="./" aria-label="КОМЕТА — на главную">
                 <picture>
-                    <source srcset="./assets/images/kometa.webp" type="image/webp">
                     <img src="./assets/images/kometa.png" width="700" height="159" alt="КОМЕТА" fetchpriority="high">
                 </picture>
             </a>
 
             <nav class="nav" id="site-nav" aria-label="Основная навигация" data-nav>
+                <button class="nav__close" type="button" aria-label="Закрыть меню" data-nav-close>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                        <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" />
+                    </svg>
+                </button>
                 <ul class="nav__list">
                     <li><a class="nav__link" href="#directions">Направления</a></li>
                     <li><a class="nav__link" href="#crew">Команда</a></li>
@@ -252,15 +257,32 @@
 
             <a class="btn-request header__cta" href="#contacts">Оставить заявку</a>
 
-            <button class="burger" type="button" aria-expanded="false" aria-controls="site-nav"
-                aria-label="Открыть меню" data-burger>
-                <span class="burger__line" aria-hidden="true"></span>
-                <span class="burger__line" aria-hidden="true"></span>
-                <span class="burger__line" aria-hidden="true"></span>
-            </button>
+            <div class="header__actions">
+                <a class="header__tg" href="https://t.me/cometaweb3" target="_blank" rel="noopener noreferrer"
+                    aria-label="Мы в Telegram">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="17" viewBox="0 0 20 17" fill="none"
+                        aria-hidden="true">
+                        <path d="M1.37201 7.12177C6.73125 4.78738 10.3041 3.24834 12.0905 2.50468C17.197 0.381373 18.2568 0.0126023 18.9489 0.000108857C19.1011 -0.00233238 19.44 0.0352911 19.6612 0.214076C19.845 0.364858 19.8967 0.568774 19.9225 0.711945C19.9455 0.854973 19.9771 1.18095 19.9513 1.43541C19.6756 4.34192 18.4779 11.3951 17.869 14.6506C17.6134 16.028 17.1051 16.4898 16.614 16.5349C15.5456 16.6331 14.7356 15.8295 13.7017 15.152C12.0847 14.0914 11.1714 13.4314 9.60042 12.3966C7.78529 11.2007 8.96282 10.5432 9.99676 9.4691C10.2667 9.18792 14.9711 4.91001 15.0602 4.522C15.0717 4.47346 15.0832 4.29252 14.974 4.19717C14.8677 4.10153 14.7098 4.13427 14.5949 4.16012C14.4312 4.19688 11.8492 5.90518 6.84038 9.28471C6.10801 9.78847 5.44457 10.034 4.84719 10.0211C4.19236 10.007 2.92866 9.65003 1.9895 9.34502C0.840684 8.9708 -0.0754991 8.77291 0.00491812 8.13733C0.0451267 7.80647 0.501782 7.46786 1.37201 7.12177Z"
+                            fill="white" fill-opacity="0.55" />
+                    </svg>
+                </a>
+
+                <button class="burger" type="button" aria-expanded="false" aria-controls="site-nav"
+                    aria-label="Открыть меню" data-burger>
+                    <svg class="burger__icon" xmlns="http://www.w3.org/2000/svg" width="23" height="11"
+                        viewBox="0 0 23 11" fill="none" aria-hidden="true">
+                        <rect x="0.000244141" width="22.187" height="1.38669" fill="#ACACAC" />
+                        <rect y="4.71533" width="22.187" height="1.38669" fill="#ACACAC" />
+                        <rect y="9.42822" width="14.6989" height="1.38669" fill="#ACACAC" />
+                    </svg>
+                    <span class="burger__line" aria-hidden="true"></span>
+                    <span class="burger__line" aria-hidden="true"></span>
+                    <span class="burger__line" aria-hidden="true"></span>
+                </button>
+            </div>
         </div>
 
-        <a class="tg-corner" href="https://t.me/" target="_blank" rel="noopener noreferrer" aria-label="Мы в Telegram">
+        <a class="tg-corner" href="https://t.me/cometaweb3" target="_blank" rel="noopener noreferrer" aria-label="Мы в Telegram">
             <svg class="icon icon--tg" aria-hidden="true">
                 <use href="#telegram"></use>
             </svg>
@@ -269,7 +291,7 @@
 
     <div class="scroll-video" data-video-holder aria-hidden="true">
         <video class="scroll-video__el" data-scroll-video muted playsinline preload="none"
-            poster="./assets/video/poster.webp?v=3" disablepictureinpicture disableremoteplayback>
+            poster="./assets/video/poster.png?v=3" disablepictureinpicture disableremoteplayback>
             <source src="./assets/video/hero.webm?v=3" type="video/webm">
             <source src="./assets/video/hero.mp4?v=3" type="video/mp4">
         </video>
@@ -284,18 +306,18 @@
         <h1 class="visually-hidden">КОМЕТА — Web3-агентство полного цикла: маркетинг, дизайн и разработка</h1>
 
         <section class="hero-static" aria-labelledby="hero-static-title">
-            <img class="hero-static__earth" src="./assets/images/hero-earth.webp" width="1000" height="996" alt=""
+            <img class="hero-static__earth" src="./assets/images/hero-earth.png" width="375" height="225" alt=""
                 aria-hidden="true" decoding="async">
-            <img class="hero-static__comet" src="./assets/images/hero-comet.webp" width="840" height="380" alt=""
+            <img class="hero-static__comet" src="./assets/images/hero-comet.png" width="266" height="219" alt=""
                 aria-hidden="true" decoding="async">
 
             <div class="hero-static__inner layout">
-                <h2 class="hero-static__title title-gradient" id="hero-static-title">
-                    Результат —<br>
-                    <span>это наша орбита</span>
+                <h2 class="hero-static__title" id="hero-static-title">
+                    <span class="hero-thin title-gradient">Результат —</span><br>
+                    <span class="hero-bold"><span class="title-gradient">это наша</span> <span class="hero-orbit">орбита</span></span>
                 </h2>
 
-                <a class="btn-dream" href="#directions">
+                <a class="btn-dream" href="#contacts">
                     <span class="btn-dream__text">Исполни свою мечту</span>
                     <svg class="icon icon--arrow" aria-hidden="true">
                         <use href="#arrow"></use>
@@ -309,10 +331,10 @@
 
                 <section class="screen screen--hero" data-screen="hero" aria-labelledby="hero-title">
                     <div class="screen__inner layout">
-                        <h2 class="hero__title title-gradient anim" id="hero-title" data-anim="hero-title" data-in="0"
+                        <h2 class="hero__title anim" id="hero-title" data-anim="hero-title" data-in="0"
                             data-out="0">
-                            Результат —<br>
-                            <span>это наша орбита</span>
+                            <span class="hero-thin title-gradient">Результат —</span><br>
+                            <span class="hero-bold"><span class="title-gradient">это наша</span> <span class="hero-orbit">орбита</span></span>
                         </h2>
 
                         <a class="btn-dream anim anim--shrink" href="#directions" data-anim="hero-btn" data-in="140"
@@ -347,28 +369,24 @@
                         <ul class="brands" aria-label="Клиенты агентства">
                             <li class="brands__item anim" data-anim="brand-0" data-in="640">
                                 <picture>
-                                    <source srcset="./assets/images/abbis_logo.webp" type="image/webp">
                                     <img src="./assets/images/abbis_logo.png" width="167" height="33" alt="Абисс"
                                         loading="lazy" decoding="async">
                                 </picture>
                             </li>
                             <li class="brands__item anim" data-anim="brand-1" data-in="700">
                                 <picture>
-                                    <source srcset="./assets/images/business-line.webp" type="image/webp">
                                     <img src="./assets/images/business-line.png" width="258" height="18"
                                         alt="Business Line" loading="lazy" decoding="async">
                                 </picture>
                             </li>
                             <li class="brands__item anim" data-anim="brand-2" data-in="760">
                                 <picture>
-                                    <source srcset="./assets/images/guardant_logo.webp" type="image/webp">
                                     <img src="./assets/images/guardant_logo.png" width="206" height="43" alt="Guardant"
                                         loading="lazy" decoding="async">
                                 </picture>
                             </li>
                             <li class="brands__item anim" data-anim="brand-3" data-in="820">
                                 <picture>
-                                    <source srcset="./assets/images/assetdata_logo.webp" type="image/webp">
                                     <img src="./assets/images/assetdata_logo.png" width="126" height="50"
                                         alt="Assetdata" loading="lazy" decoding="async">
                                 </picture>
@@ -383,12 +401,10 @@
         <div class="sky">
             <section class="directions" id="directions" aria-labelledby="directions-title">
                 <picture>
-                    <source srcset="./assets/images/comet-left.webp" type="image/webp">
                     <img class="comet comet--left" src="./assets/images/comet-left.png" width="300" height="321" alt=""
                         aria-hidden="true" loading="lazy" decoding="async">
                 </picture>
                 <picture>
-                    <source srcset="./assets/images/comet-right.webp" type="image/webp">
                     <img class="comet comet--right" src="./assets/images/comet-right.png" width="336" height="543"
                         alt="" aria-hidden="true" loading="lazy" decoding="async">
                 </picture>
@@ -409,17 +425,20 @@
                             <span class="card__num" aria-hidden="true">01</span>
 
                             <ul class="tags" aria-label="Услуги направления">
-                                <li class="tag tag--end">SEO</li>
                                 <li class="tag">GEO</li>
+                                <li class="tag">SEO</li>
+                                <li class="tag tag--promo">Кросс-промо</li>
                                 <li class="tag tag--wide">Амбассадорские<br class="br-m"> программы</li>
                                 <li class="tag tag--wide">Performance<br class="br-m"> marketing</li>
                                 <li class="tag">Закупка</li>
+                                <li class="tag tag--extra">SEO Статьи</li>
+                                <li class="tag tag--extra tag--wide-end">Баннерная реклама</li>
                             </ul>
                         </div>
 
                         <div class="card__footer">
                             <h3 class="card__title">Реклама<br>и продвижение:</h3>
-                            <button class="card__arrow" type="button" aria-label="Подробнее">
+                            <button class="card__arrow" type="button" aria-label="Подробнее" data-modal="ads">
                                 <svg class="icon icon--card-arrow" aria-hidden="true">
                                     <use href="#arrow-corner"></use>
                                 </svg>
@@ -447,7 +466,7 @@
 
                         <div class="card__footer">
                             <h3 class="card__title">Визуал<br>и дизайн:</h3>
-                            <button class="card__arrow" type="button" aria-label="Подробнее">
+                            <button class="card__arrow" type="button" aria-label="Подробнее" data-modal="design">
                                 <svg class="icon icon--card-arrow" aria-hidden="true">
                                     <use href="#arrow-corner"></use>
                                 </svg>
@@ -475,7 +494,7 @@
 
                         <div class="card__footer">
                             <h3 class="card__title">Разработка<br>ПО</h3>
-                            <button class="card__arrow" type="button" aria-label="Подробнее">
+                            <button class="card__arrow" type="button" aria-label="Подробнее" data-modal="dev">
                                 <svg class="icon icon--card-arrow" aria-hidden="true">
                                     <use href="#arrow-corner"></use>
                                 </svg>
@@ -512,7 +531,6 @@
 
                     <div class="astronaut__stage">
                         <picture class="astronaut__figure">
-                            <source srcset="./assets/images/astronaut.webp" type="image/webp">
                             <img class="astronaut__img" src="./assets/images/astronaut.png" width="1500" height="857"
                                 alt="Космонавт КОМЕТА с телефоном" loading="lazy" decoding="async">
                         </picture>
@@ -539,7 +557,6 @@
                     <ul class="crew__list" data-crew-list>
                     <li class="crew-card">
                         <picture class="crew-card__media">
-                            <source srcset="./assets/images/crew-1.webp" type="image/webp">
                             <img src="./assets/images/crew-1.png" width="279" height="298" alt="Ян"
                                 loading="lazy" decoding="async">
                         </picture>
@@ -548,13 +565,12 @@
                             <p class="crew-card__role">CEO</p>
                             <p class="crew-card__name">Ян</p>
                             <p class="crew-card__text">Ключевое звено взаимодействия, драйвер всех процессов агентства
-                                — от стратегии до финального результата</p>
+                                — <strong>от стратегии до финального результата</strong></p>
                         </div>
                     </li>
 
                     <li class="crew-card">
                         <picture class="crew-card__media">
-                            <source srcset="./assets/images/crew-2.webp" type="image/webp">
 
                             <img src="./assets/images/crew-2.png" width="279" height="298" alt="Артем"
                                 loading="lazy" decoding="async">
@@ -564,16 +580,15 @@
                             <p class="crew-card__role">COO</p>
                             <p class="crew-card__name">Артем</p>
                             <p class="crew-card__text">
-                                Отвечает за управление внутренними процессами — следит, чтобы каждый проект двигался
+                                Отвечает за управление внутренними процессами — <strong>следит, чтобы каждый проект двигался
                                 слаженно
-                                и в срок
+                                и в срок</strong>
                             </p>
                         </div>
                     </li>
 
                     <li class="crew-card">
                         <picture class="crew-card__media">
-                            <source srcset="./assets/images/crew-3.webp" type="image/webp">
                             <img src="./assets/images/crew-3.png" width="279" height="298" alt="София"
                                 loading="lazy" decoding="async">
                         </picture>
@@ -582,13 +597,12 @@
                             <p class="crew-card__role">CTO</p>
                             <p class="crew-card__name">София</p>
                             <p class="crew-card__text">Технический директор, внедряет инновационные решения и технологии
-                                для устойчивого роста бизнеса клиентов</p>
+                                <strong>для устойчивого роста бизнеса клиентов</strong></p>
                         </div>
                     </li>
 
                     <li class="crew-card">
                         <picture class="crew-card__media">
-                            <source srcset="./assets/images/crew-4.webp" type="image/webp">
                             <img src="./assets/images/crew-4.png" width="279" height="298" alt="Иван"
                                 loading="lazy" decoding="async">
                         </picture>
@@ -596,8 +610,8 @@
                         <div class="crew-card__body">
                             <p class="crew-card__role">CMO</p>
                             <p class="crew-card__name">Иван</p>
-                            <p class="crew-card__text">Формирует маркетинговые стратегии под задачи клиента — рост,
-                                узнаваемость, результат</p>
+                            <p class="crew-card__text">Формирует маркетинговые стратегии под задачи клиента — <strong>рост,
+                                узнаваемость, результат</strong></p>
                         </div>
                     </li>
                     </ul>
@@ -629,39 +643,45 @@
                         <div class="case__body">
                             <span class="case__num" aria-hidden="true">01</span>
                             <p class="case__tagline">Cosmic Essentials</p>
-                            <h3 class="case__title">Choose Your Space Adventure!</h3>
-                            <p class="case__text">Forem ipsum dolor sit amet, consectetur adipiscing elit. Etiam eu turpis molestie, dictum est a, mattis tellus. Sed dignissim, metus nec fringilla accumsan, risus sem sollicitudin lacus, ut interdum tellus elit sed risus. Maecenas eget condimentum velit, sit amet feugiat lectus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Praesent auctor purus luctus enim egestas, ac scelerisque ante pulvinar. Donec ut rhoncus ex.</p>
+                            <h3 class="case__title"><span class="case__choose">Choose </span>Your Space Adventure!</h3>
                         </div>
 
                         <figure class="case__media">
                             <img src="./assets/images/case-ship-1.png" width="571" height="571" alt="Кейс 01: космический корабль"
                                 loading="lazy" decoding="async">
+                            <button class="case__open" type="button" aria-label="Открыть кейс 01" data-modal="cases" data-slide="0" aria-haspopup="dialog">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 17 17" fill="none" aria-hidden="true" focusable="false"><path d="M14.5934 15.1553C15.2 15.6406 16.0851 15.5422 16.5704 14.9356C17.0557 14.329 16.9573 13.4439 16.3507 12.9586L15.4721 14.057L14.5934 15.1553ZM1.25141 1.40676C0.479356 1.49254 -0.0769776 2.18796 0.00880647 2.96001L1.40674 15.5414C1.49252 16.3135 2.18794 16.8698 2.96 16.784C3.73205 16.6982 4.28839 16.0028 4.2026 15.2307L2.96 4.04729L14.1435 2.80469C14.9155 2.7189 15.4718 2.02349 15.3861 1.25143C15.3003 0.479373 14.6049 -0.0769606 13.8328 0.00882363L1.25141 1.40676ZM15.4721 14.057L16.3507 12.9586L2.28539 1.70637L1.40674 2.80469L0.528083 3.90301L14.5934 15.1553L15.4721 14.057Z" fill="#DD9B00"/></svg>
+                            </button>
                         </figure>
                     </li>
                     <li class="case case--gold" data-reveal>
                         <div class="case__body">
                             <span class="case__num" aria-hidden="true">02</span>
                             <p class="case__tagline">Cosmic Essentials</p>
-                            <h3 class="case__title">Choose Your Space Adventure!</h3>
-                            <p class="case__text">Forem ipsum dolor sit amet, consectetur adipiscing elit. Etiam eu turpis molestie, dictum est a, mattis tellus. Sed dignissim, metus nec fringilla accumsan, risus sem sollicitudin lacus, ut interdum tellus elit sed risus. Maecenas eget condimentum velit, sit amet feugiat lectus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Praesent auctor purus luctus enim egestas, ac scelerisque ante pulvinar. Donec ut rhoncus ex.</p>
+                            <h3 class="case__title"><span class="case__choose">Choose </span>Your Space Adventure!</h3>
                         </div>
 
                         <figure class="case__media">
                             <img src="./assets/images/case-ship-2.png" width="571" height="571" alt="Кейс 02: космический корабль"
                                 loading="lazy" decoding="async">
+                            <button class="case__open" type="button" aria-label="Открыть кейс 02" data-modal="cases" data-slide="1" aria-haspopup="dialog">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 17 17" fill="none" aria-hidden="true" focusable="false"><path d="M14.5934 15.1553C15.2 15.6406 16.0851 15.5422 16.5704 14.9356C17.0557 14.329 16.9573 13.4439 16.3507 12.9586L15.4721 14.057L14.5934 15.1553ZM1.25141 1.40676C0.479356 1.49254 -0.0769776 2.18796 0.00880647 2.96001L1.40674 15.5414C1.49252 16.3135 2.18794 16.8698 2.96 16.784C3.73205 16.6982 4.28839 16.0028 4.2026 15.2307L2.96 4.04729L14.1435 2.80469C14.9155 2.7189 15.4718 2.02349 15.3861 1.25143C15.3003 0.479373 14.6049 -0.0769606 13.8328 0.00882363L1.25141 1.40676ZM15.4721 14.057L16.3507 12.9586L2.28539 1.70637L1.40674 2.80469L0.528083 3.90301L14.5934 15.1553L15.4721 14.057Z" fill="#DD9B00"/></svg>
+                            </button>
                         </figure>
                     </li>
                     <li class="case case--blue" data-reveal>
                         <div class="case__body">
                             <span class="case__num" aria-hidden="true">03</span>
                             <p class="case__tagline">Cosmic Essentials</p>
-                            <h3 class="case__title">Choose Your Space Adventure!</h3>
-                            <p class="case__text">Forem ipsum dolor sit amet, consectetur adipiscing elit. Etiam eu turpis molestie, dictum est a, mattis tellus. Sed dignissim, metus nec fringilla accumsan, risus sem sollicitudin lacus, ut interdum tellus elit sed risus. Maecenas eget condimentum velit, sit amet feugiat lectus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Praesent auctor purus luctus enim egestas, ac scelerisque ante pulvinar. Donec ut rhoncus ex.</p>
+                            <h3 class="case__title"><span class="case__choose">Choose </span>Your Space Adventure!</h3>
                         </div>
 
                         <figure class="case__media">
                             <img src="./assets/images/case-ship-3.png" width="571" height="571" alt="Кейс 03: космический корабль"
                                 loading="lazy" decoding="async">
+                            <button class="case__open" type="button" aria-label="Открыть кейс 03" data-modal="cases" data-slide="2" aria-haspopup="dialog">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 17 17" fill="none" aria-hidden="true" focusable="false"><path d="M14.5934 15.1553C15.2 15.6406 16.0851 15.5422 16.5704 14.9356C17.0557 14.329 16.9573 13.4439 16.3507 12.9586L15.4721 14.057L14.5934 15.1553ZM1.25141 1.40676C0.479356 1.49254 -0.0769776 2.18796 0.00880647 2.96001L1.40674 15.5414C1.49252 16.3135 2.18794 16.8698 2.96 16.784C3.73205 16.6982 4.28839 16.0028 4.2026 15.2307L2.96 4.04729L14.1435 2.80469C14.9155 2.7189 15.4718 2.02349 15.3861 1.25143C15.3003 0.479373 14.6049 -0.0769606 13.8328 0.00882363L1.25141 1.40676ZM15.4721 14.057L16.3507 12.9586L2.28539 1.70637L1.40674 2.80469L0.528083 3.90301L14.5934 15.1553L15.4721 14.057Z" fill="#DD9B00"/></svg>
+                            </button>
                         </figure>
                     </li>
                 </ol>
@@ -669,6 +689,8 @@
 
             <section class="start" id="contacts" aria-labelledby="start-title">
                 <img class="start__comet" src="./assets/images/comet-start.png" width="1247" height="438" alt=""
+                    aria-hidden="true" loading="lazy" decoding="async">
+                <img class="start__comet start__comet--glow" src="./assets/images/comet-start.png" width="1247" height="438" alt=""
                     aria-hidden="true" loading="lazy" decoding="async">
 
                 <div class="start__inner">
@@ -737,9 +759,188 @@
         </div>
     </main>
 
+    <!-- Модалки направлений -->
+    <div class="modal" id="modal-ads" role="dialog" aria-modal="true" aria-labelledby="modal-ads-title" hidden data-modal-root>
+        <div class="modal__scrim" data-modal-close></div>
+        <div class="modal__stage" style="--ts:1;--tb:1;--tl:1;--W:1238.7;--H:853.1">
+            <div class="modal__frame">
+                <svg class="modal__shape" viewBox="0 0 1285 885" aria-hidden="true"><path d="M36,0H1249A36,36 0 0 1 1285,36V849A36,36 0 0 1 1249,885H757A36,36 0 0 1 721,849V705A36,36 0 0 0 685,669H411A36,36 0 0 1 375,633V522A36,36 0 0 0 339,486H36A36,36 0 0 1 0,450V36A36,36 0 0 1 36,0Z"/></svg>
+                <svg class="modal__lines" viewBox="0 0 1285 885" aria-hidden="true"><linearGradient id="gads0" gradientUnits="userSpaceOnUse" x1="140" y1="129" x2="490" y2="81"><stop offset="0" stop-color="#D9D9D9"/><stop offset="1" stop-color="#737373"/></linearGradient><path d="M140,129 L362,129 L490,81" stroke="url(#gads0)"/><circle cx="490" cy="81" r="5"/><linearGradient id="gads1" gradientUnits="userSpaceOnUse" x1="587" y1="81" x2="902" y2="129"><stop offset="0" stop-color="#D9D9D9"/><stop offset="1" stop-color="#737373"/></linearGradient><path d="M587,81 L819,81 L902,129" stroke="url(#gads1)"/><circle cx="902" cy="129" r="5"/><linearGradient id="gads2" gradientUnits="userSpaceOnUse" x1="1073" y1="400" x2="900" y2="631"><stop offset="0" stop-color="#D9D9D9"/><stop offset="1" stop-color="#737373"/></linearGradient><path d="M1073,400 L1073,538 L900,631" stroke="url(#gads2)"/><circle cx="900" cy="631" r="5"/></svg>
+                <button class="modal__close" type="button" aria-label="Закрыть" data-modal-close style="--cy:-12.5">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"/></svg>
+                </button>
+                <h2 class="modal__title title-gradient" id="modal-ads-title" style="--x:375.0;--y:376.0;--w:536.0">Реклама<br>и продвижение</h2>
+                <article class="mcard" style="--x:24.1;--y:144.6;--w:363.4;--h:224.6;--i:1">
+                    <span class="mcard__num" aria-hidden="true">01</span>
+                    <h3 class="mcard__title">Анализ и подготовка</h3>
+                    <p class="mcard__sub">Продукт <i>▸</i> Инфраструктура <i>▸</i> Реферальная база <span class="nw">(Инфлюенс-маркетинг)</span></p>
+                    <ul class="mcard__list"><li>Проверяем продукт и его релевантность рынку</li><li>Проводим аудит сайта и всей воронки/<br> инфраструктуры проекта</li><li>Если работаем через блогеров, то изучаем наличие<br> реферальной программы — это часто недооценённый<br> ресурс, который позволяет экономить бюджет и<br> получать больше единиц контента, чем работа только<br> через фиксированные размещения</li></ul>
+                </article>
+                <article class="mcard" style="--x:465.6;--y:98.3;--w:315.2;--h:226.5;--i:2">
+                    <span class="mcard__num" aria-hidden="true">02</span>
+                    <h3 class="mcard__title">Бизнес-аналитика рынка</h3>
+                    <p class="mcard__sub">Конкуренты <i>▸</i> Инсайты <i>▸</i> Стратегия</p>
+                    <ul class="mcard__list"><li>Изучаем рынок и разбираем конкурентов</li><li>Выявляем, что у них не работает — чтобы<br> не повторять чужие ошибки</li><li>Забираем то, что работает — и адаптируем<br> под ваш проект</li><li>Изучаем общедоступные материалы</li></ul>
+                </article>
+                <article class="mcard" style="--x:856.0;--y:144.6;--w:315.2;--h:224.6;--i:3">
+                    <span class="mcard__num" aria-hidden="true">03</span>
+                    <h3 class="mcard__title">Начало кампании</h3>
+                    <p class="mcard__sub">Запуск <i>▸</i> Сопровождение <i>▸</i> Прозрачность</p>
+                    <ul class="mcard__list"><li>Постоянное взаимодействие:<br> регулярные отчёты и созвоны</li><li>Максимальная вовлечённость в проект<br> на каждом этапе</li><li>Работаем в удобном для клиента<br> формате — звонки, очные встречи, любая<br> коммуникация</li><li>Проговариваем каждый шаг,<br> показываем результат по ходу работы, а<br> не только в конце</li></ul>
+                </article>
+                <article class="mcard" style="--x:769.3;--y:632.4;--w:313.3;--h:176.4;--i:4">
+                    <span class="mcard__num" aria-hidden="true">04</span>
+                    <h3 class="mcard__title">Итоги и масштабирование</h3>
+                    <p class="mcard__sub">Метрики <i>▸</i> Отчёт <i>▸</i> Перспективы</p>
+                    <ul class="mcard__list"><li>Собираем все метрики по завершении<br> кампании</li><li>Финальный отчёт с разбором<br> результатов на созвоне</li><li>Готовим документ с рекомендациями по<br> дальнейшему масштабированию проекта</li></ul>
+                </article>
+                
+                <a class="btn-dream modal__cta" href="#contacts" data-modal-cta style="--x:472.4;--y:489.7;--w:339.3;--h:46.3">
+                    <span class="btn-dream__text">Обсудить детали</span>
+                    <svg class="icon icon--arrow" aria-hidden="true"><use href="#arrow"></use></svg>
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="modal" id="modal-design" role="dialog" aria-modal="true" aria-labelledby="modal-design-title" hidden data-modal-root>
+        <div class="modal__scrim" data-modal-close></div>
+        <div class="modal__stage" style="--ts:0.91;--tb:0.88;--tl:0.86;--W:1113;--H:575">
+            <div class="modal__frame">
+                <svg class="modal__shape" viewBox="0 0 1113 575" aria-hidden="true"><path d="M32,0H1081A32,32 0 0 1 1113,32V543A32,32 0 0 1 1081,575H32A32,32 0 0 1 0,543V32A32,32 0 0 1 32,0Z"/></svg>
+                <svg class="modal__lines" viewBox="0 0 1113 575" aria-hidden="true"><linearGradient id="gdesign0" gradientUnits="userSpaceOnUse" x1="192" y1="303" x2="408" y2="400"><stop offset="0" stop-color="#D9D9D9"/><stop offset="1" stop-color="#737373"/></linearGradient><path d="M192,303 L192,400 L408,400" stroke="url(#gdesign0)"/><circle cx="408" cy="400" r="5"/><linearGradient id="gdesign1" gradientUnits="userSpaceOnUse" x1="743" y1="400" x2="948" y2="303"><stop offset="0" stop-color="#D9D9D9"/><stop offset="1" stop-color="#737373"/></linearGradient><path d="M743,400 L948,400 L948,303" stroke="url(#gdesign1)"/><circle cx="948" cy="303" r="5"/></svg>
+                <button class="modal__close" type="button" aria-label="Закрыть" data-modal-close style="--cy:-36">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"/></svg>
+                </button>
+                <h2 class="modal__title title-gradient" id="modal-design-title" style="--x:278;--y:96;--w:560">Визуал<br>и дизайн</h2>
+                <article class="mcard" style="--x:28;--y:82;--w:327;--h:203;--i:1">
+                    <span class="mcard__num" aria-hidden="true">01</span>
+                    <h3 class="mcard__title">Анализ и подготовка</h3>
+                    <p class="mcard__sub">Бриф <i>▸</i> Рынок <i>▸</i> Конкуренты <i>▸</i> Точки роста</p>
+                    <ul class="mcard__list"><li>Собираем бриф с клиента, обсуждаем цели и задачи</li><li>Готовим техническое задание полностью сами на основе брифа — вам не нужно тратить время на составление ТЗ</li><li>Анализируем рынок и визуальные тренды в вашей нише</li><li>Изучаем конкурентов — что уже используют, что цепляет, а что выглядит устаревшим</li><li>Ищем точки роста и формируем визуальную концепцию, которая будет выделять вас на фоне остальных</li></ul>
+                </article>
+                <article class="mcard" style="--x:425;--y:327;--w:283;--h:187;--i:2">
+                    <span class="mcard__num" aria-hidden="true">02</span>
+                    <h3 class="mcard__title">Дизайн и отрисовка</h3>
+                    <p class="mcard__sub">Концепция <i>▸</i> Макет <i>▸</i> Стиль</p>
+                    <ul class="mcard__list"><li>Разрабатываем визуальную концепцию: стиль, цветовую палитру, шрифтовую пару</li><li>Создаём макеты — от отдельных креативов до полноценного гайдлайна/фирменного стиля</li><li>Прорабатываем детали и адаптируем под все нужные форматы и площадки</li></ul>
+                </article>
+                <article class="mcard" style="--x:758;--y:82;--w:327;--h:203;--i:3">
+                    <span class="mcard__num" aria-hidden="true">03</span>
+                    <h3 class="mcard__title">Отчётность и передача</h3>
+                    <p class="mcard__sub">Фиксация <i>▸</i> Инструкции <i>▸</i> Поддержка</p>
+                    <ul class="mcard__list"><li>Готовим полноценную отчётность по проделанной работе</li><li>Формируем инструкции по применению — как использовать материалы, шаблоны, брендбук</li><li>Остаёмся на связи для доработок и консультаций</li></ul>
+                </article>
+                <p class="modal__note" style="--x:117;--y:432">НА ПРОТЯЖЕНИИ ВСЕЙ РАБОТЫ —<br>РЕГУЛЯРНЫЕ СОЗВОНЫ И ПОСТОЯННАЯ<br>ОТЧЁТНОСТЬ.</p><p class="modal__note" style="--x:743;--y:423">МЫ НЕ ПРОПАДАЕМ ПОСЛЕ СДАЧИ<br>МАКЕТОВ — ВЫ ВСЕГДА<br>В КУРСЕ, ЧТО СДЕЛАНО И ЧТО<br>ПРОИСХОДИТ ДАЛЬШЕ.</p>
+                <a class="btn-dream modal__cta" href="#contacts" data-modal-cta style="--x:387;--y:207;--w:342;--h:47">
+                    <span class="btn-dream__text">Обсудить детали</span>
+                    <svg class="icon icon--arrow" aria-hidden="true"><use href="#arrow"></use></svg>
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="modal" id="modal-dev" role="dialog" aria-modal="true" aria-labelledby="modal-dev-title" hidden data-modal-root>
+        <div class="modal__scrim" data-modal-close></div>
+        <div class="modal__stage" style="--ts:1;--tb:1;--tl:1;--W:1113;--H:1028">
+            <div class="modal__frame">
+                <svg class="modal__shape" viewBox="0 0 1113 1028" aria-hidden="true"><path d="M36,0H1077A36,36 0 0 1 1113,36V604A36,36 0 0 1 1077,640H898A36,36 0 0 0 862,676V992A36,36 0 0 1 826,1028H36A36,36 0 0 1 0,992V36A36,36 0 0 1 36,0Z"/></svg>
+                <svg class="modal__lines" viewBox="0 0 1113 1028" aria-hidden="true"><linearGradient id="gdev0" gradientUnits="userSpaceOnUse" x1="438" y1="55" x2="287" y2="305"><stop offset="0" stop-color="#D9D9D9"/><stop offset="1" stop-color="#737373"/></linearGradient><path d="M438,55 L348,55 L287,305" stroke="url(#gdev0)"/><circle cx="287" cy="305" r="5"/><linearGradient id="gdev1" gradientUnits="userSpaceOnUse" x1="247" y1="350" x2="95" y2="598"><stop offset="0" stop-color="#D9D9D9"/><stop offset="1" stop-color="#737373"/></linearGradient><path d="M247,350 L155,350 L95,598" stroke="url(#gdev1)"/><circle cx="95" cy="598" r="5"/><linearGradient id="gdev2" gradientUnits="userSpaceOnUse" x1="213" y1="648" x2="477" y2="692"><stop offset="0" stop-color="#D9D9D9"/><stop offset="1" stop-color="#737373"/></linearGradient><path d="M213,648 L213,602 L477,692" stroke="url(#gdev2)"/><circle cx="477" cy="692" r="5"/></svg>
+                <button class="modal__close" type="button" aria-label="Закрыть" data-modal-close style="--cy:-18">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"/></svg>
+                </button>
+                <h2 class="modal__title title-gradient" id="modal-dev-title" style="--x:547;--y:419;--w:513">Разработка ПО</h2>
+                <article class="mcard" style="--x:423;--y:75;--w:368;--h:207;--i:1">
+                    <span class="mcard__num" aria-hidden="true">01</span>
+                    <h3 class="mcard__title">Подготовка и аналитика</h3>
+                    <p class="mcard__sub">Бриф <i>▸</i> Анализ <i>▸</i> ТЗ</p>
+                    <ul class="mcard__list"><li>Собираем бриф с клиента, обсуждаем цели и задачи проекта</li><li>Анализируем целевую аудиторию и конкурентов на рынке — ищем точки роста и точки вдохновения</li><li>Готовим техническое задание полностью сами — вам не нужно тратить время на составление ТЗ, занимайтесь бизнесом</li></ul>
+                </article>
+                <article class="mcard" style="--x:228;--y:368;--w:320;--h:213;--i:2">
+                    <span class="mcard__num" aria-hidden="true">02</span>
+                    <h3 class="mcard__title">Проектирование и дизайн</h3>
+                    <p class="mcard__sub">Структура <i>▸</i> Прототип <i>▸</i> Визуал</p>
+                    <ul class="mcard__list"><li>Создаём структуру продукта, черновые варианты и прототипы интерфейсов</li><li>Согласовываем логику и удобство использования с клиентом</li><li>Разрабатываем дизайн: визуальное оформление, подбор шрифтов и цветов</li><li>Отрисовываем макеты под все нужные платформы — десктоп, мобильные устройства, веб</li></ul>
+                </article>
+                <article class="mcard" style="--x:40;--y:662;--w:320;--h:185;--i:3">
+                    <span class="mcard__num" aria-hidden="true">03</span>
+                    <h3 class="mcard__title">Верстка<br>и программирование</h3>
+                    <p class="mcard__sub">Frontend <i>▸</i> Backend</p>
+                    <ul class="mcard__list"><li>Frontend-разработка — переносим дизайн в рабочий интерфейс</li><li>Backend-разработка — серверная логика, подключение систем управления и интеграций</li></ul>
+                </article>
+                <article class="mcard" style="--x:460;--y:713;--w:318;--h:273;--i:4">
+                    <span class="mcard__num" aria-hidden="true">04</span>
+                    <h3 class="mcard__title">Наполнение,<br>тестирование и запуск</h3>
+                    <p class="mcard__sub">Контент <i>▸</i> Тесты <i>▸</i> Запуск <i>▸</i> Поддержка</p>
+                    <ul class="mcard__list"><li>Наполняем продукт текстами, изображениями и всем необходимым контентом</li><li>Тестировщики проверяют работоспособность на разных устройствах и в разных браузерах</li><li>Проводим базовую SEO-оптимизацию (где применимо), выполняем технический запуск — покупку домена, перенос на сервер и другую инфраструктуру, необходимую конкретному продукту</li><li>Готовим инструкцию для клиента по использованию — и остаёмся на связи для технической поддержки</li></ul>
+                </article>
+                
+                <a class="btn-dream modal__cta" href="#contacts" data-modal-cta style="--x:633;--y:487;--w:342;--h:47">
+                    <span class="btn-dream__text">Обсудить детали</span>
+                    <svg class="icon icon--arrow" aria-hidden="true"><use href="#arrow"></use></svg>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    
+
+    <!-- Модалка кейсов (бета-заглушка) -->
+    <div class="modal modal--case" id="modal-cases" role="dialog" aria-modal="true" aria-label="Кейс" hidden data-modal-root>
+        <div class="modal__scrim" data-modal-close></div>
+        <div class="cmodal__stage">
+            <div class="modal__frame cmodal" data-cmodal>
+                <div class="cmodal__viewport" aria-live="polite">
+                    <div class="cslide" data-cslide aria-hidden="false">
+                        <div class="cslide__text">
+                            <p class="cslide__tag">Cosmic Essentials</p>
+                            <h2 class="cslide__title" id="modal-cases-title">Your Space Adventure!</h2>
+                            <p class="cslide__desc">Forem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                        </div>
+                        <div class="cslide__pic" aria-hidden="true"></div>
+                    </div>
+                    <div class="cslide" data-cslide aria-hidden="true">
+                        <div class="cslide__text">
+                            <p class="cslide__tag">Cosmic Essentials</p>
+                            <h2 class="cslide__title">Your Space Adventure!</h2>
+                            <p class="cslide__desc">Forem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                        </div>
+                        <div class="cslide__pic" aria-hidden="true"></div>
+                    </div>
+                    <div class="cslide" data-cslide aria-hidden="true">
+                        <div class="cslide__text">
+                            <p class="cslide__tag">Cosmic Essentials</p>
+                            <h2 class="cslide__title">Your Space Adventure!</h2>
+                            <p class="cslide__desc">Forem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                        </div>
+                        <div class="cslide__pic" aria-hidden="true"></div>
+                    </div>
+                    <div class="cslide" data-cslide aria-hidden="true">
+                        <div class="cslide__text">
+                            <p class="cslide__tag">Cosmic Essentials</p>
+                            <h2 class="cslide__title">Your Space Adventure!</h2>
+                            <p class="cslide__desc">Forem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                        </div>
+                        <div class="cslide__pic" aria-hidden="true"></div>
+                    </div>
+                    <div class="cslide" data-cslide aria-hidden="true">
+                        <div class="cslide__text">
+                            <p class="cslide__tag">Cosmic Essentials</p>
+                            <h2 class="cslide__title">Your Space Adventure!</h2>
+                            <p class="cslide__desc">Forem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                        </div>
+                        <div class="cslide__pic" aria-hidden="true"></div>
+                    </div>
+                </div>
+                <button class="cmodal__nav cmodal__nav--prev" type="button" aria-label="Предыдущий слайд" data-cprev><svg viewBox="0 0 8 12" aria-hidden="true"><path d="M6 1 1.5 6 6 11"/></svg></button>
+                <button class="cmodal__nav cmodal__nav--next" type="button" aria-label="Следующий слайд" data-cnext><svg viewBox="0 0 8 12" aria-hidden="true"><path d="M2 1 6.5 6 2 11"/></svg></button>
+                <div class="cmodal__dots" role="group" aria-label="Слайды"><button class="cmodal__dot" type="button" aria-label="Слайд 1" data-cdot></button><button class="cmodal__dot" type="button" aria-label="Слайд 2" data-cdot></button><button class="cmodal__dot" type="button" aria-label="Слайд 3" data-cdot></button><button class="cmodal__dot" type="button" aria-label="Слайд 4" data-cdot></button><button class="cmodal__dot" type="button" aria-label="Слайд 5" data-cdot></button></div>
+            </div>
+        </div>
+    </div>
+
     <footer class="footer sky">
         <div class="footer__inner">
             <a class="footer__brand" href="./" aria-label="КОМЕТА — на главную">
+                <img class="footer__brand-img" src="./assets/images/kometa.png" width="192" height="44" alt="" loading="lazy" decoding="async">
                 <span class="footer__logo title-gradient">Комета</span>
                 <span class="footer__tagline title-gradient">Web3 Agency</span>
             </a>

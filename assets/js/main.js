@@ -7,9 +7,10 @@ import { initNav } from './modules/nav.js';
 import { initMenu } from './modules/menu.js';
 import { initCarousel } from './modules/carousel.js';
 import { initCrewSlider } from './modules/crew-slider.js';
+import { initModals } from './modules/modals.js';
 
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-const isPhone = window.matchMedia('(max-width: 767.98px)').matches;
+const isPhone = window.matchMedia('(max-width: 1279.98px)').matches;
 const root = document.documentElement;
 
 root.classList.remove('no-js');
@@ -188,3 +189,5 @@ function initAstronaut() {
 }
 
 initAstronaut();
+
+initModals({ reduceMotion });

@@ -4,6 +4,8 @@ export function initCarousel({ track, progress }) {
     const cards = [...track.children];
     let frame = 0;
 
+    const pitch = () => parseFloat(getComputedStyle(track).getPropertyValue('--pitch')) || 192;
+
     const update = () => {
         frame = 0;
         const max = track.scrollWidth - track.clientWidth;
@@ -12,17 +14,21 @@ export function initCarousel({ track, progress }) {
 
         const scrollable = max > 1;
         track.classList.toggle('has-current', scrollable);
-        if (!scrollable) return;
 
-        const origin = track.getBoundingClientRect().left + parseFloat(getComputedStyle(track).paddingLeft);
+        // позиция в «карточках»: 0 — первая у линии, 1 — вторая и т.д.
+        const u = scrollable ? Math.min(Math.max(track.scrollLeft / pitch(), 0), cards.length - 1) : 0;
+
         let nearest = 0;
         let best = Infinity;
 
         cards.forEach((card, i) => {
-            const d = Math.abs(card.getBoundingClientRect().left - origin);
+            const d = Math.abs(u - i);
+            // непрерывная степень «главности» карточки: плавное увеличение/уменьшение
+            card.style.setProperty('--t', Math.max(0, 1 - d).toFixed(3));
             if (d < best) { best = d; nearest = i; }
         });
 
+        if (!scrollable) return;
         cards.forEach((card, i) => card.classList.toggle('is-current', i === nearest));
     };
 
