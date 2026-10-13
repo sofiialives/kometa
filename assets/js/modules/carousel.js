@@ -11,6 +11,13 @@ export function initCarousel({ track, progress }) {
     if (!track || !progress) return;
 
     const cards = [...track.children];
+    cards.forEach((_, i) => {
+        const m = document.createElement('i');
+        m.className = 'dir-snap';
+        m.setAttribute('aria-hidden', 'true');
+        m.style.setProperty('--i', i);
+        track.appendChild(m);
+    });
     const phone = window.matchMedia('(max-width: 1279.98px)');
     // Safari 26+/Chrome: масштаб/сдвиг/прозрачность карточек считает сам браузер на композиторе (CSS scroll-driven animations)
     const native = !!(window.CSS && CSS.supports && CSS.supports('animation-timeline: view()'));

@@ -3967,15 +3967,15 @@ button {
         gap: 12px;
         padding-left: calc((100vw - 257px) / 2);
         padding-inline-end: calc((100vw - 257px) / 2);
-        scroll-padding-inline: calc((100vw - 257px) / 2) 0;
+        scroll-padding-inline: 0;
+        position: relative;
         scroll-snap-type: x mandatory;
         -webkit-overflow-scrolling: touch;
         overscroll-behavior-x: contain;
     }
 
     .directions .cards:not(.q) .card:not(.q) {
-        scroll-snap-align: start;
-        scroll-snap-stop: always;
+        scroll-snap-align: none;
         transition: none;
         --cw: calc(180px + 77px * var(--t));
         --ch: calc(231px + 86px * var(--t));
@@ -5470,6 +5470,26 @@ html.is-autoscroll *,
 html.is-autoscroll *::before,
 html.is-autoscroll *::after {
     animation-play-state: paused !important;
+}
+
+/* точки прилипания — отдельные нетрансформируемые маркеры: масштаб/сдвиг карточек не двигает снап */
+.dir-snap {
+    display: none;
+}
+
+@media (max-width: 1279.98px) {
+    .directions .cards:not(.q) .dir-snap {
+        display: block;
+        position: absolute;
+        top: 0;
+        left: calc(var(--i) * var(--pitch));
+        width: 1px;
+        height: 1px;
+        visibility: hidden;
+        pointer-events: none;
+        scroll-snap-align: start;
+        scroll-snap-stop: always;
+    }
 }
 
 /* слои с тяжёлым блюром — на своих GPU-слоях, растеризуются один раз (вид не меняется) */
