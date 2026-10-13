@@ -12,6 +12,9 @@ export function initCarousel({ track, progress }) {
 
     const cards = [...track.children];
     const phone = window.matchMedia('(max-width: 1279.98px)');
+    // Safari 26+/Chrome: масштаб/сдвиг/прозрачность карточек считает сам браузер на композиторе (CSS scroll-driven animations)
+    const native = !!(window.CSS && CSS.supports && CSS.supports('animation-timeline: view()'));
+    track.classList.toggle('sdt', native);
     let frame = 0;
     let pitchPx = 192;
 
@@ -37,6 +40,14 @@ export function initCarousel({ track, progress }) {
         const scrollable = max > 1;
         track.classList.toggle('has-current', scrollable);
         const u = scrollable ? Math.min(Math.max(track.scrollLeft / pitchPx, 0), cards.length - 1) : 0;
+
+        if (native) {
+            let near = 0;
+            let bestD = Infinity;
+            cards.forEach((card, i) => { const d = Math.abs(u - i); if (d < bestD) { bestD = d; near = i; } });
+            if (scrollable) cards.forEach((card, i) => card.classList.toggle('is-current', i === near));
+            return;
+        }
 
         let shift = 0;
         let nearest = 0;

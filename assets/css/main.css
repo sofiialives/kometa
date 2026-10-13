@@ -5447,6 +5447,31 @@ button {
     }
 }
 
+/* Карусель направлений: масштаб, сдвиг и прозрачность ведёт сам браузер по положению скролла
+   (compositor, без JS на кадр). δ = положение карточки относительно центра, 1 шаг = 192px. */
+@keyframes dirCard {
+    0%   { transform: translate3d(77px, 0, 0) scale(.7004, .7287); opacity: .5; }
+    50%  { transform: translate3d(0, 0, 0) scale(1, 1); opacity: 1; }
+    100% { transform: translate3d(0, 0, 0) scale(.7004, .7287); opacity: .5; }
+}
+
+@media (max-width: 1279.98px) {
+    @supports (animation-timeline: view()) {
+        .directions .cards.sdt:not(.q) .card:not(.q) {
+            animation: dirCard linear both;
+            animation-timeline: view(inline 0px 0px);
+            animation-range: cover calc(50% - 192px) cover calc(50% + 192px);
+        }
+    }
+}
+
+/* пока идёт программный скролл по навигации — фоновые бесконечные анимации на паузе */
+html.is-autoscroll *,
+html.is-autoscroll *::before,
+html.is-autoscroll *::after {
+    animation-play-state: paused !important;
+}
+
 /* слои с тяжёлым блюром — на своих GPU-слоях, растеризуются один раз (вид не меняется) */
 .astronaut__glow--white,
 .astronaut__glow--blue,

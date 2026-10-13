@@ -1,37 +1,36 @@
 /**
- * Якоря: плавная прокрутка с iOS-подобным замедлением (вместо резкого нативного smooth).
- * Прерывается жестом пользователя (колесо/тач/клавиша).
+ * Якоря: нативный плавный скролл браузера (iOS/Android ведут его вне главного потока) —
+ * без покадрового scrollTo из JS, который дёргается на телефонах.
+ * Пока скролл идёт, на html висит .is-autoscroll (фоновые анимации на паузе).
  */
-let rafId = 0;
+let idleTimer = 0;
 
-const easeOut = (t) => 1 - Math.pow(1 - t, 3.4);
+function markAutoscroll() {
+    const root = document.documentElement;
+    root.classList.add('is-autoscroll');
+    const done = () => {
+        clearTimeout(idleTimer);
+        root.classList.remove('is-autoscroll');
+        window.removeEventListener('scroll', onScroll);
+        window.removeEventListener('scrollend', done);
+    };
+    const onScroll = () => {
+        clearTimeout(idleTimer);
+        idleTimer = setTimeout(done, 140);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('scrollend', done, { once: true });
+    idleTimer = setTimeout(done, 400);
+}
 
 export function scrollToTarget(target, { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches } = {}) {
-    const startY = window.scrollY;
-    const endY = Math.max(0, Math.round(target.getBoundingClientRect().top + startY));
-    const dist = endY - startY;
-    cancelAnimationFrame(rafId);
-
-    if (reduce || Math.abs(dist) < 2) {
+    const endY = Math.max(0, Math.round(target.getBoundingClientRect().top + window.scrollY));
+    if (reduce || Math.abs(endY - window.scrollY) < 2) {
         window.scrollTo({ top: endY, behavior: 'instant' });
         return;
     }
-
-    const duration = Math.min(1250, 520 + Math.abs(dist) * 0.11);
-    const t0 = performance.now();
-    const stop = () => {
-        cancelAnimationFrame(rafId);
-        ['wheel', 'touchstart', 'keydown', 'mousedown'].forEach((e) => window.removeEventListener(e, stop));
-    };
-    ['wheel', 'touchstart', 'keydown', 'mousedown'].forEach((e) => window.addEventListener(e, stop, { passive: true }));
-
-    const step = (now) => {
-        const p = Math.min(1, (now - t0) / duration);
-        window.scrollTo({ top: startY + dist * easeOut(p), behavior: 'instant' });
-        if (p < 1) rafId = requestAnimationFrame(step);
-        else stop();
-    };
-    rafId = requestAnimationFrame(step);
+    markAutoscroll();
+    window.scrollTo({ top: endY, behavior: 'smooth' });
 }
 
 export function initNav({ root = document } = {}) {
