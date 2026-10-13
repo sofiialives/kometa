@@ -84,6 +84,13 @@ initCrewSlider({
     next: $('[data-crew-next]')
 });
 
+/* космонавт летает только пока виден: за кадром анимация на паузе (вид тот же, меньше работы на скролле) */
+(function pauseAstronautOffscreen() {
+    const el = document.querySelector('.astronaut');
+    if (!el || !('IntersectionObserver' in window)) return;
+    new IntersectionObserver(([e]) => el.classList.toggle('is-offscreen', !e.isIntersecting), { rootMargin: '120px' }).observe(el);
+})();
+
 function initAstronaut() {
     const title = document.querySelector('[data-astro-title]');
     if (!title) return;
