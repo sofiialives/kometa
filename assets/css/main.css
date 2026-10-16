@@ -1063,7 +1063,6 @@ button {
     right: 0;
     width: 74%;
     height: auto;
-    filter: brightness(1.2);
 }
 
 .hero-static::after {
@@ -2804,6 +2803,11 @@ button {
     display: none;
 }
 
+/* тег только для десктопа */
+.tag--desk {
+    display: none;
+}
+
 .footer__brand-img {
     display: none;
 }
@@ -3594,34 +3598,18 @@ button {
     }
 
     /* комета как в Figma: PNG (blur 1.33, screen) + прямоугольник 9A5F20 (blur 14.05, screen).
-       Оранжевый слой живёт на .hero-static::before — работает с любой разметкой, без filter */
+       Теперь комета — готовый PNG (star.png), без оранжевого слоя и фильтров */
     .hero-static__comet {
         top: 90px;
         right: auto;
         left: 172px;
         width: 189px;
-        height: 155px;
+        height: auto;
         z-index: 0;
         pointer-events: none;
         transform-origin: 34px 54px;
-        rotate: 2deg;
-        mix-blend-mode: screen;
-        filter: blur(1.33px);
     }
 
-    .hero-static::before {
-        content: '';
-        position: absolute;
-        z-index: 0;
-        left: 167px;
-        top: 154px;
-        width: 190px;
-        height: 22px;
-        rotate: 19.6deg;
-        pointer-events: none;
-        mix-blend-mode: screen;
-        background: radial-gradient(closest-side, rgba(154, 95, 32, .7) 0%, rgba(154, 95, 32, .4) 45%, rgba(154, 95, 32, 0) 100%);
-    }
 
     .hero-static::after {
         height: 100px;
@@ -3867,10 +3855,6 @@ button {
             -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 14%, #000 86%, transparent 100%);
             mask-image: linear-gradient(90deg, transparent 0, #000 14%, #000 86%, transparent 100%);
         }
-    }
-
-    .hero-static::before {
-        left: calc(50% - 187.5px + 167px);
     }
 
     .hero-static__title {
@@ -4460,13 +4444,25 @@ button {
     padding: 0;
     border: 0;
     border-radius: 50%;
-    background: #5C5C5C;
+    background: none;
     color: #fff;
     cursor: pointer;
     display: grid;
     place-items: center;
+    transition: transform .35s cubic-bezier(.32, .72, 0, 1);
+}
+
+/* круг отдельным слоем — его можно «растягивать каплей», не искажая сам крестик */
+.modal__close::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: #5C5C5C;
     box-shadow: 0 10px 24px rgba(0, 0, 0, .35);
-    transition: transform .35s cubic-bezier(.32, .72, 0, 1), background .25s ease;
+    transform: rotate(var(--sa, 0deg)) scale(var(--sx, 1), var(--sy, 1));
+    transition: background .25s ease, box-shadow .25s ease;
+    pointer-events: none;
 }
 
 .modal__close svg {
@@ -4479,16 +4475,18 @@ button {
     transition: transform .45s cubic-bezier(.32, .72, 0, 1);
 }
 
-.modal__close:hover {
+.modal__close:hover::before {
     background: #6a6a6a;
 }
 
-.modal__close:hover svg {
-    transform: rotate(90deg);
+@media (hover: hover) {
+    .modal__close:hover svg {
+        transform: rotate(90deg);
+    }
 }
 
 .modal__close:active {
-    transform: scale(.92);
+    transform: none;
 }
 
 .modal__frame:focus {
@@ -5472,6 +5470,17 @@ html.is-autoscroll *::after {
     animation-play-state: paused !important;
 }
 
+/* тач: листание ведёт JS (медленное «доезжание» до карточки), нативный снап и инерция отключены */
+@media (max-width: 1279.98px) {
+    .directions .cards.js-pager:not(.q) {
+        scroll-snap-type: none;
+        touch-action: pan-y;
+        overscroll-behavior-x: contain;
+        user-select: none;
+        -webkit-user-select: none;
+    }
+}
+
 /* точки прилипания — отдельные нетрансформируемые маркеры: масштаб/сдвиг карточек не двигает снап */
 .dir-snap {
     display: none;
@@ -5504,6 +5513,471 @@ html.is-autoscroll *::after {
 .astronaut.is-offscreen .astronaut__stage {
     animation-play-state: paused;
 }
+
+/* =========================================================
+   ДЕСКТОП (≥1280): фиксированные пиксели макета 1920.
+   Контейнер 1180 по центру (по бокам 370 на 1920), все размеры
+   не зависят от ширины окна — на любом экране выглядит одинаково.
+   ========================================================= */
+@media (min-width: 1280px) {
+    :root {
+        --u: calc(min(100vw, 2560px) / 1920);
+        --content: calc(1180 * var(--u));
+        --side: calc((100vw - var(--content)) / 2);
+        --section-gap: calc(124 * var(--u));
+        --fs-h2: calc(82 * var(--u));
+        --fs-h2-sm: calc(72 * var(--u));
+        --r-card: calc(28 * var(--u));
+    }
+
+    /* шапка: лишняя кнопка «Оставить заявку» не нужна */
+    .header__cta {
+        display: none;
+    }
+
+    .section-title,
+    .crew__title,
+    .directions__title {
+        font-size: calc(82 * var(--u));
+        font-weight: 500;
+        line-height: calc(76 * var(--u));
+    }
+
+    /* ---------- направления ---------- */
+    .directions__title {
+        margin-top: 0;
+    }
+
+    .astronaut {
+        margin-top: calc(-25 * var(--u));
+    }
+
+    .astronaut__stage {
+        width: calc(1130 * var(--u));
+        margin-left: calc(141 * var(--u));
+    }
+
+    .astronaut__title {
+        right: calc(18 * var(--u));
+        font-size: calc(44 * var(--u));
+    }
+
+    .directions .comet--left {
+        top: calc(217 * var(--u));
+        left: calc(50% - calc(960 * var(--u)) + calc(69 * var(--u)));
+        width: calc(300 * var(--u));
+    }
+
+    .directions .comet--right {
+        top: calc(148 * var(--u));
+        right: calc(50% - calc(960 * var(--u)) - calc(111 * var(--u)));
+        left: auto;
+        width: calc(454 * var(--u));
+    }
+
+    .cards {
+        margin-top: calc(48 * var(--u));
+        gap: calc(24 * var(--u));
+    }
+
+    .card {
+        aspect-ratio: 377 / 537;
+    }
+
+    .card__visual {
+        margin: calc(19 * var(--u)) calc(10 * var(--u)) 0 calc(26 * var(--u));
+        padding: calc(14 * var(--u)) calc(19 * var(--u)) 0;
+    }
+
+    .tags {
+        margin-top: calc(32 * var(--u));
+        gap: calc(8 * var(--u));
+        align-content: flex-start;
+    }
+
+    .tag,
+    .tag--promo,
+    .tag--extra,
+    .tag--desk {
+        display: inline-flex;
+        height: calc(38 * var(--u));
+        padding: 0 calc(17 * var(--u));
+        font-size: calc(16 * var(--u));
+        line-height: calc(18 * var(--u));
+    }
+
+    .tag--wide,
+    .tag--wide-end {
+        justify-content: center;
+        padding: 0 calc(17 * var(--u));
+        width: auto;
+    }
+
+
+    .card__footer {
+        margin: calc(14 * var(--u)) calc(18 * var(--u)) calc(22 * var(--u)) calc(26 * var(--u));
+    }
+
+    .card__title {
+        font-size: calc(31 * var(--u));
+        line-height: calc(34 * var(--u));
+    }
+
+    .personal {
+        margin-top: calc(24 * var(--u));
+        min-height: calc(242 * var(--u));
+        padding: calc(20 * var(--u)) calc(20 * var(--u)) calc(20 * var(--u)) calc(80 * var(--u));
+    }
+
+    .personal__title {
+        font-size: calc(70 * var(--u));
+        line-height: calc(66 * var(--u));
+    }
+
+    .tag--accent {
+        height: calc(53 * var(--u));
+        padding: 0 calc(34 * var(--u));
+        font-size: calc(21 * var(--u));
+    }
+
+    /* ---------- экипаж ---------- */
+    .crew {
+        padding-block: calc(25 * var(--u)) calc(124 * var(--u));
+    }
+
+    .crew__slider {
+        margin-top: calc(51 * var(--u));
+    }
+
+    .crew__list {
+        --crew-shift: calc(73 * var(--u));
+        gap: calc(19 * var(--u)) calc(23 * var(--u));
+    }
+
+    /* ---------- кейсы ---------- */
+    .cases {
+        padding-block: 0 calc(96 * var(--u));
+    }
+
+    /* соседние кейсы перекрываются по площади: кликабельны только кнопка и текст, иначе нижний .case глушит кнопку верхнего */
+    .case,
+    .case__media {
+        pointer-events: none;
+    }
+
+    .case__open,
+    .case__body {
+        pointer-events: auto;
+    }
+
+    /* мягкие белые блики по бокам (как в макете): слой выходит за низ секции, чтобы свет не обрезался линией */
+    .cases::before {
+        content: '';
+        position: absolute;
+        z-index: 0;
+        inset: 0 0 calc(-900 * var(--u)) 0;
+        pointer-events: none;
+        background:
+            radial-gradient(calc(620 * var(--u)) calc(560 * var(--u)) at 100% calc(420 * var(--u)), rgba(255, 255, 255, .24) 0%, rgba(255, 255, 255, .12) 38%, rgba(255, 255, 255, 0) 100%),
+            radial-gradient(calc(620 * var(--u)) calc(760 * var(--u)) at 0% calc(1290 * var(--u)), rgba(255, 255, 255, .22) 0%, rgba(255, 255, 255, .11) 38%, rgba(255, 255, 255, 0) 100%);
+    }
+
+    .cases__list {
+        display: block;
+        margin-top: calc(8 * var(--u));
+        row-gap: 0;
+        padding-bottom: 0;
+    }
+
+    .case,
+    .case--blue {
+        display: block;
+        height: calc(447 * var(--u));
+    }
+
+    .case__body {
+        --num-size: calc(194 * var(--u));
+        position: absolute;
+        z-index: 2;
+        top: 0;
+        left: 0;
+        width: calc(560 * var(--u));
+        grid-template-columns: calc(10 * var(--u)) minmax(0, 1fr);
+    }
+
+    .case:nth-child(even) .case__body {
+        left: calc(640 * var(--u));
+    }
+
+    .case__num {
+        font-size: calc(240 * var(--u));
+        font-weight: 500;
+        margin-top: calc(72 * var(--u));
+    }
+
+    .case__tagline {
+        margin-top: calc(152 * var(--u));
+        gap: calc(14 * var(--u));
+        font-size: calc(32 * var(--u));
+        letter-spacing: .29em;
+    }
+
+    .case__tagline::before {
+        width: calc(34 * var(--u));
+        height: 2px;
+    }
+
+    .case__title {
+        margin-top: calc(17 * var(--u));
+        max-width: calc(560 * var(--u));
+        font-size: calc(88 * var(--u));
+        font-weight: 400;
+        line-height: calc(90 * var(--u));
+        background: var(--grad-text);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        color: transparent;
+    }
+
+    .case__media,
+    .case:nth-child(even) .case__media {
+        position: absolute;
+        top: 0;
+        right: calc(-4 * var(--u));
+        left: auto;
+        width: calc(590 * var(--u));
+        height: calc(590 * var(--u));
+        order: 0;
+    }
+
+    .case:nth-child(even) .case__media {
+        right: auto;
+        left: calc(-3 * var(--u));
+    }
+
+    .case__media img {
+        position: relative;
+        z-index: 1;
+    }
+
+    .case__open {
+        position: absolute;
+        z-index: 3;
+        left: 49%;
+        top: 76%;
+        width: calc(135 * var(--u));
+        height: calc(135 * var(--u));
+        translate: -50% -50%;
+        display: grid;
+        place-items: center;
+        border-radius: 50%;
+        background: rgba(217, 217, 217, .2);
+        -webkit-backdrop-filter: blur(calc(8 * var(--u))) saturate(1.4);
+        backdrop-filter: blur(calc(8 * var(--u))) saturate(1.4);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .22), inset 1px 1px calc(3 * var(--u)) rgba(255, 255, 255, .25);
+        color: #DD9B00;
+        cursor: pointer;
+    }
+
+    .case:nth-child(even) .case__open {
+        left: 51%;
+    }
+
+    .case__open svg {
+        width: calc(50 * var(--u));
+        height: calc(50 * var(--u));
+    }
+
+    .case:nth-child(even) .case__open svg {
+        transform: scaleX(-1);
+    }
+
+    .case:nth-child(2) .case__body {
+        top: calc(54 * var(--u));
+    }
+
+    .case:nth-child(3) .case__body {
+        top: calc(98 * var(--u));
+    }
+
+    /* круг: мягкое свечение + тонкий контур 1px (как в макете) */
+    .case__media::before {
+        left: 49%;
+        top: 44%;
+        width: calc(505 * var(--u));
+        height: calc(505 * var(--u));
+        translate: -50% -50%;
+        border: 0;
+        box-shadow: none;
+        background: radial-gradient(circle at 50% 62%, rgba(222, 154, 0, .38) 0, rgba(222, 154, 0, .17) 45%, rgba(222, 154, 0, .04) 70%, rgba(222, 154, 0, 0) 100%);
+    }
+
+    .case__media::after {
+        left: 49%;
+        top: 44%;
+        width: calc(505 * var(--u));
+        height: calc(505 * var(--u));
+        translate: -50% -50%;
+        border: 1px solid rgba(222, 154, 0, .6);
+        background: none;
+        box-shadow: none;
+    }
+
+    /* тонкие линии-связки между кораблями */
+    .case:not(:last-child)::after {
+        left: calc(487 * var(--u));
+        top: calc(674 * var(--u));
+        bottom: auto;
+        width: calc(213 * var(--u));
+        height: 1.5px;
+        border-radius: 0;
+        clip-path: none;
+        background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, .38) 22%, rgba(255, 255, 255, .38) 78%, rgba(255, 255, 255, 0));
+        transform-origin: 0 50%;
+        rotate: -40deg;
+        z-index: 3;
+    }
+
+    .case:nth-child(even):not(:last-child)::after {
+        left: calc(517 * var(--u));
+        top: calc(551 * var(--u));
+        bottom: auto;
+        width: calc(211 * var(--u));
+        border-radius: 0;
+        clip-path: none;
+        background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, .38) 22%, rgba(255, 255, 255, .38) 78%, rgba(255, 255, 255, 0));
+        transform-origin: 0 50%;
+        rotate: 39deg;
+        z-index: 3;
+    }
+
+    /* ---------- форма ---------- */
+    .start {
+        padding-block: calc(124 * var(--u)) calc(98 * var(--u));
+    }
+
+    .start__comet {
+        opacity: .4;
+    }
+
+    .start__inner {
+        grid-template-columns: calc(640 * var(--u)) minmax(0, 1fr);
+        row-gap: calc(34 * var(--u));
+    }
+
+    .form {
+        gap: calc(21 * var(--u));
+        padding: calc(26 * var(--u)) calc(38 * var(--u)) calc(28 * var(--u));
+        border-radius: calc(28 * var(--u));
+        background: rgba(255, 255, 255, .065);
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .08), inset 0 1px 0 rgba(255, 255, 255, .14), 0 calc(30 * var(--u)) calc(74 * var(--u)) rgba(0, 0, 0, .35);
+    }
+
+    /* поля — те же стили, что на мобилке: тёмный градиент + голубой свет снизу, тонкая рамка, световая кромка */
+    .field {
+        position: relative;
+        border-radius: calc(19 * var(--u));
+        background:
+            radial-gradient(85% 110% at 50% 130%, rgba(52, 118, 170, .38) 0%, rgba(52, 118, 170, 0) 100%),
+            linear-gradient(180deg, #212325 0%, #24292D 55%, #293238 100%);
+        box-shadow: none;
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+    }
+
+    .field--area {
+        background:
+            radial-gradient(34% 52% at 5% 106%, rgba(50, 112, 160, .56) 0%, rgba(50, 112, 160, 0) 100%),
+            radial-gradient(34% 52% at 95% 106%, rgba(50, 112, 160, .56) 0%, rgba(50, 112, 160, 0) 100%),
+            radial-gradient(60% 34% at 50% 112%, rgba(50, 112, 160, .36) 0%, rgba(50, 112, 160, 0) 100%),
+            radial-gradient(28% 40% at 4% -4%, rgba(50, 112, 160, .34) 0%, rgba(50, 112, 160, 0) 100%),
+            radial-gradient(28% 40% at 96% -4%, rgba(50, 112, 160, .34) 0%, rgba(50, 112, 160, 0) 100%),
+            #1E1E1F;
+    }
+
+    .field::before {
+        display: block;
+        content: '';
+        position: absolute;
+        inset: 0;
+        padding: 1.3px;
+        border-radius: inherit;
+        filter: none;
+        pointer-events: none;
+        background: linear-gradient(180deg, rgba(255, 255, 255, .36) 0%, rgba(255, 255, 255, .30) 28%, rgba(255, 255, 255, .28) 72%, rgba(255, 255, 255, .45) 100%);
+        -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+        -webkit-mask-composite: xor;
+        mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+    }
+
+    .field::after {
+        display: block;
+        content: '';
+        position: absolute;
+        left: calc(24 * var(--u));
+        right: calc(24 * var(--u));
+        bottom: 0;
+        height: 1.3px;
+        border-radius: 1px;
+        filter: none;
+        pointer-events: none;
+        background: linear-gradient(90deg, rgba(200, 220, 235, 0) 0%, rgba(200, 220, 235, .08) 30%, rgba(200, 220, 235, .5) 62%, rgba(200, 220, 235, .28) 85%, rgba(200, 220, 235, 0) 100%);
+    }
+
+    .field__control::placeholder { color: #8A8A8A; }
+    .field--select .field__control { color: #8A8A8A; }
+
+    .field__control {
+        min-height: calc(67 * var(--u));
+        padding: 0 calc(37 * var(--u));
+        font-size: calc(16 * var(--u));
+    }
+
+    .field--area .field__control {
+        min-height: calc(110 * var(--u));
+        padding-block: calc(22 * var(--u));
+    }
+
+    .btn-send {
+        margin-top: 0;
+        min-height: calc(63 * var(--u));
+        font-size: calc(15 * var(--u));
+    }
+
+    .start__art {
+        position: absolute;
+        z-index: 1;
+        display: block;
+        top: calc(-17 * var(--u));
+        left: calc(459 * var(--u));
+        width: calc(880 * var(--u));
+        grid-area: auto;
+    }
+
+    .start__art-item {
+        display: block;
+        position: static;
+        width: 100%;
+        height: auto;
+        margin: 0;
+        translate: none;
+        filter: drop-shadow(0 calc(22 * var(--u)) calc(34 * var(--u)) rgba(0, 0, 0, .45));
+    }
+
+    /* ---------- подвал ---------- */
+    .footer__inner {
+        padding-block: calc(54 * var(--u)) calc(40 * var(--u));
+        row-gap: calc(39 * var(--u));
+    }
+
+    .footer__list {
+        gap: calc(8 * var(--u));
+    }
+}
+
 
 /* =========================================================
    ПОДДЕРЖКА ФОРМАТОВ И ДОСТУПНОСТЬ
@@ -5604,4 +6078,67 @@ html.is-autoscroll *::after {
     .crew-card__text {
         font-size: clamp(13px, .78vw, 15px);
     }
+}
+
+
+/* ---------- стеклянный крестик (как в Telegram): всё состояние ведёт JS через --h / --q / --sa / --sx / --sy / --gs ---------- */
+.modal__close,
+.nav__close,
+.burger {
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.modal__close.is-held,
+.nav__close.is-held,
+.burger.is-held {
+    z-index: 30;
+    will-change: translate, scale;
+}
+
+.modal__close.is-held svg {
+    transform: none;
+}
+
+.modal__close svg,
+.nav__close svg {
+    scale: var(--gs, 1);
+}
+
+/* модалка: светлый слой поверх круга, прозрачность = прогресс зажатия (никаких переключений классов → без мерцаний) */
+.modal__close::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    pointer-events: none;
+    background: rgba(255, 255, 255, .15);
+    box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, .28);
+    opacity: calc(var(--h, 0) * (1 - .35 * var(--q, 0)));
+    transform: rotate(var(--sa, 0deg)) scale(var(--sx, 1), var(--sy, 1));
+}
+
+.modal__close.is-held::before {
+    box-shadow: 0 18px 40px rgba(0, 0, 0, .45);
+}
+
+/* крестик меню: круг появляется вместе с ростом и деформируется так же */
+.nav__close::before {
+    transition: none;
+}
+
+.nav__close.is-held {
+    transform: none;
+    color: #fff;
+}
+
+.nav__close.is-held::before {
+    inset: -13px;
+    opacity: var(--h, 0);
+    background: rgba(120, 120, 120, .5);
+    box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, .3), 0 8px 22px rgba(0, 0, 0, .4);
+    transform: rotate(var(--sa, 0deg)) scale(var(--sx, 1), var(--sy, 1));
 }

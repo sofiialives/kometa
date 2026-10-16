@@ -8,6 +8,7 @@ import { initMenu } from './modules/menu.js';
 import { initCarousel } from './modules/carousel.js';
 import { initCrewSlider } from './modules/crew-slider.js';
 import { initModals } from './modules/modals.js';
+import { initGlassClose } from './modules/glass-close.js';
 
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const isPhone = window.matchMedia('(max-width: 1279.98px)').matches;
@@ -198,3 +199,4 @@ function initAstronaut() {
 initAstronaut();
 
 initModals({ reduceMotion });
+initGlassClose();

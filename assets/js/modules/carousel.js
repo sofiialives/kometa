@@ -19,9 +19,10 @@ export function initCarousel({ track, progress }) {
         track.appendChild(m);
     });
     const phone = window.matchMedia('(max-width: 1279.98px)');
-    // Safari 26+/Chrome: масштаб/сдвиг/прозрачность карточек считает сам браузер на композиторе (CSS scroll-driven animations)
-    const native = !!(window.CSS && CSS.supports && CSS.supports('animation-timeline: view()'));
-    track.classList.toggle('sdt', native);
+    // Масштаб/сдвиг карточек считаем сами (чистая функция от scrollLeft): одинаково во всех браузерах,
+    // состояние покоя всегда ровно по центру. CSS scroll-driven animations не используем.
+    const native = false;
+    track.classList.remove('sdt');
     let frame = 0;
     let pitchPx = 192;
 
@@ -82,4 +83,116 @@ export function initCarousel({ track, progress }) {
     window.addEventListener('resize', () => { measure(); schedule(); });
     measure();
     update();
+
+    // ---- листание: палец / мышь / колесо / тачпад — всегда ровно на 1 карточку, плавное доезжание по центру ----
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const easeOut = (x) => 1 - Math.pow(1 - x, 4);
+    let anim = 0;
+    let drag = null;
+    let blockClick = false;
+    let wheelLocked = false;
+    let lastWheel = 0;
+    let settleTimer = 0;
+
+    const syncPager = () => track.classList.toggle('js-pager', phone.matches);
+    syncPager();
+    phone.addEventListener?.('change', syncPager);
+
+    const maxScroll = () => Math.max(0, track.scrollWidth - track.clientWidth);
+    const stopAnim = () => { if (anim) { cancelAnimationFrame(anim); anim = 0; } };
+    const clampIdx = (i) => Math.max(0, Math.min(cards.length - 1, i));
+    const goIdx = (i) => glideTo(Math.min(maxScroll(), clampIdx(i) * pitchPx));
+
+    function glideTo(target) {
+        stopAnim();
+        const from = track.scrollLeft;
+        const dist = target - from;
+        if (Math.abs(dist) < 1 || reduce.matches) { track.scrollLeft = target; update(); return; }
+        const dur = Math.min(1000, Math.max(620, 520 + Math.abs(dist) * 1.6));
+        const t0 = performance.now();
+        const step = (now) => {
+            const k = Math.min(1, (now - t0) / dur);
+            track.scrollLeft = k < 1 ? from + dist * easeOut(k) : target;
+            update();
+            anim = k < 1 ? requestAnimationFrame(step) : 0;
+        };
+        anim = requestAnimationFrame(step);
+    }
+
+    const finish = (cancelled) => {
+        if (!drag) return;
+        const d = drag;
+        drag = null;
+        if (!d.active) return;
+        track.classList.remove('is-dragging');
+        const pts = d.pts;
+        const last = pts[pts.length - 1];
+        const first = pts.find((p) => last.t - p.t <= 90) || pts[0];
+        const dt = Math.max(1, last.t - first.t);
+        const v = cancelled ? 0 : (first.x - last.x) / dt;           // px/мс, >0 — листаем вперёд
+        const moved = d.startScroll - track.scrollLeft;               // <0 — ушли вперёд
+        const startIdx = Math.round(d.startScroll / pitchPx);
+        let idx = Math.round(track.scrollLeft / pitchPx);
+        if (Math.abs(v) > 0.25 || Math.abs(moved) > pitchPx * 0.16) {
+            idx = startIdx + (v > 0.05 || (Math.abs(v) <= 0.05 && moved < 0) ? 1 : -1);
+        }
+        goIdx(Math.max(startIdx - 1, Math.min(startIdx + 1, idx)));
+    };
+
+    track.addEventListener('pointerdown', (e) => {
+        blockClick = false;
+        if (!phone.matches || (e.pointerType === 'mouse' && e.button !== 0)) return;
+        stopAnim();
+        drag = { id: e.pointerId, x0: e.clientX, y0: e.clientY, startScroll: track.scrollLeft, active: false, pts: [{ x: e.clientX, t: e.timeStamp }] };
+    }, { passive: true });
+
+    track.addEventListener('pointermove', (e) => {
+        if (!drag || e.pointerId !== drag.id) return;
+        const dx = e.clientX - drag.x0;
+        if (!drag.active) {
+            if (Math.abs(dx) < 6 || Math.abs(dx) < Math.abs(e.clientY - drag.y0)) return;
+            drag.active = true;
+            blockClick = true;
+            track.classList.add('is-dragging');
+            try { track.setPointerCapture(e.pointerId); } catch (_) { /* noop */ }
+        }
+        track.scrollLeft = Math.min(maxScroll(), Math.max(0, drag.startScroll - dx));
+        update();
+        drag.pts.push({ x: e.clientX, t: e.timeStamp });
+        if (drag.pts.length > 12) drag.pts.shift();
+    }, { passive: true });
+
+    track.addEventListener('pointerup', () => finish(false));
+    track.addEventListener('pointercancel', () => finish(true));
+    track.addEventListener('dragstart', (e) => e.preventDefault());
+    track.addEventListener('click', (e) => {
+        if (blockClick) { e.preventDefault(); e.stopPropagation(); blockClick = false; }
+    }, true);
+
+    // колесо / тачпад: один жест = одна карточка; инерцию тачпада игнорируем, пока она не затихнет
+    track.addEventListener('wheel', (e) => {
+        if (!phone.matches) return;
+        const ax = Math.abs(e.deltaX);
+        const ay = Math.abs(e.deltaY);
+        if (!(ax > ay || e.shiftKey)) return;                         // вертикальная прокрутка страницы не трогаем
+        e.preventDefault();
+        const delta = ax > ay ? e.deltaX : e.deltaY;
+        const gap = e.timeStamp - lastWheel;
+        lastWheel = e.timeStamp;
+        if (wheelLocked && !anim && gap > 110) wheelLocked = false;
+        if (wheelLocked || Math.abs(delta) < 3) return;
+        wheelLocked = true;
+        goIdx(Math.round(track.scrollLeft / pitchPx) + (delta > 0 ? 1 : -1));
+    }, { passive: false });
+
+    // страховка: любой другой способ сдвинуть (скроллбар, клавиатура, нативный инерционный скролл) — доезжаем до ближайшей карточки
+    track.addEventListener('scroll', () => {
+        if (!phone.matches || anim || drag) return;
+        clearTimeout(settleTimer);
+        settleTimer = setTimeout(() => {
+            if (anim || drag || !phone.matches) return;
+            const idx = clampIdx(Math.round(track.scrollLeft / pitchPx));
+            if (Math.abs(track.scrollLeft - Math.min(maxScroll(), idx * pitchPx)) > 1) goIdx(idx);
+        }, 140);
+    }, { passive: true });
 }
