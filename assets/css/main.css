@@ -5675,11 +5675,11 @@ html.is-autoscroll *::after {
         content: '';
         position: absolute;
         z-index: 0;
-        inset: 0 0 calc(-900 * var(--u)) 0;
+        inset: calc(-900 * var(--u)) 0 calc(-900 * var(--u)) 0;
         pointer-events: none;
         background:
-            radial-gradient(calc(620 * var(--u)) calc(560 * var(--u)) at 100% calc(420 * var(--u)), rgba(255, 255, 255, .24) 0%, rgba(255, 255, 255, .12) 38%, rgba(255, 255, 255, 0) 100%),
-            radial-gradient(calc(620 * var(--u)) calc(760 * var(--u)) at 0% calc(1290 * var(--u)), rgba(255, 255, 255, .22) 0%, rgba(255, 255, 255, .11) 38%, rgba(255, 255, 255, 0) 100%);
+            radial-gradient(calc(620 * var(--u)) calc(560 * var(--u)) at 100% calc(1320 * var(--u)), rgba(255, 255, 255, .24) 0%, rgba(255, 255, 255, .12) 38%, rgba(255, 255, 255, 0) 100%),
+            radial-gradient(calc(620 * var(--u)) calc(760 * var(--u)) at 0% calc(2190 * var(--u)), rgba(255, 255, 255, .22) 0%, rgba(255, 255, 255, .11) 38%, rgba(255, 255, 255, 0) 100%);
     }
 
     .cases__list {
