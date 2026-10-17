@@ -47,22 +47,29 @@ export function initModals({ reduceMotion = false } = {}) {
         frame?.focus({ preventScroll: true });
     };
 
-    const close = ({ then } = {}) => {
+    const close = ({ then, fling = false } = {}) => {
         const modal = active;
         if (!modal) return;
         active = null;
         modal.classList.remove('is-open');
         modal.classList.add('is-closing');
-        modal.style.removeProperty('--drag');
+        if (fling) {
+            modal.classList.add('is-flung');
+            modal.style.setProperty('--drag', `${Math.round(innerHeight * 0.9)}px`);
+        } else {
+            modal.style.removeProperty('--drag');
+        }
+        modal.style.removeProperty('--fade');
         const done = () => {
             modal.hidden = true;
-            modal.classList.remove('is-closing');
+            modal.classList.remove('is-closing', 'is-flung', 'is-dragging');
+            modal.style.removeProperty('--drag');
             document.body.classList.remove('is-locked');
             if (then) then();
             else lastTrigger?.focus({ preventScroll: true });
         };
         if (reduceMotion) done();
-        else closeTimer = setTimeout(done, CLOSE_MS);
+        else closeTimer = setTimeout(done, fling ? 300 : CLOSE_MS);
     };
 
     document.addEventListener('click', (e) => {
@@ -102,28 +109,61 @@ export function initModals({ reduceMotion = false } = {}) {
 
     roots.forEach((modal) => { if (modal.classList.contains('modal--case')) initCaseSlider(modal, { reduceMotion }); });
 
-    /* свайп вниз закрывает лист на мобилке (только когда он прокручен к началу) */
+    /* шторка: лист идёт за пальцем, фон затухает; по отпусканию — улетает (быстрый жест / > 22% высоты) или пружинит назад */
     roots.forEach((modal) => {
-        let startY = 0, dy = 0, dragging = false;
+        const frame = modal.querySelector('.modal__frame');
+        if (frame && !frame.querySelector(':scope > .modal__grab')) {
+            const g = document.createElement('span');
+            g.className = 'modal__grab';
+            g.setAttribute('aria-hidden', 'true');
+            frame.prepend(g);
+        }
+
+        let sx = 0, sy = 0, dy = 0, mode = 0;           // mode: 0 — ждём, 1 — тянем, -1 — не наш жест
+        let pts = [];
+        const stage = modal.querySelector('.modal__stage, .cmodal__stage');
+
         modal.addEventListener('touchstart', (e) => {
-            if (!mqPhone.matches || modal.scrollTop > 0 || e.touches.length !== 1) return;
-            startY = e.touches[0].clientY; dy = 0; dragging = true;
+            mode = 0;
+            if (!mqPhone.matches || modal.scrollTop > 0 || e.touches.length !== 1 || !modal.classList.contains('is-open')) { mode = -1; return; }
+            sx = e.touches[0].clientX; sy = e.touches[0].clientY; dy = 0;
+            pts = [{ y: sy, t: performance.now() }];
         }, { passive: true });
+
         modal.addEventListener('touchmove', (e) => {
-            if (!dragging) return;
-            dy = e.touches[0].clientY - startY;
-            if (dy <= 0) { modal.style.removeProperty('--drag'); return; }
-            modal.classList.add('is-dragging');
-            modal.style.setProperty('--drag', `${dy * .7}px`);
-        }, { passive: true });
-        const end = () => {
-            if (!dragging) return;
-            dragging = false;
+            if (mode < 0 || !pts.length) return;
+            const x = e.touches[0].clientX;
+            const y = e.touches[0].clientY;
+            dy = y - sy;
+            if (mode === 0) {
+                if (Math.abs(x - sx) < 8 && Math.abs(dy) < 8) return;
+                if (dy <= 0 || Math.abs(dy) < Math.abs(x - sx) * 1.2 || modal.scrollTop > 0) { mode = -1; return; }
+                mode = 1;
+                modal.classList.add('is-dragging');
+            }
+            if (e.cancelable) e.preventDefault();
+            const h = (stage?.offsetHeight || innerHeight);
+            const off = dy > 0 ? dy : dy * .15;
+            modal.style.setProperty('--drag', `${off.toFixed(1)}px`);
+            modal.style.setProperty('--fade', Math.max(.15, 1 - Math.max(0, dy) / (h * .9)).toFixed(3));
+            pts.push({ y, t: performance.now() });
+            if (pts.length > 8) pts.shift();
+        }, { passive: false });
+
+        const end = (cancelled) => {
+            const was = mode === 1;
+            mode = 0;
+            if (!was) return;
+            const last = pts[pts.length - 1];
+            const first = pts.find((p) => last.t - p.t <= 100) || pts[0];
+            const v = (last.y - first.y) / Math.max(1, last.t - first.t);      // px/мс
             modal.classList.remove('is-dragging');
-            if (dy > 110) close(); else modal.style.removeProperty('--drag');
+            const need = Math.min((stage?.offsetHeight || innerHeight) * .22, innerHeight * .25);
+            if (!cancelled && (dy > need || (v > .4 && dy > 24))) close({ fling: true });
+            else { modal.style.removeProperty('--drag'); modal.style.removeProperty('--fade'); }
         };
-        modal.addEventListener('touchend', end);
-        modal.addEventListener('touchcancel', end);
+        modal.addEventListener('touchend', () => end(false));
+        modal.addEventListener('touchcancel', () => end(true));
     });
 }
 

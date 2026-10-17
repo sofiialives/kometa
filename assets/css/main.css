@@ -6886,3 +6886,163 @@ video {
     .personal__row--3 .tag:nth-child(2) { padding-inline: 12px; margin-left: -5px; translate: -0.5px -5.4px; }
     .personal__row--3 .tag:nth-child(3) { padding-inline: 9.5px; margin-left: -6px; translate: -1.2px -5.4px; }
 }
+
+
+/* =========================================================
+   v4 — фишки в духе iOS / Telegram
+   ========================================================= */
+
+/* --- блик под пальцем (visionOS): вставляется JS как последний ребёнок стеклянного элемента --- */
+.fx-glow {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .55s ease;
+    background:
+        radial-gradient(circle var(--gr, 110px) at var(--gx, 50%) var(--gy, 50%),
+            rgba(255, 255, 255, .22) 0%,
+            rgba(255, 255, 255, .08) 45%,
+            rgba(255, 255, 255, 0) 72%);
+}
+
+.fx-glow.is-on {
+    opacity: 1;
+    transition-duration: .12s;
+}
+
+.card > .fx-glow {
+    z-index: -1;
+}
+
+/* кнопки-«пилюли» держат блик внутри формы */
+.btn-send, .btn-dream, .btn-request { overflow: hidden; }
+
+/* --- шторка модалок: грабер, затухание фона, пружинный возврат --- */
+.modal__grab {
+    display: none;
+}
+
+@media (max-width: 1279.98px) {
+    .modal__grab {
+        display: block;
+        position: absolute;
+        top: 8px;
+        left: 50%;
+        z-index: 6;
+        width: 36px;
+        height: 5px;
+        margin-left: -18px;
+        border-radius: 3px;
+        background: rgba(255, 255, 255, .28);
+        pointer-events: none;
+    }
+
+    .modal.is-dragging .modal__scrim {
+        transition: none;
+        opacity: var(--fade, 1);
+    }
+
+    /* возврат листа после неудавшегося свайпа — с лёгким перелётом */
+    .modal:not(.is-dragging):not(.is-flung) .modal__stage,
+    .modal:not(.is-dragging):not(.is-flung) .cmodal__stage {
+        transition: transform .55s cubic-bezier(.3, 1.35, .5, 1);
+    }
+
+    /* бросок вниз: лист доезжает за экран быстро и без пружины */
+    .modal.is-flung .modal__stage,
+    .modal.is-flung .cmodal__stage {
+        transition: transform .3s cubic-bezier(.4, 0, 1, 1);
+    }
+}
+
+/* --- звёзды плывут по наклону телефона (горизонталь, GPU-transform) --- */
+@media (pointer: coarse) {
+    .sky::before {
+        inset: 0 -20px;
+        translate: var(--tilt-x, 0px) 0;
+        will-change: translate;
+    }
+}
+
+/* --- плашка-«остров» сверху --- */
+.island {
+    position: fixed;
+    top: calc(env(safe-area-inset-top, 0px) + 10px);
+    left: 0;
+    right: 0;
+    z-index: 1300;
+    display: flex;
+    justify-content: center;
+    pointer-events: none;
+    visibility: hidden;
+}
+
+.island.is-on { visibility: visible; }
+
+.island__pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    height: 52px;
+    max-width: calc(100vw - 24px);
+    padding: 0 22px 0 14px;
+    border-radius: 26px;
+    overflow: hidden;
+    white-space: nowrap;
+    color: #fff;
+    font-size: 17px;
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: .005em;
+    background: rgba(14, 14, 18, .97);
+    -webkit-backdrop-filter: blur(24px) saturate(1.5);
+    backdrop-filter: blur(24px) saturate(1.5);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .22), 0 14px 36px -8px rgba(0, 0, 0, .85);
+}
+
+.island__txt { color: #fff; text-shadow: 0 0 1px rgba(255, 255, 255, .25); }
+
+.island__ico {
+    flex: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #4BBCFC;
+    box-shadow: 0 0 14px rgba(75, 188, 252, .5);
+    display: grid;
+    place-items: center;
+}
+
+.island__ico svg {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: #0b0b0e;
+    stroke-width: 2.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.island[data-kind="warn"] .island__ico {
+    background: #FFB224;
+    box-shadow: 0 0 14px rgba(255, 178, 36, .5);
+}
+
+.island .island__ico .i-warn,
+.island[data-kind="warn"] .island__ico .i-ok { display: none; }
+.island[data-kind="warn"] .island__ico .i-warn { display: block; }
+
+@media (prefers-reduced-motion: reduce) {
+    .fx-glow { transition: none; }
+}
+
+/* v4.4 — «кручение» стёклышка пальцем в любую сторону не должно отменяться браузером (меню не прокручивается) */
+.nav__list a { touch-action: none; }
+
+/* v4.7 — текст пункта двигается вместе со стёклышком: inline-ссылке десктопа нужен inline-block, чтобы работали translate/scale */
+@media (min-width: 1280px) {
+    .nav__list a { display: inline-block; }
+}

@@ -10,6 +10,10 @@ import { initCrewSlider } from './modules/crew-slider.js';
 import { initModals } from './modules/modals.js';
 import { initGlassClose } from './modules/glass-close.js';
 import { initNavGlass } from './modules/nav-glass.js';
+import { initPressSpring } from './modules/press-spring.js';
+import { initIsland } from './modules/island.js';
+import { initTiltStars } from './modules/tilt-stars.js';
+import { initRevealFx } from './modules/reveal-fx.js';
 
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const isPhone = window.matchMedia('(max-width: 1279.98px)').matches;
@@ -202,6 +206,10 @@ initAstronaut();
 initModals({ reduceMotion });
 initGlassClose();
 initNavGlass();
+initPressSpring();
+initIsland();
+initTiltStars();
+initRevealFx();
 
 // запрет копирования картинок/видео: перетаскивание и контекстное меню (текст копируется как раньше)
 document.addEventListener('dragstart', (e) => {

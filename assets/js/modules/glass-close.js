@@ -10,6 +10,7 @@
 const LAYER = '.modal__close, .nav__close, .case__open';
 const GENERIC = '.burger, .card__arrow, .btn-dream, .btn-request, .btn-send, .header__tg, .tg-corner, .crew__btn, .cmodal__nav';
 const SELECTOR = `${LAYER}, ${GENERIC}`;
+export const PRESS_SELECTOR = SELECTOR;   // эти кнопки уже имеют свой «пресс»: общий спринг их не трогает
 const HOLD_SCALE = 1.33;
 const GLYPH_SCALE = 1.04;    // крестик внутри растёт чуть больше круга
 const MAX_OFF = .25;         // максимальное смещение, доля диаметра

@@ -25,12 +25,15 @@ export function initCarousel({ track, progress }) {
     track.classList.remove('sdt');
     let frame = 0;
     let pitchPx = 192;
+    let rb = 0;               // «резинка» у краёв: смещение карточек за пределы прокрутки, px (>0 — потянули за начало)
+    let rbRaf = 0;
 
     const measure = () => {
         pitchPx = parseFloat(getComputedStyle(track).getPropertyValue('--pitch')) || 192;
     };
 
     const reset = () => {
+        rb = 0;
         cards.forEach((card) => {
             card.style.removeProperty('transform');
             card.style.removeProperty('opacity');
@@ -58,7 +61,7 @@ export function initCarousel({ track, progress }) {
             return;
         }
 
-        let shift = 0;
+        let shift = rb;
         let nearest = 0;
         let best = Infinity;
 
@@ -137,9 +140,37 @@ export function initCarousel({ track, progress }) {
         return (first.x - last.x) / Math.max(1, last.t - first.t);     // px/мс, >0 — листаем вперёд
     };
 
+    // резинка: сопротивление растёт, предел ≈ RB_DIM; возврат — пружина с лёгким перелётом
+    const RB_DIM = 110;
+    const rubber = (x) => (1 - 1 / (x * .55 / RB_DIM + 1)) * RB_DIM;
+    const stopRb = () => { if (rbRaf) { cancelAnimationFrame(rbRaf); rbRaf = 0; } };
+    const springBack = () => {
+        stopRb();
+        if (Math.abs(rb) < .3 || reduce.matches) { rb = 0; update(); return; }
+        let v = 0;
+        let prev = performance.now();
+        const K = 190;
+        const C = 2 * .62 * Math.sqrt(K);
+        const step = (now) => {
+            let left = Math.min(.032, (now - prev) / 1000);
+            prev = now;
+            while (left > 0) {
+                const h = Math.min(.004, left);
+                left -= h;
+                v += (-K * rb - C * v) * h;
+                rb += v * h;
+            }
+            if (Math.abs(rb) < .15 && Math.abs(v) < 2) { rb = 0; rbRaf = 0; update(); return; }
+            update();
+            rbRaf = requestAnimationFrame(step);
+        };
+        rbRaf = requestAnimationFrame(step);
+    };
+
     // ---- общий драйвер жеста (одинаков для пальца и мыши) ----
     const begin = (x, y) => {
         stopAnim();
+        stopRb();
         drag = { x0: x, y0: y, startScroll: track.scrollLeft, active: false, pts: [{ x, t: performance.now() }] };
     };
     const move = (x, y) => {
@@ -152,7 +183,10 @@ export function initCarousel({ track, progress }) {
             blockClick = true;
             track.classList.add('is-dragging');
         }
-        track.scrollLeft = Math.min(maxScroll(), Math.max(0, drag.startScroll - dx));
+        const raw = drag.startScroll - dx;
+        const mx = maxScroll();
+        rb = raw < 0 ? rubber(-raw) : raw > mx ? -rubber(raw - mx) : 0;
+        track.scrollLeft = Math.min(mx, Math.max(0, raw));
         update();
         drag.pts.push({ x, t: performance.now() });
         if (drag.pts.length > 12) drag.pts.shift();
@@ -164,6 +198,7 @@ export function initCarousel({ track, progress }) {
         drag = null;
         track.classList.remove('is-dragging');
         if (!d.active) return;
+        if (rb) springBack();
         settle(d, cancelled ? 0 : velocity(d.pts), cancelled);
     };
 

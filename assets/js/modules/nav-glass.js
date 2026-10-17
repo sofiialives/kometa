@@ -29,10 +29,30 @@ export function initNavGlass({ root = document } = {}) {
     const K = 420;
     const Z = .7;
 
+    // «зажатие» стёклышка пальцем/мышью (как у крестика): растёт, смещается за пальцем ≤ MAX и тянется вдоль движения
+    const HOLD = 1.12;
+    const MAXX = 16;
+    const MAXY = 9;
+    let pressLink = null;            // ссылка под пальцем: текст двигается вместе со стёклышком
+    const lscale = () => 1 + (hp.s - 1) * .6;
+    const clearPress = () => {
+        if (pressLink) { pressLink.style.removeProperty('translate'); pressLink.style.removeProperty('scale'); pressLink = null; }
+        Object.assign(hp, { s: 1, vs: 0, ox: 0, oy: 0, vx: 0, vy: 0, ts: 1, tx: 0, ty: 0 });
+    };
+    const hp = { s: 1, vs: 0, ox: 0, oy: 0, vx: 0, vy: 0, ts: 1, tx: 0, ty: 0, ks: 900, zs: .62 };
+
     const target = () => {
         if (!active) return null;
         const l = list.getBoundingClientRect();
-        const r = active.a.getBoundingClientRect();
+        let r = active.a.getBoundingClientRect();
+        if (pressLink === active.a) {                  // убираем собственное смещение/масштаб текста, иначе стёклышко погонится за ним
+            const s = lscale();
+            const w = r.width / s;
+            const h = r.height / s;
+            const cx = r.left + r.width / 2 - hp.ox;
+            const cy = r.top + r.height / 2 - hp.oy;
+            r = { left: cx - w / 2, top: cy - h / 2, width: w, height: h };
+        }
         if (!r.width || !l.width) return null;
         const cs = getComputedStyle(glass);
         const px = parseFloat(cs.getPropertyValue('--px')) || 14;
@@ -43,15 +63,24 @@ export function initNavGlass({ root = document } = {}) {
     const apply = () => {
         glass.style.width = `${sp.w.toFixed(2)}px`;
         glass.style.height = `${sp.h.toFixed(2)}px`;
-        glass.style.translate = `${sp.x.toFixed(2)}px ${sp.y.toFixed(2)}px`;
-        glass.style.scale = `${(1 + .07 * sp.f).toFixed(4)} ${(1 + .26 * sp.f).toFixed(4)}`;
-        glass.style.setProperty('--f', sp.f.toFixed(3));
+        const q = Math.min(1, Math.hypot(hp.ox / MAXX, hp.oy / MAXY));
+        const a = Math.atan2(hp.oy, hp.ox);
+        const cx = Math.cos(a) ** 2;
+        const cy = Math.sin(a) ** 2;
+        const hold = Math.max(0, Math.min(1.2, (hp.s - 1) / (HOLD - 1)));
+        glass.style.translate = `${(sp.x + hp.ox).toFixed(2)}px ${(sp.y + hp.oy).toFixed(2)}px`;
+        glass.style.scale = `${((1 + .07 * sp.f) * hp.s * (1 + .10 * q * cx - .05 * q * cy)).toFixed(4)} ${((1 + .26 * sp.f) * hp.s * (1 + .10 * q * cy - .05 * q * cx)).toFixed(4)}`;
+        glass.style.setProperty('--f', Math.max(sp.f, Math.min(1, hold * .8)).toFixed(3));
+        if (pressLink) {
+            pressLink.style.translate = `${hp.ox.toFixed(2)}px ${hp.oy.toFixed(2)}px`;
+            pressLink.style.scale = lscale().toFixed(4);
+        }
     };
 
     let prev = 0;
     const tick = (now) => {
         const t = target();
-        if (!t) { glass.classList.remove('is-on'); shown = false; raf = 0; return; }
+        if (!t) { glass.classList.remove('is-on'); shown = false; raf = 0; if (!held) clearPress(); return; }
         if (!shown) {                                   // первое появление — без полёта
             Object.assign(sp, { x: t.x, y: t.y, w: t.w, h: t.h, vx: 0, vy: 0, vw: 0, vh: 0, f: 0 });
             shown = true;
@@ -69,13 +98,26 @@ export function initNavGlass({ root = document } = {}) {
                 sp[p] += sp[v] * h;
             }
         }
+        {
+            let hl = Math.min(.032, (now - (prev || now)) / 1000) || .008;
+            const cs = 2 * hp.zs * Math.sqrt(hp.ks);
+            const co = 2 * .92 * Math.sqrt(520);
+            while (hl > 0) {
+                const h2 = Math.min(.004, hl);
+                hl -= h2;
+                hp.vs += (hp.ks * (hp.ts - hp.s) - cs * hp.vs) * h2; hp.s += hp.vs * h2;
+                hp.vx += (520 * (hp.tx - hp.ox) - co * hp.vx) * h2; hp.ox += hp.vx * h2;
+                hp.vy += (520 * (hp.ty - hp.oy) - co * hp.vy) * h2; hp.oy += hp.vy * h2;
+            }
+        }
         const speed = Math.hypot(sp.vx, sp.vy);
         const ft = reduce.matches ? 0 : Math.min(1, speed / 1100);
         sp.f += (ft - sp.f) * .22;
         apply();
         const rest = Math.abs(t.x - sp.x) < .1 && Math.abs(t.y - sp.y) < .1 && Math.abs(t.w - sp.w) < .1 && Math.abs(t.h - sp.h) < .1
-            && speed < 2 && sp.f < .004;
-        if (rest) { sp.f = 0; apply(); raf = 0; prev = 0; return; }
+            && speed < 2 && sp.f < .004
+            && !held && Math.abs(hp.s - 1) < .001 && Math.abs(hp.ox) < .05 && Math.abs(hp.oy) < .05 && Math.abs(hp.vs) < .01;
+        if (rest) { sp.f = 0; clearPress(); apply(); raf = 0; prev = 0; return; }
         raf = requestAnimationFrame(tick);
     };
     const run = () => { if (!raf) { prev = 0; raf = requestAnimationFrame(tick); } };
@@ -110,6 +152,84 @@ export function initNavGlass({ root = document } = {}) {
             setActive(item);
         });
     });
+    // зажатие: стёклышко летит под палец, растёт и тянется за ним; текст остаётся на месте.
+    // одинаково для мыши и пальца: стёклышко сразу летит под палец, растёт и тянется за ним.
+    let held = null;
+    let hpid = null;
+    let hx = 0;
+    let hy = 0;
+    let armed = null;                 // { item, timer } — ждём подтверждения намерения (только касание)
+    const engage = (item) => {
+        if (pressLink && pressLink !== item.a) { pressLink.style.removeProperty('translate'); pressLink.style.removeProperty('scale'); }
+        pressLink = item.a;
+        held = item;
+        lockUntil = performance.now() + 1400;
+        setActive(item);                             // стёклышко летит под палец / курсор
+        hp.ks = 900; hp.zs = .62;
+        hp.ts = reduce.matches ? 1 : HOLD;
+        hp.tx = 0; hp.ty = 0;
+        run();
+    };
+    const disarm = () => { if (armed) { clearTimeout(armed.timer); armed = null; } };
+    links.forEach((a) => {
+        const item = items.find((i) => i.a === a);
+        if (!item) return;
+        a.addEventListener('pointerdown', (e) => {
+            if (e.pointerType === 'mouse' && e.button !== 0) return;
+            hpid = e.pointerId;
+            hx = e.clientX;
+            hy = e.clientY;
+            disarm();
+            moved = false;
+            try { a.setPointerCapture(e.pointerId); } catch (_) { /* noop */ }   // тянуть можно за пределы ссылки
+            engage(item);
+        });
+        a.addEventListener('pointermove', (e) => {
+            if (e.pointerId !== hpid) return;
+            const dx = e.clientX - hx;
+            const dy = e.clientY - hy;
+            if (Math.hypot(dx, dy) > 4) moved = true;
+            if (held !== item || reduce.matches) return;
+            const dead = 0;
+            const ex = Math.sign(dx) * Math.max(0, Math.abs(dx) - dead);
+            const ey = Math.sign(dy) * Math.max(0, Math.abs(dy) - dead);
+            hp.tx = MAXX * Math.tanh(ex / (MAXX * 1.1));
+            hp.ty = MAXY * Math.tanh(ey / (MAXY * 1.1));
+            run();
+        });
+    });
+    let moved = false;
+    links.forEach((a) => {
+        // отпустили далеко от ссылки — это не нажатие: переход не выполняем (как у крестика)
+        a.addEventListener('click', (e) => {
+            if (!suppressClick) return;
+            suppressClick = false;
+            e.preventDefault();
+            e.stopImmediatePropagation();
+        }, true);
+    });
+    let suppressClick = false;
+    const letGo = (e, cancelled) => {
+        if (e.pointerId === hpid && held) {
+            const r = held.a.getBoundingClientRect();
+            const inside = e.clientX > r.left - 14 && e.clientX < r.right + 14 && e.clientY > r.top - 14 && e.clientY < r.bottom + 14;
+            suppressClick = !cancelled && moved && !inside;
+            if (suppressClick) setTimeout(() => { suppressClick = false; }, 400);
+            if (suppressClick) setTimeout(() => { lockUntil = 0; spy(); }, 800);
+        }
+        if (e.pointerId === hpid) disarm();
+        if (!held || e.pointerId !== hpid) return;
+        held = null;
+        hpid = null;
+        hp.ks = 1100; hp.zs = .38;                 // быстрый возврат с недолётом, как у крестика
+        hp.ts = 1; hp.tx = 0; hp.ty = 0;
+        setTimeout(() => { if (!held) { clearPress(); apply(); } }, 1800);   // страховка: текст обязательно возвращается на место
+        if (cancelled && lockUntil) { setTimeout(() => { lockUntil = 0; spy(); }, 800); }   // жест забрал скролл — стёклышко возвращается к текущему разделу
+        run();
+    };
+    window.addEventListener('pointerup', (e) => letGo(e, false));
+    window.addEventListener('pointercancel', (e) => letGo(e, true));
+
     // после окончания программного скролла возвращаем управление споту
     window.addEventListener('scrollend', () => { lockUntil = 0; spy(); });
 
