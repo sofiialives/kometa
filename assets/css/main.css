@@ -53,8 +53,8 @@
             rgba(255, 255, 255, .2) 48.1%,
             rgba(255, 255, 255, 0) 100%);
     --grad-border-tag: radial-gradient(102.35% 145.98% at 27.35% 75.89%,
-            rgba(255, 255, 255, .38) 44%,
-            rgba(255, 255, 255, .12) 80%,
+            rgba(255, 255, 255, .52) 44%,
+            rgba(255, 255, 255, .18) 80%,
             rgba(255, 255, 255, 0) 100%);
     --mask-corners: linear-gradient(135deg,
             #000 0%, #000 22%,
@@ -5433,15 +5433,15 @@ button {
         margin-right: -77px;
         transform-origin: 0 0;
         transform: scale(.7004, .7287);
-        opacity: .5;
-        will-change: transform, opacity;
+        --o: .5;
+        will-change: transform;
     }
 
     .directions .cards:not(.q) .card:not(.q):first-child,
     .directions .cards:not(.has-current):not(.q) .card:not(.q):first-child {
         --t: 1;
         transform: none;
-        opacity: 1;
+        --o: 1;
     }
 }
 
@@ -5473,6 +5473,7 @@ html.is-autoscroll *::after {
 /* тач: листание ведёт JS (медленное «доезжание» до карточки), нативный снап и инерция отключены */
 @media (max-width: 1279.98px) {
     .directions .cards.js-pager:not(.q) {
+        overflow-x: hidden;
         scroll-snap-type: none;
         touch-action: pan-y;
         overscroll-behavior-x: contain;
@@ -5530,9 +5531,48 @@ html.is-autoscroll *::after {
         --r-card: calc(28 * var(--u));
     }
 
-    /* шапка: лишняя кнопка «Оставить заявку» не нужна */
-    .header__cta {
+    /* шапка: кнопка «Оставить заявку» сбоку — цвета и стекло как у кнопки на мобилке */
+    .header__actions {
         display: none;
+    }
+
+    .header__cta {
+        display: inline-flex;
+        margin-left: auto;
+        border-radius: 12px;
+        background:
+            linear-gradient(160deg, rgba(255, 255, 255, .03) 0%, rgba(255, 255, 255, 0) 45%, rgba(255, 255, 255, .05) 100%),
+            rgba(149, 149, 149, .2);
+        -webkit-backdrop-filter: blur(6px);
+        backdrop-filter: blur(6px);
+        transition: transform .35s cubic-bezier(.32, .72, 0, 1), background-color .25s ease, box-shadow .25s ease;
+    }
+
+    .header__cta::before {
+        padding: 1px;
+        background: linear-gradient(135deg, rgba(255, 255, 255, .24) 0%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .22) 100%);
+        -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+        -webkit-mask-composite: xor;
+        mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+    }
+
+    .header__cta:hover {
+        background:
+            linear-gradient(160deg, rgba(255, 255, 255, .05) 0%, rgba(255, 255, 255, 0) 45%, rgba(255, 255, 255, .07) 100%),
+            rgba(149, 149, 149, .3);
+    }
+
+    .header__cta:active {
+        transform: scale(.95);
+        background:
+            linear-gradient(160deg, rgba(255, 255, 255, .06) 0%, rgba(255, 255, 255, 0) 45%, rgba(255, 255, 255, .08) 100%),
+            rgba(149, 149, 149, .38);
+        transition-duration: .08s;
+    }
+
+    .header__cta:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 1.5px rgba(255, 255, 255, .65);
     }
 
     .section-title,
@@ -6141,4 +6181,708 @@ html.is-autoscroll *::after {
     background: rgba(120, 120, 120, .5);
     box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, .3), 0 8px 22px rgba(0, 0, 0, .4);
     transform: rotate(var(--sa, 0deg)) scale(var(--sx, 1), var(--sy, 1));
+}
+
+
+/* =========================================================
+   СТЕКЛО (по макету): тёмное матовое стекло — белый ~9.5% + размытие фона, тонкая светлая кромка
+   (ярче по диагонали), голо-объекты лежат ПОД стеклом и светятся мягким пятном снизу-справа.
+   ========================================================= */
+/* will-change: opacity превращает элемент в «корень фона» и ломает backdrop-filter у потомков — оставляем только transform */
+.cards .card,
+.directions .cards:not(.q) .card:not(.q),
+.personal,
+.crew .crew-card,
+.crew-card,
+.form {
+    will-change: transform;
+}
+
+.card__glow,
+.personal__glow {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    overflow: hidden;
+    pointer-events: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.card__holo,
+.personal__holo {
+    position: absolute;
+    pointer-events: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.card__holo {
+    left: var(--hx, 80%);
+    top: var(--hy, 73%);
+    width: var(--hw, 74%);
+    height: auto;
+    translate: -50% -50%;
+    filter: blur(6cqw) brightness(2.7) saturate(.4);
+    opacity: .95;
+}
+
+/* позиция = центр объекта (у PNG он в центре кадра), ширина кадра = ширина объекта / доля объекта в кадре */
+.cards .card:nth-child(1) { --hx: 68%; --hy: 78%; --hw: calc(.46 / .592 * 100%); }
+.cards .card:nth-child(2) { --hx: 80%; --hy: 80%; --hw: calc(.52 / .714 * 100%); }
+.cards .card:nth-child(3) { --hx: 76%; --hy: 77%; --hw: calc(.52 / .673 * 100%); }
+
+@media (max-width: 1279.98px) {
+    .cards .card:nth-child(1) { --hx: 72%; --hy: 70%; --hw: calc(.52 / .592 * 100%); }
+    .cards .card:nth-child(2) { --hx: 72%; --hy: 70%; --hw: calc(.56 / .714 * 100%); }
+    .cards .card:nth-child(3) { --hx: 72%; --hy: 70%; --hw: calc(.56 / .673 * 100%); }
+}
+
+.cards .card,
+.card {
+    isolation: isolate;
+    background: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+.cards .card::before,
+.card::before,
+.personal::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    pointer-events: none;
+    /* заливка почти матовая: вид одинаков и в покое, и при движении (backdrop-filter при масштабе/сдвиге карусели браузер может выключать) */
+    background: linear-gradient(rgba(255, 255, 255, .04), rgba(255, 255, 255, .04)), rgba(30, 30, 32, .86);
+    -webkit-backdrop-filter: blur(12px) saturate(1.3);
+    backdrop-filter: blur(12px) saturate(1.3);
+    box-shadow: none;
+}
+
+/* кромка 1px: ярче по диагонали (левый верх / правый низ), как на макете */
+.cards .card::after,
+.personal::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    padding: 1px;
+    pointer-events: none;
+    background: linear-gradient(135deg, rgba(255, 255, 255, .38) 0%, rgba(255, 255, 255, .16) 24%, rgba(255, 255, 255, .13) 72%, rgba(255, 255, 255, .36) 100%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+}
+
+/* внутренняя плашка со ступеньками: рисуется векторным SVG (заливка-стекло + кромка 1px, ярче по диагонали) */
+.cards .card .card__visual {
+    isolation: isolate;
+    background: none;
+}
+
+.card__plate {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: visible;
+}
+
+.card__plate path {
+    fill: rgba(255, 255, 255, .07);
+    stroke: url(#plate-rim);
+    stroke-width: 1px;
+}
+
+.card__plate--m {
+    display: none;
+}
+
+@media (max-width: 1279.98px) {
+    .card__plate--d {
+        display: none;
+    }
+
+    .card__plate--m {
+        display: block;
+    }
+}
+
+/* персональное решение */
+.personal {
+    isolation: isolate;
+    background: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+.personal__holo img {
+    display: block;
+    width: 100%;
+    height: auto;
+    filter: blur(5cqw) brightness(2.4) saturate(.35);
+    opacity: .9;
+}
+
+.personal {
+    container-type: inline-size;
+}
+
+.personal__holo--a {
+    left: 52%;
+    top: 25%;
+    width: calc(.17 / .714 * 100%);
+    translate: -50% -50%;
+}
+
+.personal__holo--b {
+    left: 84%;
+    top: 52%;
+    width: calc(.28 / .673 * 100%);
+    translate: -50% -50%;
+}
+
+@media (max-width: 1279.98px) {
+    .personal__holo--a {
+        left: 26%;
+        top: 40%;
+        width: calc(.30 / .673 * 100%);
+    }
+
+    .personal__holo--b {
+        left: 78%;
+        top: 40%;
+        width: calc(.30 / .673 * 100%);
+    }
+}
+
+/* экипаж и форма: тёмное стекло по макету — вертикальный градиент белого 4.5% → 9%, кромка по диагонали, мягкие блики */
+.crew-card,
+.crew-card:nth-child(n),
+.form {
+    position: relative;
+    isolation: isolate;
+    background: linear-gradient(180deg, rgba(255, 255, 255, .075) 0%, rgba(255, 255, 255, .1) 55%, rgba(255, 255, 255, .117) 100%);
+    -webkit-backdrop-filter: blur(18px) saturate(1.3);
+    backdrop-filter: blur(18px) saturate(1.3);
+    box-shadow: none;
+}
+
+.crew-card:nth-child(n) {
+    background-image: linear-gradient(180deg, rgba(255, 255, 255, .075) 0%, rgba(255, 255, 255, .1) 55%, rgba(255, 255, 255, .117) 100%);
+}
+
+.crew-card::before,
+.form::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    padding: 1px;
+    pointer-events: none;
+    opacity: 1;
+    background: linear-gradient(135deg, rgba(255, 255, 255, .36) 0%, rgba(255, 255, 255, .15) 24%, rgba(255, 255, 255, .12) 72%, rgba(255, 255, 255, .34) 100%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+}
+
+/* блики стекла: две еле заметные диагональные полосы и световые пятна по углам */
+.crew-card::after,
+.form::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    pointer-events: none;
+    background:
+        radial-gradient(38% 60% at 0 0, rgba(255, 255, 255, .11), rgba(255, 255, 255, 0) 70%),
+        radial-gradient(34% 56% at 100% 100%, rgba(255, 255, 255, .09), rgba(255, 255, 255, 0) 70%),
+        linear-gradient(112deg, rgba(255, 255, 255, 0) 24%, rgba(255, 255, 255, .045) 33%, rgba(255, 255, 255, 0) 42%, rgba(255, 255, 255, 0) 60%, rgba(255, 255, 255, .03) 68%, rgba(255, 255, 255, 0) 76%);
+    mix-blend-mode: screen;
+    opacity: 1;
+}
+
+
+/* ---------- стеклянная «линза» навигации (Telegram / iOS) ---------- */
+.nav__list {
+    position: relative;
+}
+
+.nav__link {
+    position: relative;
+    z-index: 1;
+}
+
+.nav__glass {
+    --px: 14;
+    --py: 7;
+    --f: 0;
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 0;
+    width: 0;
+    height: 0;
+    border-radius: 999px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .25s ease;
+    background: rgba(255, 255, 255, calc(.12 + .07 * var(--f)));
+    -webkit-backdrop-filter: blur(calc(1px + 2px * var(--f))) saturate(calc(1.3 + .6 * var(--f))) brightness(calc(1 + .22 * var(--f)));
+    backdrop-filter: blur(calc(1px + 2px * var(--f))) saturate(calc(1.3 + .6 * var(--f))) brightness(calc(1 + .22 * var(--f)));
+    box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, calc(.13 + .25 * var(--f))),
+        inset 0 1px 0 rgba(255, 255, 255, calc(.2 + .25 * var(--f))),
+        0 calc(4px + 10px * var(--f)) calc(12px + 14px * var(--f)) rgba(0, 0, 0, calc(.15 + .15 * var(--f)));
+}
+
+.nav__glass.is-on {
+    opacity: 1;
+}
+
+/* цветные кромки преломления — проявляются, пока линза в движении */
+.nav__glass::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    opacity: var(--f);
+    box-shadow:
+        inset 3px 0 4px -1px rgba(70, 150, 255, .75),
+        inset -3px 0 4px -1px rgba(255, 140, 60, .65),
+        inset 0 3px 4px -2px rgba(255, 255, 255, .8),
+        inset 0 -3px 4px -2px rgba(170, 100, 255, .55);
+}
+
+@media (max-width: 1279.98px) {
+    .nav__glass {
+        --px: 9;
+        --py: 5;
+    }
+}
+
+/* прежняя подсветка пункта заменена линзой */
+.nav__link::before {
+    display: none;
+}
+
+
+/* ---------- кнопка открытия кейса: то же зажатие, что у стеклянного крестика ---------- */
+.case__open {
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.case__open.is-held {
+    z-index: 30;
+    will-change: translate, scale;
+}
+
+.case__open svg {
+    scale: var(--gs, 1);
+}
+
+.case__open::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    pointer-events: none;
+    background: rgba(255, 255, 255, .15);
+    box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, .28);
+    opacity: calc(var(--h, 0) * (1 - .35 * var(--q, 0)));
+    transform: rotate(var(--sa, 0deg)) scale(var(--sx, 1), var(--sy, 1));
+}
+
+.case__open.is-held::before {
+    box-shadow: 0 18px 40px rgba(0, 0, 0, .45);
+}
+
+/* ---------- мобильное меню: текст по центру, «стеклышко» — на всю ширину контейнера пункта ---------- */
+@media (max-width: 1279.98px) {
+    .nav__glass {
+        --px: 6;
+        --py: 2;
+    }
+
+    .header .nav__list {
+        align-self: stretch;
+        align-items: stretch;
+        gap: 4px;
+    }
+
+    .header .nav__list li {
+        display: block;
+        width: 100%;
+    }
+
+    .header .nav__link {
+        display: block;
+        width: 100%;
+        padding: 2px 0;
+        text-align: center;
+    }
+}
+
+/* ---------- копирование: выделяется только текст; картинки/кнопки/плитки — нет ---------- */
+html,
+body {
+    -webkit-touch-callout: none;
+}
+
+body {
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+blockquote,
+figcaption,
+address,
+input,
+textarea,
+[contenteditable],
+.selectable {
+    -webkit-user-select: text;
+    user-select: text;
+}
+
+/* заголовки и подписи внутри интерактивных блоков (карточки, экипаж, кнопки, ссылки) — не выделяются: жест там — это drag/нажатие */
+.cards *,
+.crew *,
+.cases *,
+.personal *,
+button *,
+a *,
+button,
+a,
+.tag,
+.tag * {
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+    -webkit-user-drag: none;
+    user-drag: none;
+}
+
+img,
+video {
+    -webkit-touch-callout: none;
+}
+
+
+/* кромка плиток по макету: сверху тусклая, снизу яркий блик */
+.tag::before {
+    background: linear-gradient(180deg, rgba(255, 255, 255, .24) 0%, rgba(255, 255, 255, .13) 38%, rgba(255, 255, 255, .15) 60%, rgba(255, 255, 255, .62) 100%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+}
+
+
+/* карусель: «затухание» боковых карточек — на потомках, а не на самой карточке (opacity у предка выключает backdrop-filter) */
+@media (max-width: 1279.98px) {
+    .directions .cards:not(.q) .card:not(.q) {
+        opacity: 1;
+    }
+
+    .directions .cards:not(.q) .card:not(.q)::before,
+    .directions .cards:not(.q) .card:not(.q)::after,
+    .directions .cards:not(.q) .card:not(.q) > * {
+        opacity: var(--o, 1);
+    }
+}
+
+
+/* =========================================================
+   v3 — правки по макету (17.10): подложки, бордеры, иконки, hover
+   ========================================================= */
+
+/* текст при hover / фокусе не синеет (меню и подвал) */
+.nav__link:hover,
+.nav__link:focus-visible,
+.footer__link:hover,
+.footer__link:focus-visible {
+    color: inherit;
+}
+
+.nav__link[data-pending]:hover {
+    color: inherit;
+}
+
+/* кромка карточки 1px: по макету ярко только у левого верха и правого низа, в середине почти нет */
+.cards .card::after,
+.personal::after {
+    background: linear-gradient(135deg,
+        rgba(255, 255, 255, .36) 0%,
+        rgba(255, 255, 255, .33) 15%,
+        rgba(255, 255, 255, .14) 30%,
+        rgba(255, 255, 255, .01) 45%,
+        rgba(255, 255, 255, .02) 72%,
+        rgba(255, 255, 255, .10) 85%,
+        rgba(255, 255, 255, .30) 93%,
+        rgba(255, 255, 255, .36) 100%);
+}
+
+/* card visual: заливка D9D9D9 */
+.card__plate path {
+    fill: url(#plate-fill);
+}
+
+/* экипаж и форма: прозрачное стекло — звёзды видны сквозь подложку (по макету ≈ белый 6.5% поверх фона) */
+.crew-card,
+.crew-card:nth-child(n),
+.form {
+    background-color: transparent;
+    background-image: linear-gradient(rgba(255, 255, 255, .065), rgba(255, 255, 255, .065));
+    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(3px);
+}
+
+.crew-card:nth-child(n) {
+    background-image: linear-gradient(rgba(255, 255, 255, .065), rgba(255, 255, 255, .065));
+}
+
+.crew-card::after,
+.form::after {
+    opacity: .35;
+}
+
+/* персональное решение: иконки по макету, мягче и ниже */
+.personal__holo img {
+    filter: blur(5cqw) brightness(1.3) saturate(.35);
+    opacity: .72;
+}
+
+.personal__holo--a {
+    left: 63%;
+    top: 42%;
+}
+
+.personal__holo--b {
+    left: 86%;
+    top: 52%;
+}
+
+@media (max-width: 1279.98px) {
+    .personal {
+        padding-top: 32px;
+        padding-bottom: 12px;
+    }
+
+    .personal__holo--a {
+        left: 12%;
+        top: 68%;
+    }
+
+    .personal__holo--b {
+        left: 85%;
+        top: 50%;
+    }
+
+    .personal__holo img {
+        filter: blur(5cqw) brightness(2.2) saturate(.35);
+        opacity: .85;
+    }
+
+    .cards .card:nth-child(1) { --hb: 4; --ho: 1; --hx: 80%; --hy: 70%; --hbl: 7cqw; }
+
+}
+
+/* ---------- v3.1: калибровка по макету ---------- */
+
+/* цифры 01/02/03: ровные по всей ширине, как на макете (без затухающей маски по краям) */
+.card__num {
+    -webkit-mask: none;
+    mask: none;
+}
+
+/* голограммы в карточках: мягкая дымка, а не яркие пятна */
+.card__holo {
+    filter: blur(var(--hbl, 6cqw)) brightness(var(--hb, 1)) saturate(.4);
+    opacity: var(--ho, .6);
+}
+
+@media (min-width: 1280px) {
+    .cards .card:nth-child(1) { --hb: 5; --ho: 1; --hx: 72%; --hy: 86%; --hbl: 8cqw; }
+    .cards .card:nth-child(2) { --hb: 1.3; --ho: .55; }
+    .cards .card:nth-child(3) { --hb: 1; --ho: .5; }
+}
+
+/* кромка тегов: мягче, как на макете */
+.tag::before {
+    background: linear-gradient(180deg, rgba(255, 255, 255, .17) 0%, rgba(255, 255, 255, .09) 40%, rgba(255, 255, 255, .11) 62%, rgba(255, 255, 255, .42) 100%);
+}
+
+/* второе направление (десктоп): «Упаковка соц сетей» идёт отдельной строкой, как на макете */
+@media (min-width: 1280px) {
+    .cards .card:nth-child(2) .tags > .tag:first-child {
+        margin-right: 100%;
+    }
+}
+
+/* v3.2 — цвета по замеру макета: заливка карточки светлеет к низу, плашка светлее в «ушке» */
+.cards .card::before,
+.card::before,
+.personal::before {
+    background: linear-gradient(rgba(255, 255, 255, .05), rgba(255, 255, 255, .08)), rgba(30, 30, 32, .86);
+}
+
+@media (max-width: 1279.98px) {
+    .cards .card:nth-child(1) { --hb: 2; --ho: .8; --hx: 84%; --hy: 82%; --hbl: 6cqw; }
+}
+
+/* десктоп: заливка плашки ровная (ушко лежит на карточке), карточка чуть темнее — по замеру макета */
+@media (min-width: 1280px) {
+    .card__plate--d path {
+        fill: rgba(217, 217, 217, .052);
+    }
+
+    .cards .card::before,
+    .card::before,
+    .personal::before {
+        background: linear-gradient(rgba(255, 255, 255, .045), rgba(255, 255, 255, .055)), rgba(30, 30, 32, .86);
+    }
+}
+
+/* персональное решение (десктоп): положение и яркость по сетке яркости макета */
+@media (min-width: 1280px) {
+    .personal__holo--a {
+        left: 56%;
+        top: 38%;
+    }
+
+    .personal__holo--b {
+        left: 82%;
+        top: 56%;
+    }
+
+    .personal__holo img {
+        filter: blur(5cqw) brightness(1.1) saturate(.35);
+        opacity: .62;
+    }
+}
+
+/* v3.3 — подложка («ушко») непрозрачная, поверх неё свечение иконок; иконки «Персонального» по бокам на одном уровне */
+.card__plate {
+    z-index: -2;
+}
+
+.card__plate path {
+    fill: url(#plate-fill);
+}
+
+@media (min-width: 1280px) {
+    .card__plate--d path {
+        fill: url(#plate-fill-d);
+    }
+
+    .personal__holo--a {
+        left: 55%;
+        top: 40%;
+        width: calc(.27 / .714 * 100%);
+    }
+
+    .personal__holo--b {
+        left: 88%;
+        top: 58%;
+        width: calc(.30 / .673 * 100%);
+    }
+
+    .personal__holo img {
+        filter: blur(4cqw) brightness(3.2) saturate(.35);
+        opacity: 1;
+    }
+}
+
+@media (max-width: 1279.98px) {
+    .personal__holo--a {
+        left: 13%;
+        top: 50%;
+    }
+
+    .personal__holo--b {
+        left: 87%;
+        top: 50%;
+    }
+}
+
+/* v3.4 — иконки на фоне: обычные PNG, без размытия, свечения и прозрачности */
+.card__holo,
+.personal__holo img,
+.cards .card:nth-child(n) .card__holo {
+    filter: none;
+    opacity: 1;
+    mix-blend-mode: normal;
+}
+
+/* v3.5 — иконки обычные (без фильтров), но лежат ПОД стеклом карточки: проступают сквозь него лёгкой дымкой, как на макете.
+   Подложка («ушко») непрозрачная и закрывает их полностью */
+.card__glow,
+.personal__glow {
+    z-index: -3;
+}
+
+@media (max-width: 1279.98px) {
+    .cards .card::before,
+    .card::before,
+    .personal::before {
+        background: linear-gradient(rgba(255, 255, 255, .05), rgba(255, 255, 255, .08)), rgba(41, 41, 43, .58);
+    }
+}
+
+@media (min-width: 1280px) {
+    .cards .card::before,
+    .card::before,
+    .personal::before {
+        background: linear-gradient(rgba(255, 255, 255, .045), rgba(255, 255, 255, .055)), rgba(41, 41, 43, .58);
+    }
+}
+
+/* v3.10 — плашки персонального решения: #4BBCFC 20% + glass, диагональная кромка, позиции по макету */
+.personal .tag--accent {
+    background: rgba(75, 188, 252, .2);
+    -webkit-backdrop-filter: blur(18px) saturate(1.8);
+    backdrop-filter: blur(18px) saturate(1.8);
+    box-shadow: none;
+    padding-block: 8.5px;
+}
+
+.personal .tag--accent::before {
+    background: linear-gradient(160deg, rgba(255, 255, 255, .55) 0%, rgba(255, 255, 255, .2) 30%, rgba(255, 255, 255, .12) 55%, rgba(255, 255, 255, .48) 100%);
+}
+
+@media (max-width: 1279.98px) {
+    .personal__row--1 .tag:nth-child(1) { padding-inline: 23px; translate: 0px -5.5px; }
+    .personal__row--2 .tag:nth-child(1) { padding-inline: 21px; translate: -3.6px -4.5px; }
+    .personal__row--2 .tag:nth-child(2) { padding-inline: 20px; translate: 3.6px -4.5px; }
+    .personal__row--3 .tag:nth-child(1) { padding-inline: 13px; margin-left: 0; translate: 1.4px -5.4px; }
+    .personal__row--3 .tag:nth-child(2) { padding-inline: 12px; margin-left: -5px; translate: -0.5px -5.4px; }
+    .personal__row--3 .tag:nth-child(3) { padding-inline: 9.5px; margin-left: -6px; translate: -1.2px -5.4px; }
 }

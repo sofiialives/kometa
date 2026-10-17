@@ -2,7 +2,7 @@
  * «Экипаж Комета» на мобилке: главная карточка + следующая ниже (полупрозрачная).
  * Смена — не «кадр за кадром», а плавное перетекание (FLIP, пружинная кривая как в iOS):
  * следующая поднимается и вырастает в главную, главная уходит вверх и растворяется,
- * новая «следующая» всплывает снизу. Назад — зеркально. Свайп — тот же жест.
+ * новая «следующая» всплывает снизу. Назад — зеркально. Только кнопками-стрелками, жесты по карточкам не листают.
  */
 const EASE = 'cubic-bezier(.32, .72, 0, 1)';
 const DUR = 560;
@@ -117,17 +117,7 @@ export function initCrewSlider({ root, list, prev, next }) {
     prev.addEventListener('click', () => go(-1));
     next.addEventListener('click', () => go(1));
 
-    let touchY = 0;
-
-    root.addEventListener('touchstart', (event) => {
-        touchY = event.changedTouches[0].clientY;
-    }, { passive: true });
-
-    root.addEventListener('touchend', (event) => {
-        if (!mq.matches) return;
-        const delta = event.changedTouches[0].clientY - touchY;
-        if (Math.abs(delta) > 40) go(delta < 0 ? 1 : -1);
-    }, { passive: true });
+    // смена карточек — только стрелками: свайп/прокрутка пальцем по карточкам ничего не переключает
 
     mq.addEventListener('change', (event) => apply(event.matches));
     apply(mq.matches);

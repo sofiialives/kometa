@@ -6,7 +6,10 @@
  *  • отпускание: быстрый возврат (~0.12 с) с недолётом ниже исходного размера (~−10%), затем покой.
  * Если отпустить вне кнопки, закрытие не срабатывает. Работает на модалках, меню и бургере в открытом состоянии.
  */
-const SELECTOR = '.modal__close, .nav__close, .burger';
+// крестики и бургер: круг деформируется отдельным слоем (--sa/--sx/--sy), остальные кнопки — по осям
+const LAYER = '.modal__close, .nav__close, .case__open';
+const GENERIC = '.burger, .card__arrow, .btn-dream, .btn-request, .btn-send, .header__tg, .tg-corner, .crew__btn, .cmodal__nav';
+const SELECTOR = `${LAYER}, ${GENERIC}`;
 const HOLD_SCALE = 1.33;
 const GLYPH_SCALE = 1.04;    // крестик внутри растёт чуть больше круга
 const MAX_OFF = .25;         // максимальное смещение, доля диаметра
@@ -16,7 +19,31 @@ const SQUEEZE = .08;         // сужение поперёк
 export function initGlassClose() {
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-    document.querySelectorAll(SELECTOR).forEach((btn) => {
+    const buttons = [...document.querySelectorAll(SELECTOR)];
+
+    // большие кнопки не должны блокировать вертикальный скролл страницы: у них touch-action пропускает вертикаль
+    const fitTouch = () => buttons.forEach((b) => {
+        const r = b.getBoundingClientRect();
+        b.style.touchAction = (r.width && Math.max(r.width, r.height) > 90) ? 'pan-y' : 'none';
+    });
+    fitTouch();
+    window.addEventListener('resize', fitTouch);
+
+    buttons.forEach((btn) => {
+        const layered = btn.matches(LAYER);
+        let baseT = 'none';
+        let baseX = 0;                      // собственный translate кнопки (например, центрирование -50%/-50% у кнопки кейса)
+        let baseY = 0;
+        let hold = HOLD_SCALE;
+        const readBase = () => {
+            const cs = getComputedStyle(btn);
+            baseT = cs.transform;
+            const t = (cs.translate || 'none').split(/\s+/);
+            const px = (v, size) => (v && v !== 'none' ? (v.endsWith('%') ? parseFloat(v) / 100 * size : parseFloat(v)) || 0 : 0);
+            baseX = px(t[0], btn.offsetWidth);
+            baseY = px(t[1] ?? '0', btn.offsetHeight);
+        };
+        readBase();
         // x, y — смещение; s — масштаб; движение к целям tx/ty/ts пружиной
         const st = { x: 0, y: 0, s: 1, vx: 0, vy: 0, vs: 0, tx: 0, ty: 0, ts: 1, kp: 520, zp: .92, ks: 900, zs: .62, raf: 0, last: 0, prev: 0 };
         let pid = null;
@@ -34,9 +61,19 @@ export function initGlassClose() {
         const apply = () => {
             const m = Math.hypot(st.x, st.y);
             const q = Math.min(1, m / (MAX_OFF * D));
-            const h = Math.max(0, Math.min(1.15, (st.s - 1) / (HOLD_SCALE - 1)));
-            btn.style.translate = `${st.x.toFixed(2)}px ${st.y.toFixed(2)}px`;
-            btn.style.scale = st.s.toFixed(4);
+            const h = Math.max(0, Math.min(1.15, (st.s - 1) / (hold - 1)));
+            btn.style.translate = `${(baseX + st.x).toFixed(2)}px ${(baseY + st.y).toFixed(2)}px`;
+            if (layered) {
+                btn.style.scale = st.s.toFixed(4);
+            } else {
+                // вытяжка по осям: вдоль движения тянем, поперёк сужаем
+                const a = Math.atan2(st.y, st.x);
+                const cx = Math.cos(a) ** 2;
+                const cy = Math.sin(a) ** 2;
+                const kx = 1 + STRETCH * q * cx - SQUEEZE * q * cy;
+                const ky = 1 + STRETCH * q * cy - SQUEEZE * q * cx;
+                btn.style.scale = `${(st.s * kx).toFixed(4)} ${(st.s * ky).toFixed(4)}`;
+            }
             btn.style.setProperty('--h', h.toFixed(3));
             btn.style.setProperty('--q', q.toFixed(3));
             btn.style.setProperty('--sa', `${(Math.atan2(st.y, st.x) * 180 / Math.PI).toFixed(1)}deg`);
@@ -63,7 +100,7 @@ export function initGlassClose() {
             if (rest) {
                 st.raf = 0;
                 st.x = st.y = st.vx = st.vy = st.vs = 0; st.s = 1;
-                ['translate', 'scale'].forEach((p) => btn.style.removeProperty(p));
+                ['translate', 'scale', 'transform'].forEach((p) => btn.style.removeProperty(p));
                 ['--h', '--q', '--sa', '--sx', '--sy', '--gs'].forEach((v) => btn.style.removeProperty(v));
                 btn.classList.remove('is-held');
                 return;
@@ -74,17 +111,21 @@ export function initGlassClose() {
 
         btn.addEventListener('pointerdown', (e) => {
             if (e.pointerType === 'mouse' && e.button !== 0) return;
-            if (btn.classList.contains('burger') && !btn.closest('.header')?.classList.contains('is-open')) return;
             pid = e.pointerId;
             sx = e.clientX;
             sy = e.clientY;
-            D = btn.offsetWidth || 40;
+            if (!btn.classList.contains('is-held')) readBase();
+            const w = btn.offsetWidth || 40;
+            const h = btn.offsetHeight || w;
+            D = Math.min(w, h);
+            hold = layered ? HOLD_SCALE : 1 + Math.min(.33, 26 / Math.max(w, h));
+            btn.style.transform = baseT;               // перекрывает :active-трансформации, не ломая позицию кнопки
             moved = false;
             suppress = false;
             btn.classList.add('is-held');
             try { btn.setPointerCapture(pid); } catch (_) { /* noop */ }
             st.ks = 900; st.zs = .62;                 // нажатие: быстрый рост с лёгким перелётом
-            st.tx = 0; st.ty = 0; st.ts = reduce.matches ? 1 : HOLD_SCALE;
+            st.tx = 0; st.ty = 0; st.ts = reduce.matches ? 1 : hold;
             run();
         });
 
@@ -94,6 +135,14 @@ export function initGlassClose() {
             const dy = e.clientY - sy;
             const d = Math.hypot(dx, dy);
             if (!moved && d > 4) moved = true;
+            if (btn.closest('.is-dragging')) {            // жест забрала карусель — кнопка отпускается без клика
+                suppress = true;
+                try { btn.releasePointerCapture(pid); } catch (_) { /* noop */ }
+                pid = null;
+                st.tx = 0; st.ty = 0; st.ts = 1; st.ks = 1100; st.zs = .38;
+                run();
+                return;
+            }
             if (reduce.matches || d < .01) return;
             const o = offset(d);
             st.tx = dx / d * o;

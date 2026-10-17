@@ -34,6 +34,7 @@ export function initCarousel({ track, progress }) {
         cards.forEach((card) => {
             card.style.removeProperty('transform');
             card.style.removeProperty('opacity');
+            card.style.removeProperty('--o');
         });
     };
 
@@ -67,7 +68,7 @@ export function initCarousel({ track, progress }) {
             const sx = SIDE_SX + (1 - SIDE_SX) * t;
             const sy = SIDE_SY + (1 - SIDE_SY) * t;
             card.style.transform = `translate3d(${shift.toFixed(2)}px,0,0) scale(${sx.toFixed(4)},${sy.toFixed(4)})`;
-            card.style.opacity = (.5 + .5 * t).toFixed(3);
+            card.style.setProperty('--o', (.5 + .5 * t).toFixed(3));
             shift += EXTRA * t;
             if (d < best) { best = d; nearest = i; }
         });
@@ -119,51 +120,76 @@ export function initCarousel({ track, progress }) {
         anim = requestAnimationFrame(step);
     }
 
-    const finish = (cancelled) => {
-        if (!drag) return;
-        const d = drag;
-        drag = null;
-        if (!d.active) return;
-        track.classList.remove('is-dragging');
-        const pts = d.pts;
-        const last = pts[pts.length - 1];
-        const first = pts.find((p) => last.t - p.t <= 90) || pts[0];
-        const dt = Math.max(1, last.t - first.t);
-        const v = cancelled ? 0 : (first.x - last.x) / dt;           // px/мс, >0 — листаем вперёд
+    // выбор карточки по окончании жеста: максимум одна вперёд/назад от стартовой
+    const settle = (d, v, cancelled) => {
         const moved = d.startScroll - track.scrollLeft;               // <0 — ушли вперёд
         const startIdx = Math.round(d.startScroll / pitchPx);
         let idx = Math.round(track.scrollLeft / pitchPx);
-        if (Math.abs(v) > 0.25 || Math.abs(moved) > pitchPx * 0.16) {
+        if (!cancelled && (Math.abs(v) > 0.25 || Math.abs(moved) > pitchPx * 0.16)) {
             idx = startIdx + (v > 0.05 || (Math.abs(v) <= 0.05 && moved < 0) ? 1 : -1);
         }
         goIdx(Math.max(startIdx - 1, Math.min(startIdx + 1, idx)));
     };
 
-    track.addEventListener('pointerdown', (e) => {
-        blockClick = false;
-        if (!phone.matches || (e.pointerType === 'mouse' && e.button !== 0)) return;
-        stopAnim();
-        drag = { id: e.pointerId, x0: e.clientX, y0: e.clientY, startScroll: track.scrollLeft, active: false, pts: [{ x: e.clientX, t: e.timeStamp }] };
-    }, { passive: true });
+    const velocity = (pts) => {
+        const last = pts[pts.length - 1];
+        const first = pts.find((p) => last.t - p.t <= 90) || pts[0];
+        return (first.x - last.x) / Math.max(1, last.t - first.t);     // px/мс, >0 — листаем вперёд
+    };
 
-    track.addEventListener('pointermove', (e) => {
-        if (!drag || e.pointerId !== drag.id) return;
-        const dx = e.clientX - drag.x0;
+    // ---- общий драйвер жеста (одинаков для пальца и мыши) ----
+    const begin = (x, y) => {
+        stopAnim();
+        drag = { x0: x, y0: y, startScroll: track.scrollLeft, active: false, pts: [{ x, t: performance.now() }] };
+    };
+    const move = (x, y) => {
+        if (!drag) return false;
+        const dx = x - drag.x0;
         if (!drag.active) {
-            if (Math.abs(dx) < 6 || Math.abs(dx) < Math.abs(e.clientY - drag.y0)) return;
+            if (Math.abs(dx) < 6 && Math.abs(y - drag.y0) < 6) return false;
+            if (Math.abs(y - drag.y0) > Math.abs(dx)) { drag = null; return false; }   // вертикальный жест — это скролл страницы
             drag.active = true;
             blockClick = true;
             track.classList.add('is-dragging');
-            try { track.setPointerCapture(e.pointerId); } catch (_) { /* noop */ }
         }
         track.scrollLeft = Math.min(maxScroll(), Math.max(0, drag.startScroll - dx));
         update();
-        drag.pts.push({ x: e.clientX, t: e.timeStamp });
+        drag.pts.push({ x, t: performance.now() });
         if (drag.pts.length > 12) drag.pts.shift();
-    }, { passive: true });
+        return true;
+    };
+    const end = (cancelled) => {
+        if (!drag) return;
+        const d = drag;
+        drag = null;
+        track.classList.remove('is-dragging');
+        if (!d.active) return;
+        settle(d, cancelled ? 0 : velocity(d.pts), cancelled);
+    };
 
-    track.addEventListener('pointerup', () => finish(false));
-    track.addEventListener('pointercancel', () => finish(true));
+    // палец: touch-события (работают везде одинаково, включая iOS Safari)
+    track.addEventListener('touchstart', (e) => {
+        blockClick = false;
+        if (!phone.matches || e.touches.length !== 1) return;
+        begin(e.touches[0].clientX, e.touches[0].clientY);
+    }, { passive: true });
+    track.addEventListener('touchmove', (e) => {
+        if (!drag) return;
+        if (move(e.touches[0].clientX, e.touches[0].clientY) && e.cancelable) e.preventDefault();
+    }, { passive: false });
+    track.addEventListener('touchend', () => end(false));
+    track.addEventListener('touchcancel', () => end(true));
+
+    // мышь: pointer-события
+    track.addEventListener('pointerdown', (e) => {
+        if (e.pointerType !== 'mouse' || e.button !== 0 || !phone.matches) return;
+        blockClick = false;
+        begin(e.clientX, e.clientY);
+        try { track.setPointerCapture(e.pointerId); } catch (_) { /* noop */ }
+    });
+    track.addEventListener('pointermove', (e) => { if (e.pointerType === 'mouse') move(e.clientX, e.clientY); });
+    track.addEventListener('pointerup', (e) => { if (e.pointerType === 'mouse') end(false); });
+    track.addEventListener('pointercancel', (e) => { if (e.pointerType === 'mouse') end(true); });
     track.addEventListener('dragstart', (e) => e.preventDefault());
     track.addEventListener('click', (e) => {
         if (blockClick) { e.preventDefault(); e.stopPropagation(); blockClick = false; }
