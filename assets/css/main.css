@@ -7094,12 +7094,12 @@ html.zg-on .clients__item { position: relative; z-index: 30; }
 @media (hover: hover) and (pointer: fine) {
     html,
     html body {
-        cursor: url('../cursors/cursor-default.svg') 3 2, auto;
+        cursor: url('../cursors/cursor-default.png') 3 2, auto;
     }
 
     html :is(a[href], button:not(:disabled), [role="button"], summary, label[for], select, input[type="submit"], input[type="checkbox"], input[type="radio"],
         .is-live, .clients__view, .card, .tag, .case__open, .cmodal__dot, .cmodal__nav, .modal__close, .nav__close, .field--select .field__control, [data-modal], [data-copy]) {
-        cursor: url('../cursors/cursor-hover.svg') 5 3, pointer;
+        cursor: url('../cursors/cursor-hover.png') 5 3, pointer;
     }
 
     html :is(input:not([type="submit"], [type="checkbox"], [type="radio"]), textarea) {
@@ -7107,7 +7107,7 @@ html.zg-on .clients__item { position: relative; z-index: 30; }
     }
 
     html :is(button:disabled, [aria-disabled="true"]) {
-        cursor: url('../cursors/cursor-default.svg') 3 2, not-allowed;
+        cursor: url('../cursors/cursor-default.png') 3 2, not-allowed;
     }
 }
 
