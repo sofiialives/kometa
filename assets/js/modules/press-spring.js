@@ -8,7 +8,7 @@
  */
 import { PRESS_SELECTOR } from './glass-close.js';
 
-const SPRING = '.card, .tag, .footer__link';
+const SPRING = '.tag, .footer__link';        // карточки направлений не сжимаем: у них свой transform в карусели, сжатие давало рывок
 const GLOW = '.card, .tag, .btn-send, .btn-dream, .btn-request';
 const PRESS_TO = .96;
 const CANCEL_MOVE = 10;
@@ -47,7 +47,7 @@ export function initPressSpring() {
         c.anim?.cancel();
         c.anim = c.springEl.animate(
             [{ scale: String(currentScale(c.springEl)) }, { scale: String(PRESS_TO) }],
-            { duration: 150, easing: 'cubic-bezier(.2,.8,.3,1)', fill: 'forwards' }
+            { duration: c.mouse ? 210 : 150, easing: 'cubic-bezier(.2,.8,.3,1)', fill: 'forwards' }
         );
     };
 
@@ -55,13 +55,14 @@ export function initPressSpring() {
         clearTimeout(c.timer);
         c.glow?.classList.remove('is-on');
         if (!c.springEl || !c.pressed) { c.anim?.cancel(); return; }
-        const from = currentScale(c.springEl);
+        const el = c.springEl;
+        const from = currentScale(el);
         c.anim?.cancel();
-        const a = c.springEl.animate(
+        const a = el.animate(
             [{ scale: String(from) }, { scale: '1.022', offset: .5 }, { scale: '1' }],
-            { duration: 440, easing: 'ease-out' }
+            { duration: c.mouse ? 620 : 440, easing: 'cubic-bezier(.25,.9,.3,1)' }
         );
-        a.onfinish = a.oncancel = () => { c.springEl.style.removeProperty('scale'); };
+        a.onfinish = a.oncancel = () => { el.style.removeProperty('scale'); };
         c.anim = a;
     };
 
@@ -70,7 +71,7 @@ export function initPressSpring() {
     document.addEventListener('pointerdown', (e) => {
         if (e.pointerType === 'mouse' && e.button !== 0) return;
         const t = e.target instanceof Element ? e.target : null;
-        if (!t) return;
+        if (!t || t.closest('.is-live')) return;          // живые плашки двигает физика — пресс-пружина и блик им только мешают
         end();
         const own = t.closest(PRESS_SELECTOR);                 // у кнопки свой пресс; сжимать карточку под ней не надо
         let springEl = own ? null : t.closest(SPRING);
@@ -78,7 +79,7 @@ export function initPressSpring() {
         if (springEl && getComputedStyle(springEl).display === 'inline') springEl = springEl.closest('li') || springEl.parentElement;
         const glowEl = t.closest(GLOW);
         if (!springEl && !glowEl) return;
-        const c = { springEl, glowEl, glow: null, x0: e.clientX, y0: e.clientY, anim: null, timer: 0, pressed: false };
+        const c = { mouse: e.pointerType === 'mouse', springEl, glowEl, glow: null, x0: e.clientX, y0: e.clientY, anim: null, timer: 0, pressed: false };
         if (glowEl) {
             c.glow = glowOf(glowEl);
             const gr = glowEl.getBoundingClientRect();
@@ -101,4 +102,56 @@ export function initPressSpring() {
 
     ['pointerup', 'pointercancel', 'lostpointercapture'].forEach((n) => document.addEventListener(n, end, { passive: true }));
     window.addEventListener('blur', end);
+
+    initHover(glowOf);
+}
+
+/**
+ * Наведение мышью (только десктоп): мягкий блик плавно «плывёт» за курсором с инерцией (lerp в rAF),
+ * при уходе так же плавно гаснет. Касания не затрагивает — на телефоне всё как раньше.
+ */
+function initHover(glowOf) {
+    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+    let h = null;           // { el, glow, x, y, tx, ty, r }
+    let raf = 0;
+
+    const loop = () => {
+        raf = 0;
+        if (!h) return;
+        h.x += (h.tx - h.x) * .2;
+        h.y += (h.ty - h.y) * .2;
+        h.glow.style.setProperty('--gx', `${h.x.toFixed(1)}px`);
+        h.glow.style.setProperty('--gy', `${h.y.toFixed(1)}px`);
+        if (Math.abs(h.tx - h.x) + Math.abs(h.ty - h.y) > .3) raf = requestAnimationFrame(loop);
+    };
+
+    const leave = () => {
+        if (!h) return;
+        h.glow.classList.remove('is-hover');
+        h = null;
+    };
+
+    document.addEventListener('pointermove', (e) => {
+        if (e.pointerType !== 'mouse') return;
+        const t = e.target instanceof Element && !e.target.closest('.is-live') ? e.target.closest(GLOW) : null;
+        if (t !== h?.el) {
+            leave();
+            if (!t || t.disabled) return;
+            const glow = glowOf(t);
+            const r = t.getBoundingClientRect();
+            glow.style.setProperty('--gr', `${Math.max(56, Math.min(150, Math.min(r.width, r.height) * .9)).toFixed(0)}px`);
+            h = { el: t, glow, x: e.clientX - r.left, y: e.clientY - r.top, tx: 0, ty: 0 };
+            glow.style.setProperty('--gx', `${h.x.toFixed(1)}px`);
+            glow.style.setProperty('--gy', `${h.y.toFixed(1)}px`);
+            glow.classList.add('is-hover');
+        }
+        if (!h) return;
+        const r = h.el.getBoundingClientRect();
+        h.tx = e.clientX - r.left;
+        h.ty = e.clientY - r.top;
+        if (!raf) raf = requestAnimationFrame(loop);
+    }, { passive: true });
+
+    document.documentElement.addEventListener('pointerleave', leave);
+    window.addEventListener('blur', leave);
 }

@@ -48,7 +48,7 @@
 
     <link rel="preload" href="./assets/fonts/Nekst-Regular.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="./assets/fonts/Nekst-Bold.woff2" as="font" type="font/woff2" crossorigin>
-    <link rel="preload" href="./assets/video/poster.png?v=3" as="image" type="image/png" fetchpriority="high">
+    <link rel="preload" href="./assets/video/poster.webp?v=3" as="image" type="image/webp" fetchpriority="high">
 
     <style>
         :root {
@@ -292,7 +292,7 @@
 
     <div class="scroll-video" data-video-holder aria-hidden="true">
         <video class="scroll-video__el" data-scroll-video muted playsinline preload="none"
-            poster="./assets/video/poster.png?v=3" disablepictureinpicture disableremoteplayback>
+            poster="./assets/video/poster.webp?v=3" disablepictureinpicture disableremoteplayback>
             <source src="./assets/video/hero.webm?v=3" type="video/webm">
             <source src="./assets/video/hero.mp4?v=3" type="video/mp4">
         </video>
@@ -410,13 +410,13 @@
 
                 <span class="directions__glow" aria-hidden="true"></span>
 
-                <h2 class="directions__title" id="directions-title" data-reveal>
+                <h2 class="directions__title" id="directions-title">
                     <span class="title-gradient">Наши ключевые</span><br>
                     <span class="accent">Направления</span>
                 </h2>
 
                 <ul class="cards" aria-label="Ключевые направления агентства" data-carousel>
-                    <li class="card" data-reveal data-reveal-delay="80">
+                    <li class="card">
                             <span class="card__glow" aria-hidden="true"><img class="card__holo card__holo--star" src="./assets/images/holo-star.png" width="619" height="619" alt="" aria-hidden="true" decoding="async"></span>
                         <div class="card__visual">
                             <svg class="card__plate card__plate--d" viewBox="-.5 -.5 347 425" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M102 0 L322 0 A24 24 0 0 1 346 24 L346 319 A24 24 0 0 1 322 343 L303 343 A24 24 0 0 0 279 367 L279 402 A22 22 0 0 1 257 424 L22 424 A22 22 0 0 1 0 402 L0 130 A24 24 0 0 1 24 106 L54 106 A24 24 0 0 0 78 82 L78 24 A24 24 0 0 1 102 0Z" vector-effect="non-scaling-stroke"/></svg>
@@ -448,7 +448,7 @@
                         </div>
                     </li>
 
-                    <li class="card" data-reveal data-reveal-delay="170">
+                    <li class="card">
                             <span class="card__glow" aria-hidden="true"><img class="card__holo card__holo--ring" src="./assets/images/holo-ring.png" width="472" height="472" alt="" aria-hidden="true" decoding="async"></span>
                         <div class="card__visual">
                             <svg class="card__plate card__plate--d" viewBox="-.5 -.5 347 425" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M102 0 L322 0 A24 24 0 0 1 346 24 L346 319 A24 24 0 0 1 322 343 L303 343 A24 24 0 0 0 279 367 L279 402 A22 22 0 0 1 257 424 L22 424 A22 22 0 0 1 0 402 L0 130 A24 24 0 0 1 24 106 L54 106 A24 24 0 0 0 78 82 L78 24 A24 24 0 0 1 102 0Z" vector-effect="non-scaling-stroke"/></svg>
@@ -480,7 +480,7 @@
                         </div>
                     </li>
 
-                    <li class="card" data-reveal data-reveal-delay="260">
+                    <li class="card">
                             <span class="card__glow" aria-hidden="true"><img class="card__holo card__holo--spring" src="./assets/images/holo-spring.png" width="681" height="681" alt="" aria-hidden="true" decoding="async"></span>
                         <div class="card__visual">
                             <svg class="card__plate card__plate--d" viewBox="-.5 -.5 347 425" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M102 0 L322 0 A24 24 0 0 1 346 24 L346 319 A24 24 0 0 1 322 343 L303 343 A24 24 0 0 0 279 367 L279 402 A22 22 0 0 1 257 424 L22 424 A22 22 0 0 1 0 402 L0 130 A24 24 0 0 1 24 106 L54 106 A24 24 0 0 0 78 82 L78 24 A24 24 0 0 1 102 0Z" vector-effect="non-scaling-stroke"/></svg>
@@ -514,7 +514,7 @@
 
                 <span class="cards__progress" aria-hidden="true" data-carousel-progress></span>
 
-                <div class="personal" aria-labelledby="personal-title" data-reveal data-reveal-delay="340">
+                <div class="personal" aria-labelledby="personal-title">
                     <span class="personal__glow" aria-hidden="true"><picture class="personal__holo personal__holo--a" aria-hidden="true">
                         <source media="(max-width: 1279.98px)" srcset="./assets/images/holo-spring.png">
                         <img src="./assets/images/holo-ring.png" width="472" height="472" alt="" decoding="async">
@@ -651,7 +651,7 @@
                 </h2>
 
                 <ol class="cases__list">
-                    <li class="case case--gold" data-reveal>
+                    <li class="case case--gold">
                         <div class="case__body">
                             <span class="case__num" aria-hidden="true">01</span>
                             <p class="case__tagline">Cosmic Essentials</p>
@@ -665,7 +665,7 @@
                             </button>
                         </figure>
                     </li>
-                    <li class="case case--gold" data-reveal>
+                    <li class="case case--gold">
                         <div class="case__body">
                             <span class="case__num" aria-hidden="true">02</span>
                             <p class="case__tagline">Cosmic Essentials</p>
@@ -679,7 +679,7 @@
                             </button>
                         </figure>
                     </li>
-                    <li class="case case--blue" data-reveal>
+                    <li class="case case--blue">
                         <div class="case__body">
                             <span class="case__num" aria-hidden="true">03</span>
                             <p class="case__tagline">Cosmic Essentials</p>
@@ -696,11 +696,18 @@
                 </ol>
             </section>
 
+            <section class="clients" aria-label="Клиенты агентства" data-marquee>
+                <p class="clients__cap">Нам доверяют</p>
+                <div class="clients__view">
+                    <ul class="clients__track" data-marquee-track>
+                        <li class="clients__item"><picture><img src="./assets/images/abbis_logo.png" width="167" height="33" alt="Абисс" decoding="async" draggable="false"></picture></li>
+                        <li class="clients__item"><picture><img src="./assets/images/guardant_logo.png" width="206" height="43" alt="Guardant" decoding="async" draggable="false"></picture></li>
+                        <li class="clients__item"><picture><img src="./assets/images/assetdata_logo.png" width="126" height="50" alt="Assetdata" decoding="async" draggable="false"></picture></li>
+                    </ul>
+                </div>
+            </section>
+
             <section class="start" id="contacts" aria-labelledby="start-title">
-                <img class="start__comet" src="./assets/images/comet-start.png" width="1247" height="438" alt=""
-                    aria-hidden="true" decoding="async">
-                <img class="start__comet start__comet--glow" src="./assets/images/comet-start.png" width="1247" height="438" alt=""
-                    aria-hidden="true" decoding="async">
 
                 <div class="start__inner">
                     <h2 class="section-title section-title--left" id="start-title">

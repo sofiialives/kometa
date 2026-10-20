@@ -148,7 +148,7 @@ export function initNavGlass({ root = document } = {}) {
         a.addEventListener('click', () => {
             const item = items.find((i) => i.a === a);
             if (!item) return;
-            lockUntil = performance.now() + 1400;
+            lockUntil = performance.now() + 3000;          // держим выбранный пункт, пока идёт переход (снимет kometa:scrollend)
             setActive(item);
         });
     });
@@ -163,7 +163,7 @@ export function initNavGlass({ root = document } = {}) {
         if (pressLink && pressLink !== item.a) { pressLink.style.removeProperty('translate'); pressLink.style.removeProperty('scale'); }
         pressLink = item.a;
         held = item;
-        lockUntil = performance.now() + 1400;
+        lockUntil = performance.now() + 3000;
         setActive(item);                             // стёклышко летит под палец / курсор
         hp.ks = 900; hp.zs = .62;
         hp.ts = reduce.matches ? 1 : HOLD;
@@ -177,48 +177,65 @@ export function initNavGlass({ root = document } = {}) {
         a.addEventListener('pointerdown', (e) => {
             if (e.pointerType === 'mouse' && e.button !== 0) return;
             hpid = e.pointerId;
-            hx = e.clientX;
-            hy = e.clientY;
+            hx = sx0 = e.clientX;
+            hy = sy0 = e.clientY;
+            startLink = a;
+            switched = false;
             disarm();
             moved = false;
             try { a.setPointerCapture(e.pointerId); } catch (_) { /* noop */ }   // тянуть можно за пределы ссылки
             engage(item);
         });
         a.addEventListener('pointermove', (e) => {
-            if (e.pointerId !== hpid) return;
+            if (e.pointerId !== hpid || !held) return;
+            if (Math.hypot(e.clientX - sx0, e.clientY - sy0) > 4) moved = true;
+            if (reduce.matches) return;
+            // тянем стёклышко на другой пункт: оно перелетает под палец, выбор — при отпускании
+            const hit = hitItem(e.clientX, e.clientY);
+            if (hit && hit !== held) {
+                switched = true;
+                hx = e.clientX;
+                hy = e.clientY;
+                engage(hit);
+                return;
+            }
             const dx = e.clientX - hx;
             const dy = e.clientY - hy;
-            if (Math.hypot(dx, dy) > 4) moved = true;
-            if (held !== item || reduce.matches) return;
-            const dead = 0;
-            const ex = Math.sign(dx) * Math.max(0, Math.abs(dx) - dead);
-            const ey = Math.sign(dy) * Math.max(0, Math.abs(dy) - dead);
-            hp.tx = MAXX * Math.tanh(ex / (MAXX * 1.1));
-            hp.ty = MAXY * Math.tanh(ey / (MAXY * 1.1));
+            hp.tx = MAXX * Math.tanh(dx / (MAXX * 1.1));
+            hp.ty = MAXY * Math.tanh(dy / (MAXY * 1.1));
             run();
         });
     });
     let moved = false;
+    let sx0 = 0;
+    let sy0 = 0;
+    let startLink = null;
+    let switched = false;
+    let swallow = null;                // ссылка, чей ближайший клик поглощаем (отпустили не над ней)
+    const hitItem = (x, y) => items.find((i) => {
+        const r = i.a.getBoundingClientRect();
+        return x >= r.left - 6 && x <= r.right + 6 && y >= r.top - 4 && y <= r.bottom + 4;
+    });
     links.forEach((a) => {
-        // отпустили далеко от ссылки — это не нажатие: переход не выполняем (как у крестика)
         a.addEventListener('click', (e) => {
-            if (!suppressClick) return;
-            suppressClick = false;
+            if (swallow !== a) return;
+            swallow = null;
             e.preventDefault();
             e.stopImmediatePropagation();
         }, true);
     });
-    let suppressClick = false;
     const letGo = (e, cancelled) => {
-        if (e.pointerId === hpid && held) {
-            const r = held.a.getBoundingClientRect();
-            const inside = e.clientX > r.left - 14 && e.clientX < r.right + 14 && e.clientY > r.top - 14 && e.clientY < r.bottom + 14;
-            suppressClick = !cancelled && moved && !inside;
-            if (suppressClick) setTimeout(() => { suppressClick = false; }, 400);
-            if (suppressClick) setTimeout(() => { lockUntil = 0; spy(); }, 800);
+        if (e.pointerId !== hpid) return;
+        disarm();
+        if (!held) return;
+        const r = held.a.getBoundingClientRect();
+        const inside = e.clientX > r.left - 14 && e.clientX < r.right + 14 && e.clientY > r.top - 14 && e.clientY < r.bottom + 14;
+        const chosen = !cancelled && switched && inside ? held : null;   // перетащили на другой пункт и отпустили над ним
+        if (!cancelled && startLink && (chosen || (moved && !inside))) {
+            swallow = startLink;                                          // родной клик по исходной ссылке не нужен
+            setTimeout(() => { if (swallow === startLink) swallow = null; }, 400);
         }
-        if (e.pointerId === hpid) disarm();
-        if (!held || e.pointerId !== hpid) return;
+        if (!cancelled && moved && !inside) setTimeout(() => { lockUntil = 0; spy(); }, 800);
         held = null;
         hpid = null;
         hp.ks = 1100; hp.zs = .38;                 // быстрый возврат с недолётом, как у крестика
@@ -226,12 +243,13 @@ export function initNavGlass({ root = document } = {}) {
         setTimeout(() => { if (!held) { clearPress(); apply(); } }, 1800);   // страховка: текст обязательно возвращается на место
         if (cancelled && lockUntil) { setTimeout(() => { lockUntil = 0; spy(); }, 800); }   // жест забрал скролл — стёклышко возвращается к текущему разделу
         run();
+        if (chosen) setTimeout(() => chosen.a.click(), 0);
     };
     window.addEventListener('pointerup', (e) => letGo(e, false));
     window.addEventListener('pointercancel', (e) => letGo(e, true));
 
     // после окончания программного скролла возвращаем управление споту
-    window.addEventListener('scrollend', () => { lockUntil = 0; spy(); });
+    window.addEventListener('kometa:scrollend', () => { lockUntil = 0; spy(); });
 
     // меню на мобилке открывается/закрывается — перечитываем позицию (список анимируется входом)
     const header = document.querySelector('.header');

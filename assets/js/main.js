@@ -2,8 +2,7 @@ import { initLoader } from './modules/loader.js';
 import { initMediaProgress } from './modules/media-loader.js';
 import { initScreens } from './modules/screens.js';
 import { initScrollVideo } from './modules/scroll-video.js';
-import { initReveal } from './modules/reveal.js';
-import { initNav } from './modules/nav.js';
+import { initNav, initUnknownHash } from './modules/nav.js';
 import { initMenu } from './modules/menu.js';
 import { initCarousel } from './modules/carousel.js';
 import { initCrewSlider } from './modules/crew-slider.js';
@@ -11,9 +10,7 @@ import { initModals } from './modules/modals.js';
 import { initGlassClose } from './modules/glass-close.js';
 import { initNavGlass } from './modules/nav-glass.js';
 import { initPressSpring } from './modules/press-spring.js';
-import { initIsland } from './modules/island.js';
-import { initTiltStars } from './modules/tilt-stars.js';
-import { initRevealFx } from './modules/reveal-fx.js';
+import { initSmoothScroll } from './modules/smooth-scroll.js';
 
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const isPhone = window.matchMedia('(max-width: 1279.98px)').matches;
@@ -69,8 +66,9 @@ if (isPhone) {
     }
 }
 
-initReveal({ reduceMotion });
+initSmoothScroll();
 initNav();
+initUnknownHash();
 
 initMenu({
     header: $('.header'),
@@ -95,6 +93,13 @@ initCrewSlider({
     const el = document.querySelector('.astronaut');
     if (!el || !('IntersectionObserver' in window)) return;
     new IntersectionObserver(([e]) => el.classList.toggle('is-offscreen', !e.isIntersecting), { rootMargin: '120px' }).observe(el);
+})();
+
+/* иконки у формы анимируются только пока видны */
+(function pauseArtOffscreen() {
+    const el = document.querySelector('.start__art');
+    if (!el || !('IntersectionObserver' in window)) return;
+    new IntersectionObserver(([e]) => el.classList.toggle('is-offscreen', !e.isIntersecting), { rootMargin: '80px' }).observe(el);
 })();
 
 function initAstronaut() {
@@ -207,9 +212,18 @@ initModals({ reduceMotion });
 initGlassClose();
 initNavGlass();
 initPressSpring();
-initIsland();
-initTiltStars();
-initRevealFx();
+
+/* Фишки (форма-зажатие, лента, физика, пасхалки…) подключаются отдельно и необязательно:
+   если какой-то файл не загрузился, остальной сайт (герой, карусели, модалки) продолжает работать. */
+const optional = (path, run) => import(path).then(run).catch((err) => console.warn('[kometa] модуль не загружен:', path, err));
+
+optional('./modules/toast.js', (m) => m.initCopy());
+optional('./modules/hold-send.js', (m) => m.initHoldSend());
+optional('./modules/marquee.js', (mq) => mq.initMarquee()).then((marquee) =>
+    optional('./modules/live.js', (m) => m.initLive({ marquee })));
+optional('./modules/num-drop.js', (m) => m.initNumDrop());
+optional('./modules/comet.js', (m) => m.initAmbientComet());
+optional('./modules/eggs.js', (m) => m.initEggs());
 
 // запрет копирования картинок/видео: перетаскивание и контекстное меню (текст копируется как раньше)
 document.addEventListener('dragstart', (e) => {
