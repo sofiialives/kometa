@@ -99,7 +99,10 @@ initCrewSlider({
 (function pauseArtOffscreen() {
     const el = document.querySelector('.start__art');
     if (!el || !('IntersectionObserver' in window)) return;
-    new IntersectionObserver(([e]) => el.classList.toggle('is-offscreen', !e.isIntersecting), { rootMargin: '80px' }).observe(el);
+    new IntersectionObserver(([e]) => {
+        el.classList.toggle('is-offscreen', !e.isIntersecting);
+        if (e.isIntersecting) el.classList.add('is-in');
+    }, { rootMargin: '0px 0px -12% 0px' }).observe(el);
 })();
 
 function initAstronaut() {
@@ -213,16 +216,13 @@ initGlassClose();
 initNavGlass();
 initPressSpring();
 
-/* Фишки (форма-зажатие, лента, физика, пасхалки…) подключаются отдельно и необязательно:
+/* Фишки (форма, физика, пасхалки…) подключаются отдельно и необязательно:
    если какой-то файл не загрузился, остальной сайт (герой, карусели, модалки) продолжает работать. */
 const optional = (path, run) => import(path).then(run).catch((err) => console.warn('[kometa] модуль не загружен:', path, err));
 
 optional('./modules/toast.js', (m) => m.initCopy());
-optional('./modules/hold-send.js', (m) => m.initHoldSend());
-optional('./modules/marquee.js', (mq) => mq.initMarquee()).then((marquee) =>
-    optional('./modules/live.js', (m) => m.initLive({ marquee })));
-optional('./modules/num-drop.js', (m) => m.initNumDrop());
-optional('./modules/comet.js', (m) => m.initAmbientComet());
+optional('./modules/form-send.js', (m) => m.initFormSend());
+optional('./modules/live.js', (m) => m.initLive());
 optional('./modules/eggs.js', (m) => m.initEggs());
 
 // запрет копирования картинок/видео: перетаскивание и контекстное меню (текст копируется как раньше)

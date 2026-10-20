@@ -1,17 +1,23 @@
 /**
  * «Живые» плашки «Персонального решения» + режим невесомости (только десктоп с мышью).
- * Невесомость: теги и логотипы клиентов дрейфуют по всей странице, их можно хватать и бросать;
+ * Невесомость: все теги страницы дрейфуют по всей странице, их можно хватать и бросать;
  * выключил — всё пружиной возвращается на место (рамки не обрезают, пока тела не легли).
  */
 import { addBody, initPhysics, setZeroG, isZeroG, onBusy } from './physics.js';
 
-export function initLive({ marquee } = {}) {
+export function initLive() {
     initPhysics();
     const root = document.documentElement;
     const personal = document.querySelector('.personal');
+    const astro = document.querySelector('.astronaut');
     if (personal) personal.querySelectorAll('.tag').forEach((el) => addBody(el, { group: 'tags', boundsEl: personal }));
 
-    onBusy((busy) => { if (!busy) root.classList.remove('zg-return'); });
+    onBusy((busy) => {
+        // пока плашки двигаются, парящий космонавт за стеклом замирает: его кадры не перерисовывают размытый фон
+        astro?.classList.toggle('is-frozen', busy);
+        personal?.classList.toggle('is-busy', busy);
+        if (!busy) root.classList.remove('zg-return');
+    });
 
     // кнопку создаём всегда, а показывает её CSS только на широком экране с мышью/трекпадом (any-pointer: fine) —
     // так она появляется и после закрытия DevTools/изменения размера окна
@@ -41,9 +47,6 @@ export function initLive({ marquee } = {}) {
         };
         // теги направлений и любые другие плашки-теги (теги «Персонального решения» уже живые)
         document.querySelectorAll('.tag').forEach((el) => { if (!personal?.contains(el)) take(el, 'tags'); });
-        // логотипы клиентов (и бегущей ленты, и её клонов в пределах страницы)
-        (marquee?.items() || []).forEach((el) => take(el, 'logos'));
-        // логотипы клиентов героя не трогаем — это сцена скролл-видео
     };
 
     const set = (on) => {

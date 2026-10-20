@@ -1,109 +1,12 @@
 /**
  * Пасхалки:
- *  1) 7 быстрых нажатий на логотип — он рассыпается на частицы и собирается обратно, сообщение «Секрет найден»;
- *  2) потянуть страницу за самый низ (колесо / палец, на iPhone — bounce) — из-под края выглядывает космонавт;
- *  3) заголовок вкладки меняется, когда уходишь, и когда возвращаешься.
+ *  1) потянуть страницу за самый низ (колесо / палец, на iPhone — bounce) — из-под края выглядывает космонавт;
+ *  2) заголовок вкладки меняется, когда уходишь, и когда возвращаешься.
  */
-import { showToast } from './toast.js';
-import { scrollToY } from './smooth-scroll.js';
 
 const reduced = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-/* ---------- 1. логотип ---------- */
-function initLogo() {
-    const link = document.querySelector('.logo');
-    const img = link?.querySelector('img');
-    if (!link || !img) return;
-    let taps = 0;
-    let timer = 0;
-    let busy = false;
-
-    const dissolve = () => {
-        if (busy) return;
-        busy = true;
-        const r = img.getBoundingClientRect();
-        const W = Math.round(r.width);
-        const H = Math.round(r.height);
-        const off = document.createElement('canvas');
-        off.width = W;
-        off.height = H;
-        const octx = off.getContext('2d', { willReadFrequently: true });
-        let data;
-        try {
-            octx.drawImage(img, 0, 0, W, H);
-            data = octx.getImageData(0, 0, W, H).data;
-        } catch (_) { data = null; }              // canvas «испорчен» (file://) — просто сообщение
-        if (!data || reduced()) {
-            showToast('Секрет найден', { kind: 'star', ms: 2800 });
-            busy = false;
-            return;
-        }
-        const step = W > 160 ? 3 : 2;
-        const parts = [];
-        for (let y = 0; y < H; y += step) {
-            for (let x = 0; x < W; x += step) {
-                const i = (y * W + x) * 4;
-                if (data[i + 3] < 60) continue;
-                const a = Math.random() * 6.283;
-                const sp = 90 + Math.random() * 300;
-                parts.push({ hx: x, hy: y, x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 60, c: `rgba(${data[i]},${data[i + 1]},${data[i + 2]},${(data[i + 3] / 255).toFixed(2)})` });
-            }
-        }
-        const pad = 160;
-        const cv = document.createElement('canvas');
-        const dpr = Math.min(2, devicePixelRatio || 1);
-        cv.width = (W + pad * 2) * dpr;
-        cv.height = (H + pad * 2) * dpr;
-        cv.style.cssText = `position:fixed;left:${r.left - pad}px;top:${r.top - pad}px;width:${W + pad * 2}px;height:${H + pad * 2}px;z-index:1250;pointer-events:none`;
-        document.body.append(cv);
-        const ctx = cv.getContext('2d');
-        ctx.scale(dpr, dpr);
-        img.style.visibility = 'hidden';
-
-        const t0 = performance.now();
-        let last = t0;
-        const frame = (now) => {
-            const dt = Math.min(0.033, (now - last) / 1000);
-            last = now;
-            const t = now - t0;
-            ctx.clearRect(0, 0, cv.width, cv.height);
-            let settled = 0;
-            for (const p of parts) {
-                if (t < 650) {                         // взрыв с затуханием
-                    p.vx *= Math.exp(-dt * 2.2);
-                    p.vy *= Math.exp(-dt * 2.2);
-                } else {                               // сборка пружиной
-                    p.vx += ((p.hx - p.x) * 70 - p.vx * 9.5) * dt;
-                    p.vy += ((p.hy - p.y) * 70 - p.vy * 9.5) * dt;
-                }
-                p.x += p.vx * dt;
-                p.y += p.vy * dt;
-                if (t >= 650 && Math.abs(p.hx - p.x) + Math.abs(p.hy - p.y) < .6 && Math.abs(p.vx) + Math.abs(p.vy) < 14) settled++;
-                ctx.fillStyle = p.c;
-                ctx.fillRect(pad + p.x, pad + p.y, step, step);
-            }
-            if (settled < parts.length * .985 && t < 3200) { requestAnimationFrame(frame); return; }
-            cv.remove();
-            img.style.visibility = '';
-            busy = false;
-        };
-        requestAnimationFrame(frame);
-        setTimeout(() => showToast('Секрет найден', { kind: 'star', ms: 2800 }), 900);
-    };
-
-    link.addEventListener('click', (e) => {
-        e.preventDefault();
-        taps++;
-        clearTimeout(timer);
-        timer = setTimeout(() => {
-            if (taps < 7) scrollToY(0);                  // обычный клик по логотипу — мягко наверх
-            taps = 0;
-        }, 650);
-        if (taps >= 7) { taps = 0; clearTimeout(timer); dissolve(); }
-    });
-}
-
-/* ---------- 2. космонавт из-под подвала ---------- */
+/* ---------- 1. космонавт из-под подвала ---------- */
 function initPeek() {
     const el = document.createElement('div');
     el.className = 'peek';
@@ -200,7 +103,6 @@ function initTitle() {
 }
 
 export function initEggs() {
-    initLogo();
     initPeek();
     initTitle();
 }

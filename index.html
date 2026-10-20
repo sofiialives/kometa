@@ -48,7 +48,7 @@
 
     <link rel="preload" href="./assets/fonts/Nekst-Regular.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="./assets/fonts/Nekst-Bold.woff2" as="font" type="font/woff2" crossorigin>
-    <link rel="preload" href="./assets/video/poster.webp?v=3" as="image" type="image/webp" fetchpriority="high">
+    <link rel="preload" href="./assets/video/poster.jpg?v=3" as="image" type="image/jpeg" fetchpriority="high">
 
     <style>
         :root {
@@ -292,7 +292,7 @@
 
     <div class="scroll-video" data-video-holder aria-hidden="true">
         <video class="scroll-video__el" data-scroll-video muted playsinline preload="none"
-            poster="./assets/video/poster.webp?v=3" disablepictureinpicture disableremoteplayback>
+            poster="./assets/video/poster.jpg?v=3" disablepictureinpicture disableremoteplayback>
             <source src="./assets/video/hero.webm?v=3" type="video/webm">
             <source src="./assets/video/hero.mp4?v=3" type="video/mp4">
         </video>
@@ -696,16 +696,6 @@
                 </ol>
             </section>
 
-            <section class="clients" aria-label="Клиенты агентства" data-marquee>
-                <p class="clients__cap">Нам доверяют</p>
-                <div class="clients__view">
-                    <ul class="clients__track" data-marquee-track>
-                        <li class="clients__item"><picture><img src="./assets/images/abbis_logo.png" width="167" height="33" alt="Абисс" decoding="async" draggable="false"></picture></li>
-                        <li class="clients__item"><picture><img src="./assets/images/guardant_logo.png" width="206" height="43" alt="Guardant" decoding="async" draggable="false"></picture></li>
-                        <li class="clients__item"><picture><img src="./assets/images/assetdata_logo.png" width="126" height="50" alt="Assetdata" decoding="async" draggable="false"></picture></li>
-                    </ul>
-                </div>
-            </section>
 
             <section class="start" id="contacts" aria-labelledby="start-title">
 
@@ -763,7 +753,9 @@
                     </form>
 
                     <div class="start__art" aria-hidden="true">
-                        <img class="start__art-item" src="./assets/images/icons.png" width="600" height="725" alt="" decoding="async">
+                        <img class="start__art-item start__art-item--star" src="./assets/images/holo-star.png" width="1014" height="1014" alt="" decoding="async">
+                        <img class="start__art-item start__art-item--ring" src="./assets/images/holo-ring.png" width="945" height="1095" alt="" decoding="async">
+                        <img class="start__art-item start__art-item--spring" src="./assets/images/holo-spring.png" width="1192" height="1145" alt="" decoding="async">
                     </div>
                 </div>
             </section>
