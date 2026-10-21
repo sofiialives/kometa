@@ -55,13 +55,13 @@ export const cancelScroll = () => stop();
 export const isTweening = () => mode === 'tween';
 
 /* ---------- плавное колесо/тачпад (Lenis, MIT) ----------
- * Включается на колесо/тачпад на всех устройствах; палец на телефоне остаётся нативным (инерция системы
- * уже плавная и идёт в compositor-потоке). Свой rAF-цикл запускается только пока идёт скролл, а при просадке
+ * Включается на всех устройствах: колесо/тачпад на компьютере и палец на телефоне (syncTouch). Свой rAF-цикл запускается только пока идёт скролл, а при просадке
  * кадров движок сам отключается и страница возвращается к нативному скроллу (страховка от лагов). */
 let lenis = null;
 let lraf = 0;
 let idle = 0;
 const slow = { n: 0, sum: 0, last: 0 };
+const TOUCH_SMOOTH = true;                                   // плавный скролл пальцем на телефоне; false — нативный
 const forced = /[?&]smooth=force/.test(location.search);   // для замеров: без страховки
 
 function lenisLoop(t) {
@@ -95,12 +95,14 @@ function destroyLenis() {
     lenis.destroy();
     lenis = null;
     window.removeEventListener('wheel', kick, true);
+    window.removeEventListener('touchstart', kick, true);
+    window.removeEventListener('touchmove', kick, true);
     root.classList.remove('lenis', 'lenis-smooth', 'lenis-scrolling', 'is-scrolling');
 }
 
 const preventNode = (node) =>
     document.body.classList.contains('is-locked') ||
-    !!node.closest?.('.modal, [data-modal-root], textarea, select, [data-lenis-prevent]');
+    !!node.closest?.('.modal, [data-modal-root], textarea, select, [data-lenis-prevent], .js-pager, .cards.js-pager');
 
 async function startLenis() {
     try {
@@ -108,7 +110,9 @@ async function startLenis() {
         lenis = new Lenis({
             autoRaf: false,
             smoothWheel: true,
-            syncTouch: false,
+            syncTouch: TOUCH_SMOOTH,         // палец на телефоне — тоже через Lenis (false — вернуть нативный скролл пальцем)
+            syncTouchLerp: 0.085,
+            touchInertiaExponent: 2.4,
             lerp: 0.085,
             wheelMultiplier: 1,
             anchors: false,
@@ -117,6 +121,8 @@ async function startLenis() {
             virtualScroll: (d) => !d.event.defaultPrevented,
         });
         window.addEventListener('wheel', kick, { passive: true, capture: true });
+        window.addEventListener('touchstart', kick, { passive: true, capture: true });
+        window.addEventListener('touchmove', kick, { passive: true, capture: true });
         let calm = 0;
         lenis.on('scroll', () => {
             kick();
