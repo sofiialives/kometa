@@ -5341,20 +5341,36 @@ button {
 /* пока идёт программный скролл по навигации — фоновые бесконечные анимации на паузе */
 html.is-autoscroll *,
 html.is-autoscroll *::before,
-html.is-autoscroll *::after {
+html.is-autoscroll *::after,
+html.is-scrolling *,
+html.is-scrolling *::before,
+html.is-scrolling *::after {
     animation-play-state: paused !important;
 }
 
-/* тач: листание ведёт JS (медленное «доезжание» до карточки), нативный снап и инерция отключены */
+/* карусель направлений: нативный scroll-snap (палец и инерция системные, одна карточка за жест),
+   мышь — перетаскивание; на время нашей анимации/перетаскивания снап выключен, чтобы не «дёргал» */
 @media (max-width: 1279.98px) {
     .directions .cards.js-pager:not(.q) {
-        overflow-x: hidden;
-        scroll-snap-type: none;
-        touch-action: pan-y;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        scroll-behavior: auto;
         overscroll-behavior-x: contain;
-        user-select: none;
-        -webkit-user-select: none;
+        scrollbar-width: none;
     }
+
+    .directions .cards.js-pager:not(.q)::-webkit-scrollbar { display: none; }
+
+    .directions .cards.js-pager.is-gliding:not(.q),
+    .directions .cards.js-pager.is-dragging:not(.q) {
+        scroll-snap-type: none;
+    }
+}
+
+@media (max-width: 1279.98px) and (hover: hover) and (pointer: fine) {
+    .directions .cards.js-pager:not(.q) { cursor: grab; }
+    .directions .cards.js-pager.is-dragging:not(.q) { cursor: grabbing; user-select: none; }
+    .directions .cards.js-pager.is-dragging:not(.q) * { pointer-events: none; }
 }
 
 /* точки прилипания — отдельные нетрансформируемые маркеры: масштаб/сдвиг карточек не двигает снап */
@@ -6976,112 +6992,23 @@ html.zg-return .personal { overflow: visible; }
     }
 }
 
-/* пасхалка: космонавт выглядывает из-под нижнего края */
-.peek {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 950;
-    display: flex;
-    justify-content: center;
-    pointer-events: none;
-    visibility: hidden;
-    --p: 0;
-}
-
-.peek.is-on { visibility: visible; }
-
-.peek__body {
-    position: relative;
-    width: min(300px, 70vw);
-    translate: 0 calc((1 - var(--p)) * 105%);
-    transform-origin: 50% 100%;
-}
-
-.peek__body img {
-    display: block;
-    width: 100%;
-    height: auto;
-    aspect-ratio: 1.15;
-    object-fit: cover;
-    object-position: 8% 0;
-    -webkit-mask: linear-gradient(#000 82%, transparent);
-    mask: linear-gradient(#000 82%, transparent);
-}
-
-.peek__bubble {
-    position: absolute;
-    left: 50%;
-    bottom: calc(100% - 12px);
-    translate: -50% 0;
-    width: max-content;
-    max-width: min(320px, 88vw);
-    padding: 10px 16px;
-    border-radius: 16px;
-    font-size: 15px;
-    font-weight: 500;
-    line-height: 1.3;
-    text-align: center;
-    color: #fff;
-    background: rgba(18, 22, 28, .94);
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .16);
-    opacity: 0;
-    scale: .9;
-    transition: opacity .35s ease, scale .45s cubic-bezier(.3, 1.4, .5, 1);
-}
-
-.peek.is-wave .peek__bubble { opacity: 1; scale: 1; }
-.peek.is-wave .peek__body { animation: peek-wave 1.1s ease-in-out infinite; }
-
-@keyframes peek-wave {
-    0%, 100% { rotate: -3deg; }
-    50% { rotate: 4deg; }
-}
-
 /* блик при наведении мыши — тоньше, чем при нажатии */
 .fx-glow.is-hover { opacity: .6; }
 .fx-glow.is-on { opacity: 1; }
 
-/* иконки у формы (десктоп): три объекта по сторонам — выплывают при появлении блока и парят каждый по-своему */
+/* иконки у формы (десктоп): три объекта по сторонам, каждый парит по-своему */
 @media (min-width: 1280px) and (prefers-reduced-motion: no-preference) {
-    .js .start__art:not(.is-in) .start__art-item { opacity: 0; }
-
     .start__art-item {
         will-change: translate, rotate, scale;
         backface-visibility: hidden;
     }
 
-    .start__art.is-in .start__art-item--star {
-        transform-origin: 50% 50%;
-        animation: art-in-star 3.4s cubic-bezier(.22, .8, .24, 1) backwards,
-                   art-star 15s ease-in-out 3.4s infinite;
-    }
-    .start__art.is-in .start__art-item--ring {
-        transform-origin: 50% 50%;
-        animation: art-in-ring 3.8s cubic-bezier(.22, .8, .24, 1) .3s backwards,
-                   art-ring 18s ease-in-out 4.1s infinite;
-    }
-    .start__art.is-in .start__art-item--spring {
-        transform-origin: 50% 85%;
-        animation: art-in-spring 4.2s cubic-bezier(.22, .8, .24, 1) .6s backwards,
-                   art-spring 13s ease-in-out 4.8s infinite;
-    }
+    /* иконки сразу на месте, без появления; остаётся только мягкое парение */
+    .start__art-item--star { transform-origin: 50% 50%; animation: art-star 15s ease-in-out infinite; }
+    .start__art-item--ring { transform-origin: 50% 50%; animation: art-ring 18s ease-in-out infinite; }
+    .start__art-item--spring { transform-origin: 50% 85%; animation: art-spring 13s ease-in-out infinite; }
 
     .start__art.is-offscreen .start__art-item { animation-play-state: paused; }
-}
-
-@keyframes art-in-star {
-    from { opacity: 0; translate: calc(-120 * var(--u)) calc(30 * var(--u)); rotate: -50deg; scale: .6; }
-    to { opacity: 1; translate: 0 0; rotate: 0deg; scale: 1; }
-}
-@keyframes art-in-ring {
-    from { opacity: 0; translate: calc(140 * var(--u)) calc(-20 * var(--u)); rotate: 40deg; scale: .6; }
-    to { opacity: 1; translate: 0 0; rotate: 0deg; scale: 1; }
-}
-@keyframes art-in-spring {
-    from { opacity: 0; translate: calc(-40 * var(--u)) calc(90 * var(--u)); rotate: 0deg; scale: .7 .5; }
-    to { opacity: 1; translate: 0 0; rotate: 0deg; scale: 1; }
 }
 
 /* звезда: качается и уходит влево-вправо, чуть пульсирует */
@@ -7172,3 +7099,26 @@ html.zg-return .card__visual { overflow: visible; }
 .astronaut__figure,
 .astronaut__img,
 .astronaut__glow { pointer-events: none; }
+
+/* Lenis: нативный scroll-behavior не должен конфликтовать с плавным колесом */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-stopped { overflow: clip; }
+
+/* невесомость: слои с летающими плашками поднимаются над соседними секциями (но ниже шапки) */
+.zg-lift { z-index: 39 !important; }
+
+/* плашка в top layer (popover): сбрасываем стили UA-popover, не трогая то, что задано самой плашке */
+:where(.tag.zg-top) {
+    position: absolute;
+    inset: auto;
+    left: 0;
+    top: 0;
+    margin: 0;
+    overflow: visible;
+    box-sizing: border-box;
+    color: inherit;
+    background-color: transparent;
+    border: 0 none;
+    padding: 0;
+}

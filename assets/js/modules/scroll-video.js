@@ -1,8 +1,13 @@
 const SWITCH_DELAY = 120;
 const UNLOCK_DELAY = 2130;
+const KEY = 'kometa:scrollY';
+
+const readSaved = () => {
+    try { return Number(sessionStorage.getItem(KEY)) || 0; } catch (_) { return 0; }
+};
 
 export function initScrollVideo({ video, scene, holder, hint, screens, reduceMotion = false }) {
-    if (!video || !scene || !holder) return;
+    if (!video || !scene || !holder) return { restored: false };
 
     let started = false;
     let unlocked = false;
@@ -127,14 +132,46 @@ export function initScrollVideo({ video, scene, holder, hint, screens, reduceMot
     holder.addEventListener('click', start);
     scene.addEventListener('click', start);
 
+    // запоминаем место на странице: после перезагрузки остаёмся там же, а не возвращаемся на Hero
+    let saveRaf = 0;
+    const save = () => {
+        saveRaf = 0;
+        try { sessionStorage.setItem(KEY, String(Math.round(window.scrollY))); } catch (_) { /* ok */ }
+    };
+    window.addEventListener('scroll', () => { if (!saveRaf) saveRaf = requestAnimationFrame(save); }, { passive: true });
+    window.addEventListener('pagehide', save);
+
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+
+    // Hero уже проигран, если перезагрузка случилась ниже него: ролик не нужен, второй экран показываем сразу
+    const saved = readSaved();
+    const heroEnd = scene.getBoundingClientRect().bottom + window.scrollY - window.innerHeight * 0.4;
+    const restored = !reduceMotion && saved > 0 && saved > heroEnd;
+
     if (reduceMotion) {
         screens?.showAll();
         unlock();
-        return;
+        return { restored: false };
     }
 
-    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+    if (restored) {
+        started = true;
+        holder.classList.add('is-ready', 'is-finished', 'is-past');
+        screens?.switch();
+        unlock();
+        let moved = false;
+        const stop = () => { moved = true; };
+        ['wheel', 'touchstart', 'keydown', 'pointerdown'].forEach((n) => window.addEventListener(n, stop, { once: true, passive: true }));
+        const back = () => { if (!moved && Math.abs(window.scrollY - saved) > 2) window.scrollTo(0, saved); };
+        back();
+        window.addEventListener('load', back, { once: true });
+        setTimeout(back, 300);
+        setTimeout(back, 1200);
+        return { restored: true };
+    }
+
     window.scrollTo(0, 0);
     sync();
     setTimeout(sync, 120);
+    return { restored: false };
 }

@@ -25,15 +25,12 @@ export function initCarousel({ track, progress }) {
     track.classList.remove('sdt');
     let frame = 0;
     let pitchPx = 192;
-    let rb = 0;               // «резинка» у краёв: смещение карточек за пределы прокрутки, px (>0 — потянули за начало)
-    let rbRaf = 0;
 
     const measure = () => {
         pitchPx = parseFloat(getComputedStyle(track).getPropertyValue('--pitch')) || 192;
     };
 
     const reset = () => {
-        rb = 0;
         cards.forEach((card) => {
             card.style.removeProperty('transform');
             card.style.removeProperty('opacity');
@@ -61,7 +58,7 @@ export function initCarousel({ track, progress }) {
             return;
         }
 
-        let shift = rb;
+        let shift = 0;
         let nearest = 0;
         let best = Infinity;
 
@@ -88,149 +85,108 @@ export function initCarousel({ track, progress }) {
     measure();
     update();
 
-    // ---- листание: палец / мышь / колесо / тачпад — всегда ровно на 1 карточку, плавное доезжание по центру ----
+    // ---- листание (механика как в референсе, но плавнее) ----
+    //  • тач: нативный scroll-snap (x mandatory + stop: always) — палец и инерция системные, одна карточка за жест;
+    //  • мышь: перетаскивание (drag-to-scroll), снап на время жеста выключен, на отпускание — плавное доезжание к центру;
+    //  • клик по боковой карточке — она плавно встаёт в центр; клавиши ← → листают;
+    //  • программное доезжание — своя кривая по времени (мягкий старт и финиш), а не резкий browser smooth.
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const easeOut = (x) => 1 - Math.pow(1 - x, 4);
+    const ease = (x) => (x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);   // easeInOutCubic
     let anim = 0;
     let drag = null;
     let blockClick = false;
     let wheelLocked = false;
     let lastWheel = 0;
-    let settleTimer = 0;
 
     const syncPager = () => track.classList.toggle('js-pager', phone.matches);
     syncPager();
     phone.addEventListener?.('change', syncPager);
 
     const maxScroll = () => Math.max(0, track.scrollWidth - track.clientWidth);
-    const stopAnim = () => { if (anim) { cancelAnimationFrame(anim); anim = 0; } };
     const clampIdx = (i) => Math.max(0, Math.min(cards.length - 1, i));
-    const goIdx = (i) => glideTo(Math.min(maxScroll(), clampIdx(i) * pitchPx));
+    const curIdx = () => clampIdx(Math.round(track.scrollLeft / pitchPx));
+    const stopAnim = () => {
+        if (anim) { cancelAnimationFrame(anim); anim = 0; }
+        track.classList.remove('is-gliding');
+    };
 
     function glideTo(target) {
         stopAnim();
         const from = track.scrollLeft;
         const dist = target - from;
         if (Math.abs(dist) < 1 || reduce.matches) { track.scrollLeft = target; update(); return; }
-        const dur = Math.min(1000, Math.max(620, 520 + Math.abs(dist) * 1.6));
+        const dur = Math.min(1050, Math.max(560, 480 + Math.abs(dist) * 1.7));
         const t0 = performance.now();
+        track.classList.add('is-gliding');                          // на время анимации нативный снап не вмешивается
         const step = (now) => {
             const k = Math.min(1, (now - t0) / dur);
-            track.scrollLeft = k < 1 ? from + dist * easeOut(k) : target;
-            update();
-            anim = k < 1 ? requestAnimationFrame(step) : 0;
+            track.scrollLeft = k < 1 ? from + dist * ease(k) : target;
+            if (k < 1) anim = requestAnimationFrame(step);
+            else { anim = 0; track.classList.remove('is-gliding'); }
         };
         anim = requestAnimationFrame(step);
     }
+    const goIdx = (i) => glideTo(Math.min(maxScroll(), clampIdx(i) * pitchPx));
 
-    // выбор карточки по окончании жеста: максимум одна вперёд/назад от стартовой
-    const settle = (d, v, cancelled) => {
-        const moved = d.startScroll - track.scrollLeft;               // <0 — ушли вперёд
-        const startIdx = Math.round(d.startScroll / pitchPx);
-        let idx = Math.round(track.scrollLeft / pitchPx);
-        if (!cancelled && (Math.abs(v) > 0.25 || Math.abs(moved) > pitchPx * 0.16)) {
-            idx = startIdx + (v > 0.05 || (Math.abs(v) <= 0.05 && moved < 0) ? 1 : -1);
-        }
-        goIdx(Math.max(startIdx - 1, Math.min(startIdx + 1, idx)));
-    };
-
-    const velocity = (pts) => {
-        const last = pts[pts.length - 1];
-        const first = pts.find((p) => last.t - p.t <= 90) || pts[0];
-        return (first.x - last.x) / Math.max(1, last.t - first.t);     // px/мс, >0 — листаем вперёд
-    };
-
-    // резинка: сопротивление растёт, предел ≈ RB_DIM; возврат — пружина с лёгким перелётом
-    const RB_DIM = 110;
-    const rubber = (x) => (1 - 1 / (x * .55 / RB_DIM + 1)) * RB_DIM;
-    const stopRb = () => { if (rbRaf) { cancelAnimationFrame(rbRaf); rbRaf = 0; } };
-    const springBack = () => {
-        stopRb();
-        if (Math.abs(rb) < .3 || reduce.matches) { rb = 0; update(); return; }
-        let v = 0;
-        let prev = performance.now();
-        const K = 190;
-        const C = 2 * .62 * Math.sqrt(K);
-        const step = (now) => {
-            let left = Math.min(.032, (now - prev) / 1000);
-            prev = now;
-            while (left > 0) {
-                const h = Math.min(.004, left);
-                left -= h;
-                v += (-K * rb - C * v) * h;
-                rb += v * h;
-            }
-            if (Math.abs(rb) < .15 && Math.abs(v) < 2) { rb = 0; rbRaf = 0; update(); return; }
-            update();
-            rbRaf = requestAnimationFrame(step);
-        };
-        rbRaf = requestAnimationFrame(step);
-    };
-
-    // ---- общий драйвер жеста (одинаков для пальца и мыши) ----
-    const begin = (x, y) => {
+    // ---- мышь: drag-to-scroll ----
+    track.addEventListener('pointerdown', (e) => {
+        if (e.pointerType !== 'mouse' || e.button !== 0 || !phone.matches) return;
         stopAnim();
-        stopRb();
-        drag = { x0: x, y0: y, startScroll: track.scrollLeft, active: false, pts: [{ x, t: performance.now() }] };
-    };
-    const move = (x, y) => {
-        if (!drag) return false;
-        const dx = x - drag.x0;
+        blockClick = false;
+        drag = { x0: e.clientX, startScroll: track.scrollLeft, active: false, pts: [{ x: e.clientX, t: performance.now() }], id: e.pointerId };
+    });
+    track.addEventListener('pointermove', (e) => {
+        if (!drag || e.pointerId !== drag.id) return;
+        const dx = e.clientX - drag.x0;
         if (!drag.active) {
-            if (Math.abs(dx) < 6 && Math.abs(y - drag.y0) < 6) return false;
-            if (Math.abs(y - drag.y0) > Math.abs(dx)) { drag = null; return false; }   // вертикальный жест — это скролл страницы
+            if (Math.abs(dx) < 5) return;
             drag.active = true;
             blockClick = true;
             track.classList.add('is-dragging');
+            try { track.setPointerCapture(e.pointerId); } catch (_) { /* noop */ }
         }
-        const raw = drag.startScroll - dx;
-        const mx = maxScroll();
-        rb = raw < 0 ? rubber(-raw) : raw > mx ? -rubber(raw - mx) : 0;
-        track.scrollLeft = Math.min(mx, Math.max(0, raw));
-        update();
-        drag.pts.push({ x, t: performance.now() });
-        if (drag.pts.length > 12) drag.pts.shift();
-        return true;
-    };
-    const end = (cancelled) => {
+        track.scrollLeft = drag.startScroll - dx;
+        drag.pts.push({ x: e.clientX, t: performance.now() });
+        if (drag.pts.length > 10) drag.pts.shift();
+    });
+    const endDrag = (cancelled) => {
         if (!drag) return;
         const d = drag;
         drag = null;
         track.classList.remove('is-dragging');
         if (!d.active) return;
-        if (rb) springBack();
-        settle(d, cancelled ? 0 : velocity(d.pts), cancelled);
+        const last = d.pts[d.pts.length - 1];
+        const first = d.pts.find((p) => last.t - p.t <= 90) || d.pts[0];
+        const v = (first.x - last.x) / Math.max(1, last.t - first.t);      // px/мс, >0 — листаем вперёд
+        const start = clampIdx(Math.round(d.startScroll / pitchPx));
+        let idx = curIdx();
+        const moved = d.startScroll - track.scrollLeft;
+        if (!cancelled && (Math.abs(v) > .25 || Math.abs(moved) > pitchPx * .16)) idx = start + (v > .05 || (Math.abs(v) <= .05 && moved < 0) ? 1 : -1);
+        goIdx(Math.max(start - 1, Math.min(start + 1, idx)));
     };
-
-    // палец: touch-события (работают везде одинаково, включая iOS Safari)
-    track.addEventListener('touchstart', (e) => {
-        blockClick = false;
-        if (!phone.matches || e.touches.length !== 1) return;
-        begin(e.touches[0].clientX, e.touches[0].clientY);
-    }, { passive: true });
-    track.addEventListener('touchmove', (e) => {
-        if (!drag) return;
-        if (move(e.touches[0].clientX, e.touches[0].clientY) && e.cancelable) e.preventDefault();
-    }, { passive: false });
-    track.addEventListener('touchend', () => end(false));
-    track.addEventListener('touchcancel', () => end(true));
-
-    // мышь: pointer-события
-    track.addEventListener('pointerdown', (e) => {
-        if (e.pointerType !== 'mouse' || e.button !== 0 || !phone.matches) return;
-        blockClick = false;
-        begin(e.clientX, e.clientY);
-        try { track.setPointerCapture(e.pointerId); } catch (_) { /* noop */ }
-    });
-    track.addEventListener('pointermove', (e) => { if (e.pointerType === 'mouse') move(e.clientX, e.clientY); });
-    track.addEventListener('pointerup', (e) => { if (e.pointerType === 'mouse') end(false); });
-    track.addEventListener('pointercancel', (e) => { if (e.pointerType === 'mouse') end(true); });
+    track.addEventListener('pointerup', (e) => { if (drag && e.pointerId === drag.id) endDrag(false); });
+    track.addEventListener('pointercancel', (e) => { if (drag && e.pointerId === drag.id) endDrag(true); });
     track.addEventListener('dragstart', (e) => e.preventDefault());
+
+    // ---- клик: после перетаскивания — не клик; по боковой карточке — в центр ----
     track.addEventListener('click', (e) => {
-        if (blockClick) { e.preventDefault(); e.stopPropagation(); blockClick = false; }
+        if (blockClick) { e.preventDefault(); e.stopPropagation(); blockClick = false; return; }
+        if (!phone.matches) return;
+        const card = e.target.closest('.card');
+        if (!card) return;
+        const i = cards.indexOf(card);
+        if (i < 0 || i === curIdx()) return;
+        e.preventDefault();
+        e.stopPropagation();
+        goIdx(i);
     }, true);
 
-    // колесо / тачпад: один жест = одна карточка; инерцию тачпада игнорируем, пока она не затихнет
+    // ---- клавиши и горизонтальное колесо/тачпад: одна карточка за жест ----
+    track.addEventListener('keydown', (e) => {
+        if (!phone.matches || (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft')) return;
+        e.preventDefault();
+        goIdx(curIdx() + (e.key === 'ArrowRight' ? 1 : -1));
+    });
     track.addEventListener('wheel', (e) => {
         if (!phone.matches) return;
         const ax = Math.abs(e.deltaX);
@@ -243,17 +199,9 @@ export function initCarousel({ track, progress }) {
         if (wheelLocked && !anim && gap > 110) wheelLocked = false;
         if (wheelLocked || Math.abs(delta) < 3) return;
         wheelLocked = true;
-        goIdx(Math.round(track.scrollLeft / pitchPx) + (delta > 0 ? 1 : -1));
+        goIdx(curIdx() + (delta > 0 ? 1 : -1));
     }, { passive: false });
 
-    // страховка: любой другой способ сдвинуть (скроллбар, клавиатура, нативный инерционный скролл) — доезжаем до ближайшей карточки
-    track.addEventListener('scroll', () => {
-        if (!phone.matches || anim || drag) return;
-        clearTimeout(settleTimer);
-        settleTimer = setTimeout(() => {
-            if (anim || drag || !phone.matches) return;
-            const idx = clampIdx(Math.round(track.scrollLeft / pitchPx));
-            if (Math.abs(track.scrollLeft - Math.min(maxScroll(), idx * pitchPx)) > 1) goIdx(idx);
-        }, 140);
-    }, { passive: true });
+    // нативный жест пальцем начался — наша анимация (если шла) уступает
+    track.addEventListener('touchstart', stopAnim, { passive: true });
 }

@@ -33,7 +33,7 @@ if (isPhone) {
 
     if (videoEl) videoEl.preload = 'auto';
 
-    initScrollVideo({
+    const { restored } = initScrollVideo({
         video: videoEl,
         scene: $('[data-video-scene]'),
         holder: videoHolder,
@@ -41,6 +41,8 @@ if (isPhone) {
         screens,
         reduceMotion
     });
+
+    if (restored) loader?.release();
 
     initMediaProgress({
         video: videoEl,
@@ -51,7 +53,7 @@ if (isPhone) {
         onReady: (reason) => {
             console.info('[kometa] видео готово:', reason);
             loader?.release();
-            if (!reduceMotion) screens?.intro();
+            if (!reduceMotion && !restored) screens?.intro();
         }
     });
 

@@ -54,9 +54,83 @@ export function scrollToY(y, { instant = reduceMq.matches } = {}) {
 export const cancelScroll = () => stop();
 export const isTweening = () => mode === 'tween';
 
+/* ---------- плавное колесо/тачпад (Lenis, MIT) ----------
+ * Включается на колесо/тачпад на всех устройствах; палец на телефоне остаётся нативным (инерция системы
+ * уже плавная и идёт в compositor-потоке). Свой rAF-цикл запускается только пока идёт скролл, а при просадке
+ * кадров движок сам отключается и страница возвращается к нативному скроллу (страховка от лагов). */
+let lenis = null;
+let lraf = 0;
+let idle = 0;
+const slow = { n: 0, sum: 0, last: 0 };
+const forced = /[?&]smooth=force/.test(location.search);   // для замеров: без страховки
+
+function lenisLoop(t) {
+    lraf = 0;
+    if (!lenis) return;
+    if (slow.last) {
+        const d = t - slow.last;
+        if (lenis.isScrolling && !forced) {
+            slow.sum += Math.min(d, 200); slow.n++;
+            if (slow.n >= 30) {
+                if (slow.sum / slow.n > 24) { destroyLenis(); return; }   // < ~35 fps: плавность хуже нативной → отключаемся
+                slow.n = 0; slow.sum = 0;
+            }
+        }
+    }
+    slow.last = t;
+    lenis.raf(t);
+    idle = lenis.isScrolling ? 0 : idle + 1;
+    if (idle < 4) { if (!lraf) lraf = requestAnimationFrame(lenisLoop); }   // 'scroll' из lenis.raf мог уже запросить кадр
+    else slow.last = 0;
+}
+
+function kick() {
+    if (lenis && !lraf) lraf = requestAnimationFrame(lenisLoop);
+}
+
+function destroyLenis() {
+    if (!lenis) return;
+    cancelAnimationFrame(lraf);
+    lraf = 0;
+    lenis.destroy();
+    lenis = null;
+    window.removeEventListener('wheel', kick, true);
+    root.classList.remove('lenis', 'lenis-smooth', 'lenis-scrolling', 'is-scrolling');
+}
+
+const preventNode = (node) =>
+    document.body.classList.contains('is-locked') ||
+    !!node.closest?.('.modal, [data-modal-root], textarea, select, [data-lenis-prevent]');
+
+async function startLenis() {
+    try {
+        const { default: Lenis } = await import('../vendor/lenis.mjs');
+        lenis = new Lenis({
+            autoRaf: false,
+            smoothWheel: true,
+            syncTouch: false,
+            lerp: 0.085,
+            wheelMultiplier: 1,
+            anchors: false,
+            prevent: preventNode,
+            // жест уже перехвачен другим модулем (сцена Hero, карусель) — Lenis его не трогает
+            virtualScroll: (d) => !d.event.defaultPrevented,
+        });
+        window.addEventListener('wheel', kick, { passive: true, capture: true });
+        let calm = 0;
+        lenis.on('scroll', () => {
+            kick();
+            // пока идёт плавный скролл, фоновые бесконечные анимации на паузе: главный поток занят только прокруткой
+            if (!calm) root.classList.add('is-scrolling');
+            clearTimeout(calm);
+            calm = setTimeout(() => { calm = 0; root.classList.remove('is-scrolling'); }, 180);
+        });
+    } catch (e) {
+        console.warn('[kometa] smooth scroll недоступен, остаётся нативный', e);
+    }
+}
+
 export function initSmoothScroll() {
-    // Колесо/тачпад/клавиши НЕ перехватываем: браузер сам плавно скроллит их в отдельном потоке (compositor),
-    // и так не бывает лагов даже на тяжёлой странице. Движок отвечает только за переходы по якорям.
     if (reduceMq.matches) return;
 
     const interrupt = (e) => {
@@ -65,4 +139,6 @@ export function initSmoothScroll() {
         stop();
     };
     ['wheel', 'touchstart', 'pointerdown', 'keydown'].forEach((t) => window.addEventListener(t, interrupt, { passive: true, capture: true }));
+
+    startLenis();
 }

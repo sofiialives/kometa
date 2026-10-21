@@ -28,6 +28,7 @@ const MAX_V = 2400;            // px/с
 const PAD = 4;                 // уменьшение коллайдера: наложенные по вёрстке плашки не «толкаются» в покое
 const SLOP = 0.6;              // допустимое проникновение, px
 const FIX = 1 / 120;           // фиксированный шаг
+const HAS_POPOVER = typeof HTMLElement !== 'undefined' && 'showPopover' in HTMLElement.prototype;
 
 let docBox = { l: 0, t: 0, r: 0, b: 0 };
 const boxCache = new Map();
@@ -75,7 +76,53 @@ function paint(b) {
     b.el.style.translate = `${x}px ${y}px`;
 }
 
+
+/* ---------- «над всем»: плашка в невесомости переезжает в top layer (popover) — выше любых секций и их слоёв наложения ----------
+ * Место в вёрстке занимает невидимый двойник, поэтому соседние плашки не съезжают; координаты — страничные (absolute от начала документа). */
+function promote(b) {
+    if (!HAS_POPOVER || b.top) return;
+    const el = b.el;
+    const ow = el.offsetWidth;
+    const oh = el.offsetHeight;
+    const ph = el.cloneNode(true);
+    ph.removeAttribute('id');
+    ph.classList.remove('is-live', 'is-phys', 'is-grabbed');
+    ph.style.cssText = 'visibility:hidden;pointer-events:none;translate:none;';
+    ph.setAttribute('aria-hidden', 'true');
+    el.before(ph);
+    el.setAttribute('popover', 'manual');
+    el.classList.add('zg-top');
+    el.style.width = `${ow}px`;
+    el.style.height = `${oh}px`;
+    try { el.showPopover(); } catch (_) {
+        el.removeAttribute('popover');
+        el.classList.remove('zg-top');
+        el.style.width = el.style.height = '';
+        ph.remove();
+        return;
+    }
+    b.ph = ph;
+    b.top = true;
+    b.bx = b.cx - ow / 2;
+    b.by = b.cy - oh / 2;
+    b.lx = b.ly = null;
+}
+
+function demote(b) {
+    if (!b.top) return;
+    const el = b.el;
+    try { el.hidePopover(); } catch (_) { /* уже закрыт */ }
+    el.removeAttribute('popover');
+    el.classList.remove('zg-top');
+    el.style.width = el.style.height = '';
+    b.ph?.remove();
+    b.ph = null;
+    b.top = false;
+    b.bx = b.by = 0;
+}
+
 function sleep(b) {
+    demote(b);
     b.x = b.y = b.vx = b.vy = 0;
     b.awake = false;
     b.age = 0;
@@ -150,8 +197,9 @@ function collide() {
             const dx = (c.cx + c.x) - (a.cx + a.x);
             if (dx > 520 || dx < -520) continue;               // дальнее отсечение
             const dy = (c.cy + c.y) - (a.cy + a.y);
-            const ox = (a.w + c.w) / 2 - PAD * 2 - Math.abs(dx);
-            const oy = (a.h + c.h) / 2 - PAD * 2 - Math.abs(dy);
+            const pad = zeroG ? 0 : PAD;                        // в невесомости — точный контур, без «подушки»
+            const ox = (a.w + c.w) / 2 - pad * 2 - Math.abs(dx);
+            const oy = (a.h + c.h) / 2 - pad * 2 - Math.abs(dy);
             if (ox <= 0 || oy <= 0) continue;
             // у плашек в вёрстке есть небольшие наложения «дома»: пока оба рядом с домом и никто не схвачен — это не столкновение
             if (!a.grabbed && !c.grabbed && Math.abs(a.x) + Math.abs(a.y) + Math.abs(c.x) + Math.abs(c.y) < 3) continue;
@@ -162,13 +210,13 @@ function collide() {
             if (!c.awake) wake(c);
             const horiz = ox < oy;
             const n = horiz ? Math.sign(dx || 1) : Math.sign(dy || 1);
-            const pen = (horiz ? ox : oy) - SLOP;
+            const pen = (horiz ? ox : oy) - (zeroG ? 0.15 : SLOP);
             const wa = a.grabbed ? 0 : 1;
             const wc = c.grabbed ? 0 : 1;
             const tot = wa + wc;
             if (!tot) continue;
             if (pen > 0) {                                      // позицию поправляем почти целиком, но без рывка на всю глубину
-                const fix = pen * 0.85;
+                const fix = pen * (zeroG ? 1 : 0.85);
                 if (horiz) { a.x -= n * fix * wa / tot; c.x += n * fix * wc / tot; }
                 else { a.y -= n * fix * wa / tot; c.y += n * fix * wc / tot; }
             }
@@ -176,7 +224,7 @@ function collide() {
             const vc = horiz ? c.vx : c.vy;
             const rel = (vc - va) * n;
             if (rel < 0) {
-                const e = -rel > 70 ? REST : 0;                 // слабые касания гасим без отскока — плашки не дрожат
+                const e = zeroG || -rel > 70 ? REST : 0;                 // слабые касания гасим без отскока — плашки не дрожат
                 const j2 = -(1 + e) * rel / tot;
                 if (horiz) { a.vx -= n * j2 * wa; c.vx += n * j2 * wc; }
                 else { a.vy -= n * j2 * wa; c.vy += n * j2 * wc; }
@@ -225,6 +273,7 @@ function loop(now) {
     while (acc >= FIX && steps < 6) {
         integrate(FIX);
         collide();
+        if (zeroG) collide();                                // два прохода: стопка плашек распрямляется без наползания
         any = settle(FIX);
         acc -= FIX;
         steps++;
@@ -347,6 +396,7 @@ export function setZeroG(on) {
     returning = !on;
     for (const b of bodies) {
         if (b.zgOnly) b.el.classList.toggle('is-live', on);
+        if (on) promote(b);
         wake(b);
         if (on) {
             const a = Math.random() * Math.PI * 2;

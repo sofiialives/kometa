@@ -16,7 +16,7 @@ export function initLive() {
         // пока плашки двигаются, парящий космонавт за стеклом замирает: его кадры не перерисовывают размытый фон
         astro?.classList.toggle('is-frozen', busy);
         personal?.classList.toggle('is-busy', busy);
-        if (!busy) root.classList.remove('zg-return');
+        if (!busy) { root.classList.remove('zg-return'); if (!isZeroG()) lift(false); }
     });
 
     // кнопку создаём всегда, а показывает её CSS только на широком экране с мышью/трекпадом (any-pointer: fine) —
@@ -49,6 +49,21 @@ export function initLive() {
         document.querySelectorAll('.tag').forEach((el) => { if (!personal?.contains(el)) take(el, 'tags'); });
     };
 
+    // плашки в невесомости летят по всей странице — всегда поверх соседних секций:
+    // поднимаем предков каждой плашки (они образуют свои слои наложения), пока режим включён
+    let lifted = [];
+    const lift = (on) => {
+        lifted.forEach((n) => n.classList.remove('zg-lift'));
+        lifted = [];
+        if (!on) return;
+        const set = new Set();
+        document.querySelectorAll('.tag').forEach((tag) => {
+            for (let n = tag.parentElement; n && n !== document.body && n !== root; n = n.parentElement) set.add(n);
+        });
+        set.forEach((n) => n.classList.add('zg-lift'));
+        lifted = [...set];
+    };
+
     const set = (on) => {
         if (on === isZeroG()) return;
         btn.setAttribute('aria-pressed', String(on));
@@ -60,6 +75,7 @@ export function initLive() {
             root.classList.remove('zg-on');
             root.classList.add('zg-return');
         }
+        if (on && !('showPopover' in HTMLElement.prototype)) lift(true);   // запасной вариант для старых браузеров
         setZeroG(on);
     };
 
