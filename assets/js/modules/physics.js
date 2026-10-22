@@ -177,7 +177,7 @@ function integrate(dt) {
             b.vy *= d;
         } else if (b.ret) {
             // возврат из невесомости: критически затухающая пружина — всегда доезжает домой без перелёта и застреваний
-            const w = 9;
+            const w = 12;
             b.vx += (-w * w * b.x - 2 * w * b.vx) * dt;
             b.vy += (-w * w * b.y - 2 * w * b.vy) * dt;
         } else {
@@ -192,18 +192,18 @@ function integrate(dt) {
 }
 
 function collide() {
-    if (returning) return;
+    const zg = zeroG || returning;                           // при возврате домой — те же точные контуры, что и в невесомости
     for (let i = 0; i < bodies.length; i++) {
         const a = bodies[i];
         for (let j = i + 1; j < bodies.length; j++) {
             const c = bodies[j];
             if (!a.awake && !c.awake) continue;
-            if (zeroG) { if (!a.awake || !c.awake) continue; }
+            if (zg) { if (!a.awake || !c.awake) continue; if (returning && (a.age > 1.6 || c.age > 1.6 || Math.abs(a.x) + Math.abs(a.y) > 380 || Math.abs(c.x) + Math.abs(c.y) > 380)) continue; }   // далёкие (летят домой) и зависшие дольше 1.6 с — доезжают сквозь; у дома контуры точные
             else if (a.boundsEl !== c.boundsEl) continue;
             const dx = (c.cx + c.x) - (a.cx + a.x);
             if (dx > 520 || dx < -520) continue;               // дальнее отсечение
             const dy = (c.cy + c.y) - (a.cy + a.y);
-            const pad = zeroG ? 0 : PAD;                        // в невесомости — точный контур, без «подушки»
+            const pad = zg ? 0 : PAD;                        // в невесомости — точный контур, без «подушки»
             const ox = (a.w + c.w) / 2 - pad * 2 - Math.abs(dx);
             const oy = (a.h + c.h) / 2 - pad * 2 - Math.abs(dy);
             if (ox <= 0 || oy <= 0) continue;
@@ -211,18 +211,18 @@ function collide() {
             if (!a.grabbed && !c.grabbed && Math.abs(a.x) + Math.abs(a.y) + Math.abs(c.x) + Math.abs(c.y) < 3) continue;
             // удар имеет смысл только сразу после броска/толчка. Через ~секунду свободные плашки, оказавшиеся друг в друге
             // (поменялись местами и пружины тянут их сквозь друг друга), проходят друг сквозь друга домой — без тупика
-            if (!zeroG && !a.grabbed && !c.grabbed && a.age > 0.9 && c.age > 0.9) continue;
+            if (!zg && !a.grabbed && !c.grabbed && a.age > 0.9 && c.age > 0.9) continue;
             if (!a.awake) wake(a);                              // задетое спящее тело просыпается и уезжает тоже
             if (!c.awake) wake(c);
             const horiz = ox < oy;
             const n = horiz ? Math.sign(dx || 1) : Math.sign(dy || 1);
-            const pen = (horiz ? ox : oy) - (zeroG ? 0.15 : SLOP);
+            const pen = (horiz ? ox : oy) - (zg ? 0.15 : SLOP);
             const wa = a.grabbed ? 0 : 1;
             const wc = c.grabbed ? 0 : 1;
             const tot = wa + wc;
             if (!tot) continue;
             if (pen > 0) {                                      // позицию поправляем почти целиком, но без рывка на всю глубину
-                const fix = pen * (zeroG ? 1 : 0.85);
+                const fix = pen * (zg ? 1 : 0.85);
                 if (horiz) { a.x -= n * fix * wa / tot; c.x += n * fix * wc / tot; }
                 else { a.y -= n * fix * wa / tot; c.y += n * fix * wc / tot; }
             }
@@ -230,7 +230,7 @@ function collide() {
             const vc = horiz ? c.vx : c.vy;
             const rel = (vc - va) * n;
             if (rel < 0) {
-                const e = zeroG || -rel > 70 ? REST : 0;                 // слабые касания гасим без отскока — плашки не дрожат
+                const e = zg || -rel > 70 ? REST : 0;                 // слабые касания гасим без отскока — плашки не дрожат
                 const j2 = -(1 + e) * rel / tot;
                 if (horiz) { a.vx -= n * j2 * wa; c.vx += n * j2 * wc; }
                 else { a.vy -= n * j2 * wa; c.vy += n * j2 * wc; }
@@ -288,7 +288,7 @@ function step(now) {
     while (acc >= FIX && steps < 6) {
         integrate(FIX);
         collide();
-        if (zeroG) collide();                                // два прохода: стопка плашек распрямляется без наползания
+        if (zeroG || returning) collide();                   // два прохода: стопка плашек распрямляется без наползания
         any = settle(FIX);
         acc -= FIX;
         steps++;
