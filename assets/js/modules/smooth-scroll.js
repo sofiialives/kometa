@@ -61,7 +61,25 @@ let lenis = null;
 let lraf = 0;
 let idle = 0;
 const slow = { n: 0, sum: 0, last: 0 };
-const TOUCH_SMOOTH = true;                                   // плавный скролл пальцем на телефоне; false — нативный
+const LIMIT = 36;                      // средний кадр дольше — движок отключается, остаётся нативный скролл (~28 к/с)
+const TOUCH_SMOOTH = false;
+const debug = /[?&]debug=smooth/.test(location.search);   // ?debug=smooth — плашка со статусом Lenis (для проверки на телефоне)
+let dbgEl = null;
+let dbgTouch = 0;
+let dbgFps = 0;
+function dbg(state, why = '') {
+    if (!debug) return;
+    if (!dbgEl) {
+        dbgEl = document.createElement('div');
+        dbgEl.style.cssText = 'position:fixed;left:8px;bottom:8px;z-index:99999;padding:6px 9px;border-radius:8px;background:rgba(0,0,0,.78);color:#7CFC9A;font:11px/1.35 monospace;pointer-events:none;white-space:pre';
+        document.body.appendChild(dbgEl);
+        addEventListener('touchmove', () => { dbgTouch++; dbg(dbgEl.dataset.s || state, dbgEl.dataset.w || why); }, { passive: true, capture: true });
+    }
+    dbgEl.dataset.s = state;
+    dbgEl.dataset.w = why;
+    dbgEl.textContent = 'lenis: ' + state + (why ? ' (' + why + ')' : '') + '\ntouchmove: ' + dbgTouch + '  frame: ' + dbgFps + ' ms\nsyncTouch: ' + TOUCH_SMOOTH;
+}
+                                   // плавный скролл пальцем на телефоне; false — нативный
 const forced = /[?&]smooth=force/.test(location.search);   // для замеров: без страховки
 
 function lenisLoop(t) {
@@ -72,7 +90,8 @@ function lenisLoop(t) {
         if (lenis.isScrolling && !forced) {
             slow.sum += Math.min(d, 200); slow.n++;
             if (slow.n >= 30) {
-                if (slow.sum / slow.n > 24) { destroyLenis(); return; }   // < ~35 fps: плавность хуже нативной → отключаемся
+                dbgFps = Math.round(slow.sum / slow.n);
+                if (slow.sum / slow.n > LIMIT) { dbg('OFF', 'frames ' + dbgFps + ' ms > ' + LIMIT); destroyLenis(); return; }   // < ~35 fps: плавность хуже нативной → отключаемся
                 slow.n = 0; slow.sum = 0;
             }
         }
@@ -120,6 +139,7 @@ async function startLenis() {
             // жест уже перехвачен другим модулем (сцена Hero, карусель) — Lenis его не трогает
             virtualScroll: (d) => !d.event.defaultPrevented,
         });
+        dbg('ON');
         window.addEventListener('wheel', kick, { passive: true, capture: true });
         window.addEventListener('touchstart', kick, { passive: true, capture: true });
         window.addEventListener('touchmove', kick, { passive: true, capture: true });
@@ -133,11 +153,12 @@ async function startLenis() {
         });
     } catch (e) {
         console.warn('[kometa] smooth scroll недоступен, остаётся нативный', e);
+        dbg('OFF', 'ошибка загрузки: ' + (e && e.message));
     }
 }
 
 export function initSmoothScroll() {
-    if (reduceMq.matches) return;
+    if (reduceMq.matches) { dbg('OFF', 'reduced motion в системе'); return; }
 
     const interrupt = (e) => {
         if (!mode) return;
