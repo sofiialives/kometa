@@ -41,7 +41,7 @@ export function initCarousel({ track, progress }) {
     const update = () => {
         frame = 0;
         const max = track.scrollWidth - track.clientWidth;
-        const value = max > 0 ? track.scrollLeft / max : 0;
+        const value = max > 0 ? Math.min(1, Math.max(0, track.scrollLeft / max)) : 0;   // резинка iOS/overscroll не выводит полоску за 0..1
         progress.style.setProperty('--progress', value.toFixed(3));
 
         if (!phone.matches) { reset(); return; }
@@ -76,11 +76,27 @@ export function initCarousel({ track, progress }) {
         if (scrollable) cards.forEach((card, i) => card.classList.toggle('is-current', i === nearest));
     };
 
+    let settleT = 0;
+    let touching = false;
+    // страховка посадки: если браузер остановил прокрутку не на центре карточки (снап не сработал, смена размеров,
+    // особенности iOS/Android) — мягко доезжаем до ближайшей. Пока палец на экране или идёт наша анимация — не вмешиваемся.
+    const settle = () => {
+        settleT = 0;
+        if (!phone.matches || touching || drag || anim) return;
+        const max = Math.max(0, track.scrollWidth - track.clientWidth);
+        if (max <= 1) return;
+        const target = Math.min(max, Math.max(0, Math.round(track.scrollLeft / pitchPx)) * pitchPx);
+        if (Math.abs(track.scrollLeft - target) > 1.5) glideTo(target);
+    };
     const schedule = () => {
         if (!frame) frame = requestAnimationFrame(update);
+        clearTimeout(settleT);
+        settleT = setTimeout(settle, 180);
     };
 
     track.addEventListener('scroll', schedule, { passive: true });
+    track.addEventListener('touchstart', () => { touching = true; clearTimeout(settleT); }, { passive: true });
+    ['touchend', 'touchcancel'].forEach((n) => track.addEventListener(n, () => { touching = false; clearTimeout(settleT); settleT = setTimeout(settle, 220); }, { passive: true }));
     window.addEventListener('resize', () => { measure(); schedule(); });
     measure();
     update();

@@ -125,6 +125,7 @@ function sleep(b) {
     demote(b);
     b.x = b.y = b.vx = b.vy = 0;
     b.awake = false;
+    b.ret = false;
     b.age = 0;
     b.lx = b.ly = null;
     b.el.style.translate = '';
@@ -174,6 +175,11 @@ function integrate(dt) {
             const d = Math.exp(-dt * 0.12);
             b.vx *= d;
             b.vy *= d;
+        } else if (b.ret) {
+            // возврат из невесомости: критически затухающая пружина — всегда доезжает домой без перелёта и застреваний
+            const w = 9;
+            b.vx += (-w * w * b.x - 2 * w * b.vx) * dt;
+            b.vy += (-w * w * b.y - 2 * w * b.vy) * dt;
         } else {
             b.vx += (-K * b.x - c * b.vx) * dt;
             b.vy += (-K * b.y - c * b.vy) * dt;
@@ -245,7 +251,7 @@ function settle(dt) {
             const px = b.cx + b.x;
             const py = b.cy + b.y;
             // тело вне своей рамки (возвращается из невесомости) — стены не трогаем
-            const outside = !zeroG && (px < w.l || px > w.r || py < w.t || py > w.b || b.cx - hw < w.l - 1 || b.cx + hw > w.r + 1 || b.cy - hh < w.t - 1 || b.cy + hh > w.b + 1);
+            const outside = !zeroG && (b.ret || px < w.l || px > w.r || py < w.t || py > w.b || b.cx - hw < w.l - 1 || b.cx + hw > w.r + 1 || b.cy - hh < w.t - 1 || b.cy + hh > w.b + 1);
             if (!outside) {
                 if (px - hw < w.l) { b.x += w.l - (px - hw); b.vx = Math.abs(b.vx) * REST; }
                 else if (px + hw > w.r) { b.x -= (px + hw) - w.r; b.vx = -Math.abs(b.vx) * REST; }
@@ -255,7 +261,7 @@ function settle(dt) {
         }
         b.age = zeroG || b.grabbed ? 0 : b.age + dt;
         // лёг на место (порог крупнее прежнего — без долгого «дрожания» у нуля) или завис дольше 6 с
-        if (!zeroG && !b.grabbed && ((Math.abs(b.x) + Math.abs(b.y) < 0.35 && Math.abs(b.vx) + Math.abs(b.vy) < 6) || b.age > 6)) {
+        if (!zeroG && !b.grabbed && ((Math.abs(b.x) + Math.abs(b.y) < 0.35 && Math.abs(b.vx) + Math.abs(b.vy) < 6) || b.age > (b.ret ? 3.2 : 6))) {
             sleep(b);
             continue;
         }
@@ -266,6 +272,15 @@ function settle(dt) {
 
 function loop(now) {
     raf = 0;
+    try { step(now); } catch (err) {
+        // любая ошибка в цикле не должна оставлять плашки зависшими вдали от места
+        console.error(err);
+        for (const b of bodies) { try { if (b.awake && !b.grabbed) sleep(b); } catch (_) { /* noop */ } }
+        running = false; returning = false; onBusyChange?.(false);
+    }
+}
+
+function step(now) {
     acc += Math.min(0.05, Math.max(0.001, (now - last) / 1000));   // длинный кадр не раздувает работу
     last = now;
     let steps = 0;
@@ -315,7 +330,7 @@ export function addBody(el, { group = '', boundsEl = null, hold = 160, zgOnly = 
     const grab = (e) => {
         ensureLoop();                                   // сначала измерения (пока тело спит), потом всё остальное
         wake(b);
-        b.grabbed = true;
+        b.grabbed = true; b.ret = false;
         grabbedCount++;
         b.px = e.clientX;
         b.py = e.clientY;
@@ -397,6 +412,7 @@ export function setZeroG(on) {
     for (const b of bodies) {
         if (b.zgOnly) b.el.classList.toggle('is-live', on);
         if (on) promote(b);
+        b.ret = !on && !b.grabbed;
         wake(b);
         if (on) {
             const a = Math.random() * Math.PI * 2;
