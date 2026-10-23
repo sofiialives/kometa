@@ -63,6 +63,13 @@ function measureAll() {
             boxCache.set(b.boundsEl, { l: r.left + scrollX + 2, t: r.top + scrollY + 2, r: r.right + scrollX - 2, b: r.bottom + scrollY - 2 });
         }
     }
+    // плашка, выступающая за рамку «дома», не должна выталкиваться стеной: расширяем рамку до её домашнего места
+    for (const b of bodies) {
+        const w = b.boundsEl && boxCache.get(b.boundsEl);
+        if (!w) continue;
+        w.l = Math.min(w.l, b.cx - b.w / 2); w.r = Math.max(w.r, b.cx + b.w / 2);
+        w.t = Math.min(w.t, b.cy - b.h / 2); w.b = Math.max(w.b, b.cy + b.h / 2);
+    }
     dirty = false;
 }
 
@@ -141,7 +148,7 @@ function wake(b) {
 }
 
 function bounds(b) {
-    if (zeroG || !b.boundsEl) return docBox;
+    if (!b.boundsEl) return docBox;
     return boxCache.get(b.boundsEl) || docBox;
 }
 
@@ -177,7 +184,7 @@ function integrate(dt) {
             b.vy *= d;
         } else if (b.ret) {
             // возврат из невесомости: критически затухающая пружина — всегда доезжает домой без перелёта и застреваний
-            const w = 12;
+            const w = 16;
             b.vx += (-w * w * b.x - 2 * w * b.vx) * dt;
             b.vy += (-w * w * b.y - 2 * w * b.vy) * dt;
         } else {
@@ -198,8 +205,8 @@ function collide() {
         for (let j = i + 1; j < bodies.length; j++) {
             const c = bodies[j];
             if (!a.awake && !c.awake) continue;
-            if (zg) { if (!a.awake || !c.awake) continue; if (returning && (a.age > 1.6 || c.age > 1.6 || Math.abs(a.x) + Math.abs(a.y) > 380 || Math.abs(c.x) + Math.abs(c.y) > 380)) continue; }   // далёкие (летят домой) и зависшие дольше 1.6 с — доезжают сквозь; у дома контуры точные
-            else if (a.boundsEl !== c.boundsEl) continue;
+            if (zg) { if (!a.awake || !c.awake) continue; if (returning && (a.age > 1.2 || c.age > 1.2 || Math.abs(a.x) + Math.abs(a.y) > 380 || Math.abs(c.x) + Math.abs(c.y) > 380)) continue; }   // далёкие (летят домой) и зависшие дольше 1.6 с — доезжают сквозь; у дома контуры точные
+            if (a.boundsEl !== c.boundsEl) continue;            // плашки живут и сталкиваются только в своём контейнере
             const dx = (c.cx + c.x) - (a.cx + a.x);
             if (dx > 520 || dx < -520) continue;               // дальнее отсечение
             const dy = (c.cy + c.y) - (a.cy + a.y);
@@ -239,6 +246,44 @@ function collide() {
     }
 }
 
+/** Схваченная плашка не продавливает соседей сквозь стену контейнера: если сосед зажат между ней и краем (его вернула стена),
+ *  остаточное перекрытие снимаем отступом самой схваченной плашки — как в физике, где упёрся и дальше не идёшь. */
+function holdGrabbed() {
+    for (const g of bodies) {
+        if (!g.grabbed || !g.awake) continue;
+        // «зажатые»: у стены, либо упёртые в зажатых (цепочка) — только они не могут уступить, значит уступает схваченная
+        const pinned = new Set();
+        for (const c of bodies) if (c !== g && c.awake && c.wall && c.boundsEl === g.boundsEl) pinned.add(c);
+        for (let k = 0; k < 3 && pinned.size; k++) {
+            for (const c of bodies) {
+                if (c === g || !c.awake || pinned.has(c) || c.boundsEl !== g.boundsEl) continue;
+                for (const q of pinned) {
+                    const ox = (q.w + c.w) / 2 - Math.abs((q.cx + q.x) - (c.cx + c.x));
+                    const oy = (q.h + c.h) / 2 - Math.abs((q.cy + q.y) - (c.cy + c.y));
+                    if (ox > -1 && oy > -1) { pinned.add(c); break; }
+                }
+            }
+        }
+        for (let pass = 0; pass < 3 && pinned.size; pass++) {
+            let moved = false;
+            for (const c of pinned) {
+                const dx = (c.cx + c.x) - (g.cx + g.x);
+                const dy = (c.cy + c.y) - (g.cy + g.y);
+                const ox = (g.w + c.w) / 2 - Math.abs(dx);
+                const oy = (g.h + c.h) / 2 - Math.abs(dy);
+                if (ox <= 0.4 || oy <= 0.4) continue;
+                if (ox < oy) { g.x -= Math.sign(dx || 1) * ox; g.vx = 0; }
+                else { g.y -= Math.sign(dy || 1) * oy; g.vy = 0; }
+                moved = true;
+            }
+            if (!moved) break;
+        }
+        const w = bounds(g);                                   // и сама плашка остаётся в своём контейнере
+        g.x = Math.min(w.r - g.w / 2 - g.cx, Math.max(w.l + g.w / 2 - g.cx, g.x));
+        g.y = Math.min(w.b - g.h / 2 - g.cy, Math.max(w.t + g.h / 2 - g.cy, g.y));
+    }
+}
+
 /** Стены и засыпание. Возвращает true, если кто-то ещё двигается. */
 function settle(dt) {
     let any = false;
@@ -252,16 +297,17 @@ function settle(dt) {
             const py = b.cy + b.y;
             // тело вне своей рамки (возвращается из невесомости) — стены не трогаем
             const outside = !zeroG && (b.ret || px < w.l || px > w.r || py < w.t || py > w.b || b.cx - hw < w.l - 1 || b.cx + hw > w.r + 1 || b.cy - hh < w.t - 1 || b.cy + hh > w.b + 1);
+            b.wall = false;
             if (!outside) {
-                if (px - hw < w.l) { b.x += w.l - (px - hw); b.vx = Math.abs(b.vx) * REST; }
-                else if (px + hw > w.r) { b.x -= (px + hw) - w.r; b.vx = -Math.abs(b.vx) * REST; }
-                if (py - hh < w.t) { b.y += w.t - (py - hh); b.vy = Math.abs(b.vy) * REST; }
-                else if (py + hh > w.b) { b.y -= (py + hh) - w.b; b.vy = -Math.abs(b.vy) * REST; }
+                if (px - hw < w.l) { b.x += w.l - (px - hw); b.vx = Math.abs(b.vx) * REST; b.wall = true; }
+                else if (px + hw > w.r) { b.x -= (px + hw) - w.r; b.vx = -Math.abs(b.vx) * REST; b.wall = true; }
+                if (py - hh < w.t) { b.y += w.t - (py - hh); b.vy = Math.abs(b.vy) * REST; b.wall = true; }
+                else if (py + hh > w.b) { b.y -= (py + hh) - w.b; b.vy = -Math.abs(b.vy) * REST; b.wall = true; }
             }
         }
         b.age = zeroG || b.grabbed ? 0 : b.age + dt;
         // лёг на место (порог крупнее прежнего — без долгого «дрожания» у нуля) или завис дольше 6 с
-        if (!zeroG && !b.grabbed && ((Math.abs(b.x) + Math.abs(b.y) < 0.35 && Math.abs(b.vx) + Math.abs(b.vy) < 6) || b.age > (b.ret ? 3.2 : 6))) {
+        if (!zeroG && !b.grabbed && ((Math.abs(b.x) + Math.abs(b.y) < 0.35 && Math.abs(b.vx) + Math.abs(b.vy) < 6) || b.age > (b.ret ? 2.4 : 6))) {
             sleep(b);
             continue;
         }
@@ -290,6 +336,7 @@ function step(now) {
         collide();
         if (zeroG || returning) collide();                   // два прохода: стопка плашек распрямляется без наползания
         any = settle(FIX);
+        if (grabbedCount) holdGrabbed();
         acc -= FIX;
         steps++;
     }

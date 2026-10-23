@@ -138,7 +138,7 @@ export function initScrollVideo({ video, scene, holder, hint, screens, reduceMot
         saveRaf = 0;
         try { sessionStorage.setItem(KEY, String(Math.round(window.scrollY))); } catch (_) { /* ok */ }
     };
-    window.addEventListener('scroll', () => { if (!saveRaf) saveRaf = requestAnimationFrame(save); }, { passive: true });
+    window.addEventListener('scroll', () => { clearTimeout(saveRaf); saveRaf = setTimeout(save, 220); }, { passive: true });   // запись — после остановки, не на каждом кадре скролла
     window.addEventListener('pagehide', save);
 
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual';

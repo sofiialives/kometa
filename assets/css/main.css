@@ -1574,14 +1574,23 @@ button {
     text-transform: uppercase;
     text-align: left;
     color: #EAF9FF;
-    text-shadow: 0 0 0 #FFFFFF,
-        0 0 4px rgba(180, 240, 255, .95),
-        0 0 14px rgba(90, 210, 255, .9),
-        0 0 30px rgba(60, 190, 255, .8),
-        0 0 70px rgba(40, 170, 255, .55),
-        0 0 10px rgba(40, 170, 255, .35);
+    /* неон: близкое свечение — лёгкий text-shadow (радиус ≤14px), широкое облако — статичный радиальный градиент (::before).
+       Прежние слои text-shadow 30/70px на каждой из ~40 букв (и drop-shadow на весь заголовок) пересчитывались на каждом кадре
+       парящего космонавта и тянули скролл и перетаскивание плашек */
+    text-shadow: 0 0 4px rgba(180, 240, 255, .95),
+        0 0 14px rgba(90, 210, 255, .9);
     transform: perspective(1400px) rotateY(54deg) rotateZ(9deg);
     transform-origin: center center;
+    pointer-events: none;
+}
+
+.astronaut__title::before {
+    content: "";
+    position: absolute;
+    inset: -70px -90px;
+    z-index: -1;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgba(60, 190, 255, .38), rgba(40, 170, 255, .18) 55%, rgba(40, 170, 255, 0) 100%);
     pointer-events: none;
 }
 
@@ -5338,15 +5347,8 @@ button {
     }
 }
 
-/* пока идёт программный скролл по навигации — фоновые бесконечные анимации на паузе */
-html.is-autoscroll *,
-html.is-autoscroll *::before,
-html.is-autoscroll *::after,
-html.is-scrolling *,
-html.is-scrolling *::before,
-html.is-scrolling *::after {
-    animation-play-state: paused !important;
-}
+/* (убрано) пауза всех бесконечных анимаций на время скролла: универсальный селектор на html.is-scrolling пересчитывал стили всего документа при каждом старте/остановке скролла,
+   а сами анимации — только transform/opacity на GPU и главный поток не грузят */
 
 /* карусель направлений: нативный scroll-snap (палец и инерция системные, одна карточка за жест),
    мышь — перетаскивание; на время нашей анимации/перетаскивания снап выключен, чтобы не «дёргал» */
@@ -5391,9 +5393,6 @@ html.is-scrolling *::after {
         scroll-snap-align: start;
         scroll-snap-stop: always;
     }
-}
-.astronaut.is-offscreen .astronaut__stage {
-    animation-play-state: paused;
 }
 
 /* слои с тяжёлым блюром — на своих GPU-слоях, растеризуются один раз */
@@ -6997,7 +6996,7 @@ html.zg-return .personal { overflow: visible; }
 .fx-glow.is-on { opacity: 1; }
 
 /* иконки у формы (десктоп): три объекта по сторонам, каждый парит по-своему */
-@media (min-width: 1280px) and (prefers-reduced-motion: no-preference) {
+@media (prefers-reduced-motion: no-preference) {
     .start__art-item {
         will-change: translate, rotate, scale;
         backface-visibility: hidden;
@@ -7008,7 +7007,6 @@ html.zg-return .personal { overflow: visible; }
     .start__art-item--ring { transform-origin: 50% 50%; animation: art-ring 18s ease-in-out infinite; }
     .start__art-item--spring { transform-origin: 50% 85%; animation: art-spring 13s ease-in-out infinite; }
 
-    .start__art.is-offscreen .start__art-item { animation-play-state: paused; }
 }
 
 /* звезда: качается и уходит влево-вправо, чуть пульсирует */
@@ -7039,10 +7037,12 @@ html.zg-return .personal { overflow: visible; }
 }
 
 /* пока плашки двигаются, всё, что парит за стеклом «Персонального решения», ставим на паузу — главная экономия кадра на телефонах */
-.astronaut.is-frozen,
-.astronaut.is-frozen *,
-.personal.is-busy .personal__holo,
-.personal.is-busy .personal__holo * { animation-play-state: paused !important; }
+@media (hover: none), (pointer: coarse) {
+    .astronaut.is-frozen,
+    .astronaut.is-frozen *,
+    .personal.is-busy .personal__holo,
+    .personal.is-busy .personal__holo * { animation-play-state: paused !important; }
+}
 
 /* перетаскиваемые тела: без backdrop-filter (его пересчёт на каждом кадре даёт лаги), только GPU-перенос */
 .is-phys,
@@ -7121,4 +7121,24 @@ html.lenis, html.lenis body { height: auto; }
     background-color: transparent;
     border: 0 none;
     padding: 0;
+}
+
+/* =========================================================
+   Карусель направлений — собственный пейджер (carousel.js): без нативного скролла/scroll-snap,
+   одинаково на iOS, Android и десктопе. Вертикальный жест отдаём странице, горизонтальный ведёт скрипт.
+   ========================================================= */
+@media (max-width: 1279.98px) {
+    .directions .cards.js-pager:not(.q) {
+        overflow-x: hidden;
+        overflow-y: visible;
+        scroll-snap-type: none;
+        touch-action: pan-y;
+        -webkit-user-select: none;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .directions .cards.js-pager:not(.q) .card:not(.q) { scroll-snap-align: none; scroll-snap-stop: normal; }
+    .directions .cards .dir-snap { display: none !important; }
+    .directions .cards.js-pager.is-dragging:not(.q) * { pointer-events: none; }
 }

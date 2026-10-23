@@ -90,21 +90,35 @@ initCrewSlider({
     next: $('[data-crew-next]')
 });
 
-/* космонавт летает только пока виден: за кадром анимация на паузе (вид тот же, меньше работы на скролле) */
-(function pauseAstronautOffscreen() {
-    const el = document.querySelector('.astronaut');
-    if (!el || !('IntersectionObserver' in window)) return;
-    new IntersectionObserver(([e]) => el.classList.toggle('is-offscreen', !e.isIntersecting), { rootMargin: '120px' }).observe(el);
+/* иконки у формы: «появились» — класс is-in (анимации парения идут всегда, не только пока блок в кадре) */
+(function artIn() {
+    const el = document.querySelector('.start__art');
+    if (!el) return;
+    el.classList.add('is-in');
 })();
 
-/* иконки у формы анимируются только пока видны */
-(function pauseArtOffscreen() {
-    const el = document.querySelector('.start__art');
-    if (!el || !('IntersectionObserver' in window)) return;
-    new IntersectionObserver(([e]) => {
-        el.classList.toggle('is-offscreen', !e.isIntersecting);
-        if (e.isIntersecting) el.classList.add('is-in');
-    }, { rootMargin: '0px 0px -12% 0px' }).observe(el);
+/* прелоад: после первой отрисовки, в простое, по одной подтягиваем и декодируем отложенные картинки — к моменту, когда до секции
+   доскроллят, они уже в кэше и не декодируются посреди скролла (это и давало подлаги на входе в секцию) */
+(function warmImages() {
+    const conn = navigator.connection;
+    if (conn && (conn.saveData || /(^|-)2g$/.test(conn.effectiveType || ''))) return;
+    const idle = window.requestIdleCallback || ((fn) => setTimeout(fn, 400));
+    const start = () => {
+        const imgs = [...document.querySelectorAll('img[loading="lazy"]')].filter((i) => !i.closest('.modal, [data-modal-root]'));
+        const seen = new Set();
+        const next = () => {
+            const img = imgs.shift();
+            if (!img) return;
+            const url = img.currentSrc || img.src;
+            if (seen.has(url)) { next(); return; }
+            seen.add(url);
+            img.loading = 'eager';
+            (img.decode ? img.decode() : Promise.resolve()).catch(() => {}).then(() => idle(next, { timeout: 1500 }));
+        };
+        idle(next, { timeout: 1500 });
+    };
+    if (document.readyState === 'complete') setTimeout(start, 1500);
+    else window.addEventListener('load', () => setTimeout(start, 1500), { once: true });
 })();
 
 function initAstronaut() {

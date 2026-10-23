@@ -1,6 +1,6 @@
 /**
  * «Живые» плашки «Персонального решения» + режим невесомости (только десктоп с мышью).
- * Невесомость: все теги страницы дрейфуют по всей странице, их можно хватать и бросать;
+ * Невесомость: теги дрейфуют только внутри своего контейнера (карточка / блок / секция), их можно хватать и бросать;
  * выключил — всё пружиной возвращается на место (рамки не обрезают, пока тела не легли).
  */
 import { addBody, initPhysics, setZeroG, isZeroG, onBusy } from './physics.js';
@@ -43,13 +43,13 @@ export function initLive() {
             const r = el.getBoundingClientRect();
             if (r.width < 4 || r.height < 4 || r.left + r.width / 2 < 0 || r.left + r.width / 2 > W) return;
             seen.add(el);
-            addBody(el, { group, zgOnly: true });
+            addBody(el, { group, zgOnly: true, boundsEl: el.closest('.card, .personal, section') });
         };
         // теги направлений и любые другие плашки-теги (теги «Персонального решения» уже живые)
         document.querySelectorAll('.tag').forEach((el) => { if (!personal?.contains(el)) take(el, 'tags'); });
     };
 
-    // плашки в невесомости летят по всей странице — всегда поверх соседних секций:
+    // плашки в невесомости остаются в своём контейнере, но всегда поверх соседей:
     // поднимаем предков каждой плашки (они образуют свои слои наложения), пока режим включён
     let lifted = [];
     const lift = (on) => {
