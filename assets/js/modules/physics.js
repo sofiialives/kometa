@@ -148,7 +148,7 @@ function wake(b) {
 }
 
 function bounds(b) {
-    if (!b.boundsEl) return docBox;
+    if (zeroG || !b.boundsEl) return docBox;                  // в невесомости стены — края страницы, вне невесомости — своя рамка
     return boxCache.get(b.boundsEl) || docBox;
 }
 
@@ -199,14 +199,15 @@ function integrate(dt) {
 }
 
 function collide() {
-    const zg = zeroG || returning;                           // при возврате домой — те же точные контуры, что и в невесомости
+    if (returning) return;                                   // возврат домой — без физики: плашки не сталкиваются и сразу идут на места
+    const zg = zeroG;
     for (let i = 0; i < bodies.length; i++) {
         const a = bodies[i];
         for (let j = i + 1; j < bodies.length; j++) {
             const c = bodies[j];
             if (!a.awake && !c.awake) continue;
-            if (zg) { if (!a.awake || !c.awake) continue; if (returning && (a.age > 1.2 || c.age > 1.2 || Math.abs(a.x) + Math.abs(a.y) > 380 || Math.abs(c.x) + Math.abs(c.y) > 380)) continue; }   // далёкие (летят домой) и зависшие дольше 1.6 с — доезжают сквозь; у дома контуры точные
-            if (a.boundsEl !== c.boundsEl) continue;            // плашки живут и сталкиваются только в своём контейнере
+            if (zg) { if (!a.awake || !c.awake) continue; }
+            else if (a.boundsEl !== c.boundsEl) continue;
             const dx = (c.cx + c.x) - (a.cx + a.x);
             if (dx > 520 || dx < -520) continue;               // дальнее отсечение
             const dy = (c.cy + c.y) - (a.cy + a.y);
@@ -257,7 +258,7 @@ function relax() {
         for (const c of bodies) {
             if (!c.awake || c.grabbed || c.pin) continue;
             for (const q of bodies) {
-                if (!q.pin || q.boundsEl !== c.boundsEl) continue;
+                if (!q.pin) continue;
                 const ox = (q.w + c.w) / 2 - Math.abs((q.cx + q.x) - (c.cx + c.x));
                 const oy = (q.h + c.h) / 2 - Math.abs((q.cy + q.y) - (c.cy + c.y));
                 if (ox > -0.6 && oy > -0.6) { c.pin = true; grew = true; break; }
@@ -272,7 +273,7 @@ function relax() {
             if (!a.awake) continue;
             for (let j = i + 1; j < bodies.length; j++) {
                 const c = bodies[j];
-                if (!c.awake || c.boundsEl !== a.boundsEl) continue;
+                if (!c.awake) continue;
                 const dx = (c.cx + c.x) - (a.cx + a.x);
                 const dy = (c.cy + c.y) - (a.cy + a.y);
                 const ox = (a.w + c.w) / 2 - Math.abs(dx);
@@ -334,7 +335,7 @@ function settle(dt) {
         }
         b.age = zeroG || b.grabbed ? 0 : b.age + dt;
         // лёг на место (порог крупнее прежнего — без долгого «дрожания» у нуля) или завис дольше 6 с
-        if (!zeroG && !b.grabbed && ((Math.abs(b.x) + Math.abs(b.y) < 0.35 && Math.abs(b.vx) + Math.abs(b.vy) < 6) || b.age > (b.ret ? 2.4 : 6))) {
+        if (!zeroG && !b.grabbed && ((Math.abs(b.x) + Math.abs(b.y) < 0.35 && Math.abs(b.vx) + Math.abs(b.vy) < 6) || b.age > (b.ret ? 1.8 : 6))) {
             sleep(b);
             continue;
         }
@@ -361,7 +362,7 @@ function step(now) {
     while (acc >= FIX && steps < 6) {
         integrate(FIX);
         collide();
-        if (zeroG || returning) collide();                   // два прохода: стопка плашек распрямляется без наползания
+        if (zeroG) collide();                   // два прохода: стопка плашек распрямляется без наползания
         any = settle(FIX);
         if (zeroG) relax();
         acc -= FIX;

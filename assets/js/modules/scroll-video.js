@@ -3,7 +3,9 @@ const UNLOCK_DELAY = 2130;
 const KEY = 'kometa:scrollY';
 
 const readSaved = () => {
-    try { return Number(sessionStorage.getItem(KEY)) || 0; } catch (_) { return 0; }
+    // перезагрузка всегда начинается с главной (Hero): позицию не восстанавливаем, старую запись чистим
+    try { sessionStorage.removeItem(KEY); } catch (_) { /* ok */ }
+    return 0;
 };
 
 export function initScrollVideo({ video, scene, holder, hint, screens, reduceMotion = false }) {
@@ -138,8 +140,7 @@ export function initScrollVideo({ video, scene, holder, hint, screens, reduceMot
         saveRaf = 0;
         try { sessionStorage.setItem(KEY, String(Math.round(window.scrollY))); } catch (_) { /* ok */ }
     };
-    window.addEventListener('scroll', () => { clearTimeout(saveRaf); saveRaf = setTimeout(save, 220); }, { passive: true });   // запись — после остановки, не на каждом кадре скролла
-    window.addEventListener('pagehide', save);
+    // (позицию скролла больше не запоминаем — после перезагрузки сайт открывается с главной)
 
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 
