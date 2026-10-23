@@ -61,9 +61,10 @@ export function initCarousel({ track, progress }) {
             const sx = SIDE_SX + (1 - SIDE_SX) * t;
             const sy = SIDE_SY + (1 - SIDE_SY) * t;
             const tr = `translate3d(${(shift + pan).toFixed(2)}px,0,0) scale(${sx.toFixed(4)},${sy.toFixed(4)})`;
-            const op = (.5 + .5 * t).toFixed(2);
+            const op = (Math.round((.5 + .5 * t) * 20) / 20).toFixed(2);   // шаг 0.05: меньше пересчётов стилей на кадр, глазом не различить
             if (card._tr !== tr) { card._tr = tr; card.style.transform = tr; }       // не пишем в DOM то, что не изменилось
-            if (card._op !== op) { card._op = op; card.style.opacity = op; }          // прозрачность плавно вместе с масштабом, а не щелчком на середине
+            // затухание боковых карточек ведёт CSS через --o на потомках (opacity у самой карточки выключила бы backdrop-filter)
+            if (card._op !== op) { card._op = op; card.style.setProperty('--o', op); }
             shift += EXTRA * t;
             if (d < best) { best = d; nearest = i; }
         });

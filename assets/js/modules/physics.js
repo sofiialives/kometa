@@ -246,41 +246,68 @@ function collide() {
     }
 }
 
-/** Схваченная плашка не продавливает соседей сквозь стену контейнера: если сосед зажат между ней и краем (его вернула стена),
- *  остаточное перекрытие снимаем отступом самой схваченной плашки — как в физике, где упёрся и дальше не идёшь. */
-function holdGrabbed() {
-    for (const g of bodies) {
-        if (!g.grabbed || !g.awake) continue;
-        // «зажатые»: у стены, либо упёртые в зажатых (цепочка) — только они не могут уступить, значит уступает схваченная
-        const pinned = new Set();
-        for (const c of bodies) if (c !== g && c.awake && c.wall && c.boundsEl === g.boundsEl) pinned.add(c);
-        for (let k = 0; k < 3 && pinned.size; k++) {
-            for (const c of bodies) {
-                if (c === g || !c.awake || pinned.has(c) || c.boundsEl !== g.boundsEl) continue;
-                for (const q of pinned) {
-                    const ox = (q.w + c.w) / 2 - Math.abs((q.cx + q.x) - (c.cx + c.x));
-                    const oy = (q.h + c.h) / 2 - Math.abs((q.cy + q.y) - (c.cy + c.y));
-                    if (ox > -1 && oy > -1) { pinned.add(c); break; }
-                }
+/** Жёсткая стыковка в невесомости: после стен снимаем остаточные перекрытия. Тот, кто упёрт в стену, почти не двигается,
+ *  схваченная плашка уступает зажатым — как в физике: упёрся — дальше не идёшь, сквозь соседей и стену не проходишь. */
+function relax() {
+    // «зажатые»: у стены, и по цепочке — все, кто упёрт в зажатых. Они почти не двигаются, уступает схваченная плашка
+    let pinned = 0;
+    for (const b of bodies) { b.pin = !!(b.awake && !b.grabbed && b.wall); if (b.pin) pinned++; }
+    for (let k = 0; k < 4 && pinned; k++) {
+        let grew = false;
+        for (const c of bodies) {
+            if (!c.awake || c.grabbed || c.pin) continue;
+            for (const q of bodies) {
+                if (!q.pin || q.boundsEl !== c.boundsEl) continue;
+                const ox = (q.w + c.w) / 2 - Math.abs((q.cx + q.x) - (c.cx + c.x));
+                const oy = (q.h + c.h) / 2 - Math.abs((q.cy + q.y) - (c.cy + c.y));
+                if (ox > -0.6 && oy > -0.6) { c.pin = true; grew = true; break; }
             }
         }
-        for (let pass = 0; pass < 3 && pinned.size; pass++) {
-            let moved = false;
-            for (const c of pinned) {
-                const dx = (c.cx + c.x) - (g.cx + g.x);
-                const dy = (c.cy + c.y) - (g.cy + g.y);
-                const ox = (g.w + c.w) / 2 - Math.abs(dx);
-                const oy = (g.h + c.h) / 2 - Math.abs(dy);
+        if (!grew) break;
+    }
+    for (let it = 0; it < 4; it++) {
+        let moved = false;
+        for (let i = 0; i < bodies.length; i++) {
+            const a = bodies[i];
+            if (!a.awake) continue;
+            for (let j = i + 1; j < bodies.length; j++) {
+                const c = bodies[j];
+                if (!c.awake || c.boundsEl !== a.boundsEl) continue;
+                const dx = (c.cx + c.x) - (a.cx + a.x);
+                const dy = (c.cy + c.y) - (a.cy + a.y);
+                const ox = (a.w + c.w) / 2 - Math.abs(dx);
+                const oy = (a.h + c.h) / 2 - Math.abs(dy);
                 if (ox <= 0.4 || oy <= 0.4) continue;
-                if (ox < oy) { g.x -= Math.sign(dx || 1) * ox; g.vx = 0; }
-                else { g.y -= Math.sign(dy || 1) * oy; g.vy = 0; }
+                if (!a.grabbed && !c.grabbed && Math.abs(a.x) + Math.abs(a.y) + Math.abs(c.x) + Math.abs(c.y) < 3) continue;   // «домашние» наложения вёрстки
+                let wa = a.grabbed ? 0 : (a.pin ? 0.08 : 1);
+                let wc = c.grabbed ? 0 : (c.pin ? 0.08 : 1);
+                if (a.grabbed && c.grabbed) continue;
+                if (a.grabbed && c.pin) { wa = 1; wc = 0; }           // сосед зажат (у стены или цепочкой) — уступает схваченная
+                else if (c.grabbed && a.pin) { wc = 1; wa = 0; }
+                const tot = wa + wc;
+                if (tot <= 0) continue;
+                if (ox < oy) {
+                    const n = Math.sign(dx || 1);
+                    a.x -= n * ox * wa / tot; c.x += n * ox * wc / tot;
+                    if (wa) a.vx *= 0.5; if (wc) c.vx *= 0.5;
+                } else {
+                    const n = Math.sign(dy || 1);
+                    a.y -= n * oy * wa / tot; c.y += n * oy * wc / tot;
+                    if (wa) a.vy *= 0.5; if (wc) c.vy *= 0.5;
+                }
                 moved = true;
             }
-            if (!moved) break;
         }
-        const w = bounds(g);                                   // и сама плашка остаётся в своём контейнере
-        g.x = Math.min(w.r - g.w / 2 - g.cx, Math.max(w.l + g.w / 2 - g.cx, g.x));
-        g.y = Math.min(w.b - g.h / 2 - g.cy, Math.max(w.t + g.h / 2 - g.cy, g.y));
+        for (const b of bodies) {                                     // и снова стены: никто не выходит из контейнера
+            if (!b.awake) continue;
+            const w = bounds(b);
+            const hw = b.w / 2;
+            const hh = b.h / 2;
+            const nx = Math.min(w.r - hw - b.cx, Math.max(w.l + hw - b.cx, b.x));
+            const ny = Math.min(w.b - hh - b.cy, Math.max(w.t + hh - b.cy, b.y));
+            if (nx !== b.x || ny !== b.y) { b.x = nx; b.y = ny; b.wall = true; moved = true; }
+        }
+        if (!moved) break;
     }
 }
 
@@ -336,7 +363,7 @@ function step(now) {
         collide();
         if (zeroG || returning) collide();                   // два прохода: стопка плашек распрямляется без наползания
         any = settle(FIX);
-        if (grabbedCount) holdGrabbed();
+        if (zeroG) relax();
         acc -= FIX;
         steps++;
     }
