@@ -55,8 +55,9 @@ export function initNavGlass({ root = document } = {}) {
         }
         if (!r.width || !l.width) return null;
         const cs = getComputedStyle(glass);
-        const px = parseFloat(cs.getPropertyValue('--px')) || 14;
-        const py = parseFloat(cs.getPropertyValue('--py')) || 7;
+        const k = (parseFloat(getComputedStyle(document.documentElement).fontSize) || 16) / 16;   // масштаб десктопа (1 на планшете/телефоне)
+        const px = (parseFloat(cs.getPropertyValue('--px')) || 14) * k;
+        const py = (parseFloat(cs.getPropertyValue('--py')) || 7) * k;
         return { x: r.left - l.left - px, y: r.top - l.top - py, w: r.width + px * 2, h: r.height + py * 2 };
     };
 

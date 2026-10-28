@@ -65,7 +65,7 @@ export function initMediaProgress({ video, holder, bar, fill, hint, onReady }) {
     video.addEventListener('loadeddata', () => setProgress(0.45));
     video.addEventListener('error', () => finish('error'), { once: true });
 
-    const watchdog = setTimeout(() => finish('timeout'), 8000);
+    const watchdog = setTimeout(() => finish('timeout'), 3500);
 
     if (video.readyState >= 3) finish('ready');
 }

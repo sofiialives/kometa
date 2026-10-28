@@ -20,6 +20,10 @@ let grabbedCount = 0;
 let running = false;
 let onBusyChange = null;
 let returning = false;         // идёт возврат из невесомости: столкновения и стены не мешают долететь
+let alive = false;             // кто-то ещё двигается (итог последнего шага). Кадр без шага симуляции (экраны 120+ Гц) цикл не останавливает
+let homeTimer = 0;             // страховка: что бы ни случилось с циклом, через RETURN_MAX плашки стоят на местах
+const RETURN_W = 14;           // жёсткость критически затухающей пружины возврата
+const RETURN_MAX = 2300;       // мс: предел возврата, после него плашки ставятся домой принудительно
 
 const K = 105;                 // жёсткость пружины
 const ZETA = 0.52;             // затухание (<1 — мягкий «перелёт», но без долгого раскачивания)
@@ -94,7 +98,7 @@ function promote(b) {
     const ph = el.cloneNode(true);
     ph.removeAttribute('id');
     ph.classList.remove('is-live', 'is-phys', 'is-grabbed');
-    ph.style.cssText = 'visibility:hidden;pointer-events:none;translate:none;';
+    ph.style.cssText = 'visibility:hidden;pointer-events:none;';
     ph.setAttribute('aria-hidden', 'true');
     el.before(ph);
     el.setAttribute('popover', 'manual');
@@ -137,6 +141,7 @@ function sleep(b) {
     b.lx = b.ly = null;
     b.el.style.translate = '';
     b.el.style.zIndex = '';
+    b.tx = b.ty = 0;
     b.el.classList.remove('is-phys');
 }
 
@@ -183,10 +188,13 @@ function integrate(dt) {
             b.vx *= d;
             b.vy *= d;
         } else if (b.ret) {
-            // возврат из невесомости: критически затухающая пружина — всегда доезжает домой без перелёта и застреваний
-            const w = 16;
-            b.vx += (-w * w * b.x - 2 * w * b.vx) * dt;
-            b.vy += (-w * w * b.y - 2 * w * b.vy) * dt;
+            // возврат из невесомости: критически затухающая пружина к ТЕКУЩЕМУ дому (b.tx/b.ty) — доезжает без перелёта и застреваний
+            const w = RETURN_W;
+            b.vx += (-w * w * (b.x - b.tx) - 2 * w * b.vx) * dt;
+            b.vy += (-w * w * (b.y - b.ty) - 2 * w * b.vy) * dt;
+            b.x += b.vx * dt;
+            b.y += b.vy * dt;
+            continue;
         } else {
             b.vx += (-K * b.x - c * b.vx) * dt;
             b.vy += (-K * b.y - c * b.vy) * dt;
@@ -335,7 +343,9 @@ function settle(dt) {
         }
         b.age = zeroG || b.grabbed ? 0 : b.age + dt;
         // лёг на место (порог крупнее прежнего — без долгого «дрожания» у нуля) или завис дольше 6 с
-        if (!zeroG && !b.grabbed && ((Math.abs(b.x) + Math.abs(b.y) < 0.35 && Math.abs(b.vx) + Math.abs(b.vy) < 6) || b.age > (b.ret ? 1.8 : 6))) {
+        const hx = b.ret ? b.tx : 0;
+        const hy = b.ret ? b.ty : 0;
+        if (!zeroG && !b.grabbed && ((Math.abs(b.x - hx) + Math.abs(b.y - hy) < 0.35 && Math.abs(b.vx) + Math.abs(b.vy) < 6) || b.age > (b.ret ? RETURN_MAX / 1000 : 6))) {
             sleep(b);
             continue;
         }
@@ -349,29 +359,62 @@ function loop(now) {
     try { step(now); } catch (err) {
         // любая ошибка в цикле не должна оставлять плашки зависшими вдали от места
         console.error(err);
-        for (const b of bodies) { try { if (b.awake && !b.grabbed) sleep(b); } catch (_) { /* noop */ } }
-        running = false; returning = false; onBusyChange?.(false);
+        forceHome();
     }
+}
+
+/** Дом плашки в невесомости — её невидимый двойник в вёрстке. Читаем его живьём в начале кадра (один проход),
+ *  поэтому возврат приходит туда, где место плашки сейчас, даже если страницу прокрутили или перестроили. */
+function refreshHomes() {
+    for (const b of bodies) {
+        if (!b.awake || !b.ret || !b.ph) continue;
+        const r = b.ph.getBoundingClientRect();
+        if (!r.width && !r.height) continue;
+        b.tx = r.left + r.width / 2 + scrollX - b.cx;
+        b.ty = r.top + r.height / 2 + scrollY - b.cy;
+    }
+}
+
+/** Поставить всех, кого не держат в руке, на свои места и остановить цикл. Работает всегда, что бы ни случилось с rAF. */
+function forceHome() {
+    clearTimeout(homeTimer);
+    homeTimer = 0;
+    for (const b of bodies) {
+        if (b.grabbed) continue;
+        try { sleep(b); } catch (_) { /* noop */ }
+    }
+    returning = false;
+    if (grabbedCount) return;                         // кто-то в руке — цикл продолжает идти
+    if (raf) { cancelAnimationFrame(raf); raf = 0; }
+    if (running) { running = false; onBusyChange?.(false); }
 }
 
 function step(now) {
     acc += Math.min(0.05, Math.max(0.001, (now - last) / 1000));   // длинный кадр не раздувает работу
     last = now;
+    if (returning) refreshHomes();
     let steps = 0;
-    let any = false;
     while (acc >= FIX && steps < 6) {
         integrate(FIX);
         collide();
         if (zeroG) collide();                   // два прохода: стопка плашек распрямляется без наползания
-        any = settle(FIX);
+        alive = settle(FIX);
         if (zeroG) relax();
         acc -= FIX;
         steps++;
     }
     if (steps === 6) acc = 0;
     for (const b of bodies) if (b.awake) paint(b);
-    if (any || zeroG || grabbedCount) raf = requestAnimationFrame(loop);
-    else { running = false; returning = false; onBusyChange?.(false); }
+    // кадр без шага симуляции (дисплей 120/144 Гц: кадр короче 1/120 с) — не повод останавливать цикл: берём итог прошлого шага
+    if (alive || zeroG || grabbedCount) raf = requestAnimationFrame(loop);
+    else {
+        running = false;
+        returning = false;
+        clearTimeout(homeTimer);
+        homeTimer = 0;
+        for (const b of bodies) if (b.top) { try { demote(b); } catch (_) { /* noop */ } }
+        onBusyChange?.(false);
+    }
 }
 
 function ensureLoop() {
@@ -384,6 +427,7 @@ function ensureLoop() {
     }
     last = performance.now();
     acc = 0;
+    alive = true;
     raf = requestAnimationFrame(loop);
 }
 
@@ -391,7 +435,7 @@ function ensureLoop() {
 export function addBody(el, { group = '', boundsEl = null, hold = 160, zgOnly = false } = {}) {
     const b = {
         el, group, boundsEl, zgOnly, awake: false, grabbed: false, measured: false,
-        x: 0, y: 0, vx: 0, vy: 0, bx: 0, by: 0, cx: 0, cy: 0, w: 0, h: 0, lx: null, ly: null, age: 0,
+        x: 0, y: 0, vx: 0, vy: 0, bx: 0, by: 0, cx: 0, cy: 0, w: 0, h: 0, lx: null, ly: null, age: 0, tx: 0, ty: 0, ret: false,
         px: 0, py: 0, ox: 0, oy: 0, samples: []
     };
     bodies.push(b);
@@ -484,10 +528,15 @@ export function setZeroG(on) {
     for (const b of bodies) if (!b.measured) measure(b); // тела, добавленные, пока цикл уже шёл
     zeroG = on;
     returning = !on;
+    clearTimeout(homeTimer);
+    homeTimer = 0;
+    if (!on) homeTimer = setTimeout(forceHome, RETURN_MAX + 400);   // страховка независимо от rAF (фон, подвисший кадр)
     for (const b of bodies) {
         if (b.zgOnly) b.el.classList.toggle('is-live', on);
         if (on) promote(b);
         b.ret = !on && !b.grabbed;
+        b.tx = b.ty = 0;
+        b.age = 0;
         wake(b);
         if (on) {
             const a = Math.random() * Math.PI * 2;
@@ -504,7 +553,10 @@ export const onBusy = (fn) => { onBusyChange = fn; };
 
 export function initPhysics() {
     let rt = 0;
-    const remeasure = () => { dirty = true; };
+    const remeasure = () => {
+        dirty = true;
+        if (running) { const de = document.documentElement; docBox.r = de.clientWidth; docBox.b = de.scrollHeight; }   // стены невесомости — по новому размеру
+    };
     addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(remeasure, 120); });
     addEventListener('orientationchange', remeasure);
     if (document.fonts?.ready) document.fonts.ready.then(remeasure);
