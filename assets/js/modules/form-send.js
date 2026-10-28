@@ -2,7 +2,7 @@
  * Обычная отправка заявки: клик по кнопке или Enter в поле. Проверяет имя и контакт,
  * отправляет на form[data-endpoint] (если задан) и показывает сообщение сверху.
  */
-import { showToast } from './toast.js';
+import { showToast } from './toast.js?v=5';
 
 export function initFormSend() {
     const form = document.querySelector('[data-form]');

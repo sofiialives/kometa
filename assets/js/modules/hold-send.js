@@ -4,7 +4,7 @@
  * Отпустил раньше — заряд плавно сбрасывается, случайной отправки не бывает.
  * Клавиатура: Enter/Space удерживаются так же. Pointer-capture — отпускание за пределами кнопки не теряется.
  */
-import { showToast } from './toast.js';
+import { showToast } from './toast.js?v=5';
 
 const HOLD_MS = 1500;
 

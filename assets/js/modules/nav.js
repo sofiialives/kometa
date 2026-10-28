@@ -1,5 +1,5 @@
 /** Якоря: плавный переход через общий движок smooth-scroll (мягкий старт/финиш), без полоски фокуса. */
-import { scrollToY } from './smooth-scroll.js';
+import { scrollToY } from './smooth-scroll.js?v=5';
 
 export function scrollToTarget(target, { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches } = {}) {
     scrollToY(target.getBoundingClientRect().top + window.scrollY, { instant: reduce });

@@ -3,7 +3,7 @@
  * закрытие по крестику / фону / Esc / свайпу вниз (мобилка), фокус-ловушка,
  * блокировка скролла. «Обсудить детали» закрывает модалку и плавно ведёт к форме.
  */
-import { scrollToTarget } from './nav.js';
+import { scrollToTarget } from './nav.js?v=5';
 
 const FOCUSABLE = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
 const CLOSE_MS = 340;
