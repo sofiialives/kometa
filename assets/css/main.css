@@ -693,9 +693,9 @@ button {
 
 .scroll-hint {
     position: fixed;
-    right: var(--side);
+    right: 0;
     bottom: 22%;
-    left: 16%;
+    left: 0;
     z-index: 5;
     display: flex;
     flex-direction: column;
@@ -703,6 +703,7 @@ button {
     gap: calc(10*var(--du));
     font-size: .68rem;
     letter-spacing: .32em;
+    text-indent: .32em;   /* компенсирует хвостовой трекинг, чтобы слово стояло ровно по центру */
     text-transform: uppercase;
     color: rgba(255, 255, 255, .55);
     opacity: 0;
