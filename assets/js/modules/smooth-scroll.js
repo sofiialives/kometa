@@ -125,7 +125,7 @@ const preventNode = (node) =>
 
 async function startLenis() {
     try {
-        const { default: Lenis } = await import('../vendor/lenis.mjs?v=5');
+        const { default: Lenis } = await import('../vendor/lenis.mjs?v=6');
         lenis = new Lenis({
             autoRaf: false,
             smoothWheel: true,

@@ -3,7 +3,7 @@
  * Невесомость: все теги страницы дрейфуют по всей странице, их можно хватать и бросать; при возврате физика отключается — плашки сразу и чётко встают на места, их можно хватать и бросать;
  * выключил — всё пружиной возвращается на место (рамки не обрезают, пока тела не легли).
  */
-import { addBody, initPhysics, setZeroG, isZeroG, onBusy } from './physics.js?v=5';
+import { addBody, initPhysics, setZeroG, isZeroG, onBusy } from './physics.js?v=6';
 
 export function initLive() {
     initPhysics();

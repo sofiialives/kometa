@@ -1,17 +1,19 @@
-import { initLoader } from './modules/loader.js';
-import { initMediaProgress } from './modules/media-loader.js';
-import { initScreens } from './modules/screens.js';
-import { initScrollVideo } from './modules/scroll-video.js';
-import { initNav, initUnknownHash } from './modules/nav.js';
-import { initMenu } from './modules/menu.js';
-import { initCarousel } from './modules/carousel.js';
-import { initCrewSlider } from './modules/crew-slider.js';
-import { initModals } from './modules/modals.js';
-import { initGlassClose } from './modules/glass-close.js';
-import { initNavGlass } from './modules/nav-glass.js';
-import { initPressSpring } from './modules/press-spring.js';
-import { initSmoothScroll } from './modules/smooth-scroll.js';
+import { initLoader } from './modules/loader.js?v=5';
+import { initMediaProgress } from './modules/media-loader.js?v=5';
+import { initScreens } from './modules/screens.js?v=5';
+import { initScrollVideo } from './modules/scroll-video.js?v=5';
+import { initNav, initUnknownHash } from './modules/nav.js?v=5';
+import { initMenu } from './modules/menu.js?v=5';
+import { initCarousel } from './modules/carousel.js?v=5';
+import { initCrewSlider } from './modules/crew-slider.js?v=5';
+import { initModals } from './modules/modals.js?v=5';
+import { initGlassClose } from './modules/glass-close.js?v=5';
+import { initNavGlass } from './modules/nav-glass.js?v=5';
+import { initPressSpring } from './modules/press-spring.js?v=5';
+import { initStarLight } from './modules/star-light.js?v=7';
+import { initSmoothScroll } from './modules/smooth-scroll.js?v=5';
 
+console.info('[kometa] build 7');
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const isPhone = window.matchMedia('(max-width: 1279.98px)').matches;
 const root = document.documentElement;
@@ -68,6 +70,7 @@ if (isPhone) {
     }
 }
 
+initStarLight();
 initSmoothScroll();
 initNav();
 initUnknownHash();
@@ -236,10 +239,10 @@ initPressSpring();
    если какой-то файл не загрузился, остальной сайт (герой, карусели, модалки) продолжает работать. */
 const optional = (path, run) => import(path).then(run).catch((err) => console.warn('[kometa] модуль не загружен:', path, err));
 
-optional('./modules/toast.js', (m) => m.initCopy());
-optional('./modules/form-send.js', (m) => m.initFormSend());
-optional('./modules/live.js', (m) => m.initLive());
-optional('./modules/eggs.js', (m) => m.initEggs());
+optional('./modules/toast.js?v=5', (m) => m.initCopy());
+optional('./modules/form-send.js?v=5', (m) => m.initFormSend());
+optional('./modules/live.js?v=5', (m) => m.initLive());
+optional('./modules/eggs.js?v=5', (m) => m.initEggs());
 
 // запрет копирования картинок/видео: перетаскивание и контекстное меню (текст копируется как раньше)
 document.addEventListener('dragstart', (e) => {

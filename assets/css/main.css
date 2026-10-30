@@ -7167,3 +7167,68 @@ html.lenis, html.lenis body { height: auto; }
     .directions .cards .dir-snap { display: none !important; }
     .directions .cards.js-pager.is-dragging:not(.q) * { pointer-events: none; }
 }
+
+/* =========================================================
+   СВЕТ ЗВЕЗДЫ НА ТЕКСТАХ (десктоп ≥1280)
+   Источник света — звезда из ролика у левого края: она спускается вдоль края и подсвечивает (#2A72C7)
+   ближайшие к ней буквы: сперва «РЕ»/«ЭТ» заголовка, потом по её траектории вниз — «Welcome», подзаголовок, строку.
+   Свет лежит ТОЛЬКО на буквах (дубль текста + background-clip:text), центр градиента = текущее положение звезды,
+   поэтому угол и сила подсветки меняются по мере её движения. Траектория (--sx/--sy, единицы макета 1920×1080)
+   снята по кадрам ролика (0–0,6 с) и продолжена вниз вдоль края. Часы — от is-switched (ролик идёт на 0,12 с раньше).
+   --ox/--oy (положение текста в окне) ставит main.js (initStarLight); без JS свет просто не виден.
+   Анимируются только registered-переменные и opacity — без filter/blur.
+   ========================================================= */
+@property --sx { syntax: '<length>'; inherits: false; initial-value: 0px; }
+@property --sy { syntax: '<length>'; inherits: false; initial-value: 0px; }
+
+.hero-lit { display: none; }   /* блик — только десктоп, см. ниже */
+
+@media (min-width: 1280px) and (prefers-reduced-motion: no-preference) {
+    .hero__title, .welcome__title { position: relative; }
+
+    .hero-lit,
+    .welcome__title::after {
+        --sx: calc(33*var(--du)); --sy: calc(33*var(--du));
+        content: attr(data-lit);
+        display: block;
+        position: absolute; inset: 0;
+        pointer-events: none; user-select: none; -webkit-user-select: none;
+        text-align: center;
+        color: transparent; -webkit-text-fill-color: transparent;
+        background-image: radial-gradient(circle calc(900*var(--du)) at calc(var(--sx) - var(--ox, 99999px)) calc(var(--sy) - var(--oy, 99999px)), rgba(42,114,199,0.950) 0.0%, rgba(42,114,199,0.921) 12.5%, rgba(42,114,199,0.838) 25.0%, rgba(42,114,199,0.717) 37.5%, rgba(42,114,199,0.576) 50.0%, rgba(42,114,199,0.435) 62.5%, rgba(42,114,199,0.308) 75.0%, rgba(42,114,199,0.205) 87.5%, rgba(42,114,199,0.000) 100.0%);
+        background-repeat: no-repeat;
+        -webkit-background-clip: text; background-clip: text;
+        opacity: .73;   /* статичное превью = первый кадр ролика */
+    }
+    .hero-lit { content: none; text-align: inherit; }
+
+    /* обе анимации стартуют вместе (is-switched = старт ролика + 0,12 с) и равны по длине — позиция и сила всегда совпадают */
+    .is-switched .hero-lit,
+    .is-switched .welcome__title::after {
+        animation: starPath 1s linear forwards, starInt 1s linear forwards;
+    }
+}
+
+/* Положение звезды в ролике (центр свечения), единицы макета 1920×1080; время = время ролика − 0,12 с.
+   Снято по кадрам: 0,0 с (33,33) · 0,2 с (33,52) · 0,3 с (36,95) · 0,4 с (36,135) · 0,5 с (31,158) · 0,6 с (27,167) · 0,7 с (17,172) */
+@keyframes starPath {
+    0%     { --sx: calc(33*var(--du)); --sy: calc(33*var(--du)); }
+    8%     { --sx: calc(33*var(--du)); --sy: calc(52*var(--du)); }
+    18%    { --sx: calc(36*var(--du)); --sy: calc(95*var(--du)); }
+    28%    { --sx: calc(36*var(--du)); --sy: calc(135*var(--du)); }
+    38%    { --sx: calc(31*var(--du)); --sy: calc(158*var(--du)); }
+    48%    { --sx: calc(27*var(--du)); --sy: calc(167*var(--du)); }
+    58%    { --sx: calc(17*var(--du)); --sy: calc(172*var(--du)); }
+    100%   { --sx: calc(10*var(--du)); --sy: calc(190*var(--du)); }
+}
+/* Яркость звезды в ролике (0,4 → пик → 0 к 0,7 с) = сила света; затем короткий затухающий хвост */
+@keyframes starInt {
+    0%   { opacity: .73; }
+    8%   { opacity: .79; }
+    18%  { opacity: .96; }
+    28%  { opacity: 1; }
+    38%  { opacity: .85; }
+    48%  { opacity: .67; }
+    58%  { opacity: .45; }
+    100% { opacity: 0; }
+}

@@ -6,7 +6,7 @@
  * Только pointer events + WAAPI: одинаково работает в iOS Safari и Chrome Android.
  * Кнопки с собственным «прессом» (крестики, стрелки, btn-*) из glass-close.js сжатие не получают — только блик.
  */
-import { PRESS_SELECTOR } from './glass-close.js?v=5';
+import { PRESS_SELECTOR } from './glass-close.js?v=6';
 
 const SPRING = '.tag, .footer__link';        // карточки направлений не сжимаем: у них свой transform в карусели, сжатие давало рывок
 const GLOW = '.card, .tag, .btn-send, .btn-dream, .btn-request';
