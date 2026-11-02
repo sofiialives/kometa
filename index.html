@@ -111,6 +111,8 @@
     </style>
 
     <link rel="stylesheet" href="./assets/css/main.css?v=10">
+    <link rel="stylesheet" href="./assets/css/articles.css?v=4">
+    <link rel="stylesheet" href="./assets/css/select.css?v=6">
 
     <script type="application/ld+json">
     {
@@ -295,6 +297,14 @@
             poster="./assets/video/poster.jpg?v=4" disablepictureinpicture disableremoteplayback>
             <source src="./assets/video/hero.mp4?v=4" type="video/mp4">
         </video>
+        <script>
+            /* десктоп: качаем ролик сразу при разборе страницы, не дожидаясь модулей (телефону он не нужен — там видео удаляется) */
+            (function () {
+                var v = document.querySelector('[data-scroll-video]');
+                var c = navigator.connection || {};
+                if (v && innerWidth >= 1280 && !c.saveData && !/(^|-)2g$/.test(c.effectiveType || '')) { v.preload = 'auto'; v.load(); }
+            })();
+        </script>
     </div>
 
     <p class="scroll-hint" data-scroll-hint aria-hidden="true">
@@ -462,7 +472,7 @@
                                 <li class="tag">Упаковка соц сетей</li>
                                 <li class="tag">Motion</li>
                                 <li class="tag">Веб-дизайн</li>
-                                <li class="tag">Банеры</li>
+                                <li class="tag">Баннеры</li>
                                 <li class="tag">Презентации</li>
                                 <li class="tag">3D</li>
                                 <li class="tag">Брендинг</li>
@@ -697,6 +707,26 @@
             </section>
 
 
+            <section class="articles" id="articles" aria-labelledby="articles-title">
+                <div class="articles__inner">
+                    <h2 class="section-title articles__title" id="articles-title"><span class="title-gradient">Наши</span> <span class="accent">СМИ</span></h2>
+
+                    <div class="articles__bar">
+                        <p class="articles__lead title-gradient">Полезные статьи</p>
+                        <a class="abtn abtn--link articles__all" href="./articles.html">
+                            <span>Все статьи</span>
+                            <svg class="abtn__ico abtn__ico--flip" aria-hidden="true" focusable="false">
+                                <use href="#arrow-corner"></use>
+                            </svg>
+                        </a>
+                    </div>
+
+                    <ul class="articles__list" data-articles-list data-limit="3" data-pager aria-label="Статьи"></ul>
+                    <span class="cards__progress" aria-hidden="true" data-articles-progress></span>
+                </div>
+            </section>
+
+
             <section class="start" id="contacts" aria-labelledby="start-title">
 
                 <div class="start__inner">
@@ -727,10 +757,10 @@
                         <div class="field field--select">
                             <label class="visually-hidden" for="f-service">Направление</label>
                             <select class="field__control" id="f-service" name="service">
-                                <option value="performance">Performance-маркетинг</option>
-                                <option value="design">Визуал и дизайн</option>
-                                <option value="dev">Разработка ПО</option>
-                                <option value="custom">Персональное решение</option>
+                                <option value="performance" data-icon="chart" data-sub="Рост, реклама, продвижение">Performance-маркетинг</option>
+                                <option value="design" data-icon="design" data-sub="Айдентика, графика, motion">Визуал и дизайн</option>
+                                <option value="dev" data-icon="code" data-sub="Сайты, платформы, Mini-App">Разработка ПО</option>
+                                <option value="custom" data-icon="spark" data-sub="Задачи за пределами шаблонов">Персональное решение</option>
                             </select>
                             <svg class="icon icon--select" aria-hidden="true">
                                 <use href="#chevron-down"></use>
@@ -976,7 +1006,7 @@
         </style>
     </noscript>
 
-    <script type="module" src="./assets/js/main.js?v=7"></script>
+    <script type="module" src="./assets/js/main.js?v=11"></script>
 </body>
 
 </html>

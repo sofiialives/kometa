@@ -1,5 +1,6 @@
 const SWITCH_DELAY = 120;
 const UNLOCK_DELAY = 2130;
+const PLAY_TIMEOUT = 9000;   // если ролик так и не пошёл (совсем плохая сеть) — не держим человека взаперти
 const KEY = 'kometa:scrollY';
 
 const readSaved = () => {
@@ -15,6 +16,8 @@ export function initScrollVideo({ video, scene, holder, hint, screens, reduceMot
     let unlocked = false;
     let switchTimer = 0;
     let unlockTimer = 0;
+    let giveUpTimer = 0;
+    let phase = false;   // true, когда ролик реально пошёл («playing»)
 
     const detach = () => {
         window.removeEventListener('wheel', onWheel);
@@ -31,6 +34,7 @@ export function initScrollVideo({ video, scene, holder, hint, screens, reduceMot
         if (unlocked) return;
         unlocked = true;
         clearTimeout(unlockTimer);
+        clearTimeout(giveUpTimer);
         document.body.classList.remove('is-locked');
         if (hint) hint.classList.remove('is-visible');
         detach();
@@ -42,20 +46,43 @@ export function initScrollVideo({ video, scene, holder, hint, screens, reduceMot
         holder.classList.add('is-playing');
         if (hint) hint.classList.remove('is-visible');
 
-        if (video.readyState === 0) video.load();
+        // load() не зовём, если загрузка уже идёт: он её обрывает (это и ломало ролик после нескольких перезагрузок подряд)
+        if (video.networkState === 3 /* NO_SOURCE */ || video.networkState === 0 /* EMPTY */) video.load();
 
-        const promise = video.play();
+        const tryPlay = (retry) => {
+            const promise = video.play();
+            if (promise && typeof promise.catch === 'function') {
+                promise.catch((error) => {
+                    // AbortError: загрузку перезапустили/прервали — один раз повторяем, как только появятся данные
+                    if (retry && error && error.name === 'AbortError') {
+                        video.addEventListener('canplay', () => tryPlay(false), { once: true });
+                        return;
+                    }
+                    console.warn('[kometa] воспроизведение отклонено:', error && error.name);
+                    showWelcome();
+                    unlock();
+                });
+            }
+        };
+        tryPlay(true);
 
-        if (promise && typeof promise.catch === 'function') {
-            promise.catch((error) => {
-                console.warn('[kometa] воспроизведение отклонено:', error && error.name);
-                showWelcome();
-                unlock();
-            });
-        }
+        // экран и разблокировка отсчитываются от момента, когда кадры пошли, а не от первого скролла:
+        // иначе при недогруженном файле таймер успевал разблокировать страницу раньше видео
+        const onPlaying = () => {
+            if (phase) return;
+            phase = true;
+            switchTimer = setTimeout(showWelcome, SWITCH_DELAY);
+            unlockTimer = setTimeout(unlock, UNLOCK_DELAY);
+        };
+        if (!video.paused && video.readyState >= 3) onPlaying();
+        else video.addEventListener('playing', onPlaying, { once: true });
 
-        switchTimer = setTimeout(showWelcome, SWITCH_DELAY);
-        unlockTimer = setTimeout(unlock, UNLOCK_DELAY);
+        giveUpTimer = setTimeout(() => {
+            if (phase || unlocked) return;
+            console.warn('[kometa] видео не стартовало за', PLAY_TIMEOUT, 'мс');
+            showWelcome();
+            unlock();
+        }, PLAY_TIMEOUT);
     };
 
     const atScene = () => {

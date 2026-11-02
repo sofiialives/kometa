@@ -1,19 +1,21 @@
 import { initLoader } from './modules/loader.js?v=5';
 import { initMediaProgress } from './modules/media-loader.js?v=5';
 import { initScreens } from './modules/screens.js?v=5';
-import { initScrollVideo } from './modules/scroll-video.js?v=5';
+import { initScrollVideo } from './modules/scroll-video.js?v=6';
 import { initNav, initUnknownHash } from './modules/nav.js?v=5';
 import { initMenu } from './modules/menu.js?v=5';
 import { initCarousel } from './modules/carousel.js?v=5';
 import { initCrewSlider } from './modules/crew-slider.js?v=5';
 import { initModals } from './modules/modals.js?v=5';
+import { initArticles } from './modules/articles.js?v=4';
+import { initSelect } from './modules/select.js?v=4';
 import { initGlassClose } from './modules/glass-close.js?v=5';
 import { initNavGlass } from './modules/nav-glass.js?v=5';
-import { initPressSpring } from './modules/press-spring.js?v=5';
+import { initPressSpring } from './modules/press-spring.js?v=6';
 import { initStarLight } from './modules/star-light.js?v=7';
 import { initSmoothScroll } from './modules/smooth-scroll.js?v=5';
 
-console.info('[kometa] build 7');
+console.info('[kometa] build 11');
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const isPhone = window.matchMedia('(max-width: 1279.98px)').matches;
 const root = document.documentElement;
@@ -231,6 +233,8 @@ function initAstronaut() {
 initAstronaut();
 
 initModals({ reduceMotion });
+initArticles();
+initSelect();
 initGlassClose();
 initNavGlass();
 initPressSpring();
