@@ -1,0 +1,87 @@
+/* =========================================================
+   БИОМЫ — космический фон главной (после Hero)
+   7 картинок идут сверху вниз 1→7 и перетекают друг в друга; к секциям не привязаны.
+   Десктоп — широкие кадры 2880×1620; телефон/планшет — вертикальные кропы 1080×1741 (легче и без лишнего увеличения).
+   ========================================================= */
+.sky--biomes {
+    --bo: 150px;                          /* зона перетекания между соседними биомами */
+    --bf: 220px;                          /* затухание последнего биома к футеру */
+    --bn: 7;
+}
+
+.sky--biomes::before {
+    background: var(--bg);                /* подложка под картинками: пока грузятся — чёрный */
+}
+
+.biomes {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.biome {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(100% * var(--i) / var(--bn) - var(--bo));
+    height: calc(100% / var(--bn) + var(--bo));
+    background: center / cover no-repeat;
+    opacity: 0;
+    transition: opacity .7s ease;
+    -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 var(--bo));
+    mask-image: linear-gradient(180deg, transparent 0, #000 var(--bo));
+}
+
+.biome.is-on { opacity: 1; }
+
+.biome--1 { --i: 0; top: 0; height: calc(100% / var(--bn)); }
+.biome--2 { --i: 1; }
+.biome--3 { --i: 2; }
+.biome--4 { --i: 3; }
+.biome--5 { --i: 4; }
+.biome--6 { --i: 5; }
+.biome--7 {
+    --i: 6;
+    -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 var(--bo), #000 calc(100% - var(--bf)), transparent 100%);
+    mask-image: linear-gradient(180deg, transparent 0, #000 var(--bo), #000 calc(100% - var(--bf)), transparent 100%);
+}
+
+/* телефон и планшет */
+.biome--1.is-src { background-image: url('../images/biomes/biome-1-m.jpg'); }
+.biome--2.is-src { background-image: url('../images/biomes/biome-2-m.jpg'); }
+.biome--3.is-src { background-image: url('../images/biomes/biome-3-m.jpg'); }
+.biome--4.is-src { background-image: url('../images/biomes/biome-4-m.jpg'); }
+.biome--5.is-src { background-image: url('../images/biomes/biome-5-m.jpg'); }
+.biome--6.is-src { background-image: url('../images/biomes/biome-6-m.jpg'); }
+.biome--7.is-src { background-image: url('../images/biomes/biome-7-m.jpg'); }
+
+/* на телефоне текст крупнее относительно кадра, а светлые туманности ярче — слегка притемняем для читаемости */
+@media (max-width: 1279.98px) {
+    .biomes::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: rgba(4, 4, 10, .32);
+    }
+}
+
+@media (min-width: 1280px) {
+    .sky--biomes {
+        --bo: calc(260*var(--du));
+        --bf: calc(320*var(--du));
+    }
+
+    .biome--1.is-src { background-image: url('../images/biomes/biome-1.jpg'); }
+    .biome--2.is-src { background-image: url('../images/biomes/biome-2.jpg'); }
+    .biome--3.is-src { background-image: url('../images/biomes/biome-3.jpg'); }
+    .biome--4.is-src { background-image: url('../images/biomes/biome-4.jpg'); }
+    .biome--5.is-src { background-image: url('../images/biomes/biome-5.jpg'); }
+    .biome--6.is-src { background-image: url('../images/biomes/biome-6.jpg'); }
+    .biome--7.is-src { background-image: url('../images/biomes/biome-7.jpg'); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .biome { transition: none; }
+}
