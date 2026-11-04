@@ -49,13 +49,13 @@
 }
 
 /* телефон и планшет */
-.biome--1.is-src { background-image: url('../images/biomes/biome-1-m.jpg?v=2'); }
-.biome--2.is-src { background-image: url('../images/biomes/biome-2-m.jpg?v=2'); }
-.biome--3.is-src { background-image: url('../images/biomes/biome-3-m.jpg?v=2'); }
-.biome--4.is-src { background-image: url('../images/biomes/biome-4-m.jpg?v=2'); }
-.biome--5.is-src { background-image: url('../images/biomes/biome-5-m.jpg?v=2'); }
-.biome--6.is-src { background-image: url('../images/biomes/biome-6-m.jpg?v=2'); }
-.biome--7.is-src { background-image: url('../images/biomes/biome-7-m.jpg?v=2'); }
+.biome--1.is-src { background-image: url('../images/biomes/biome-1-m.jpg?v=3'); }
+.biome--2.is-src { background-image: url('../images/biomes/biome-2-m.jpg?v=3'); }
+.biome--3.is-src { background-image: url('../images/biomes/biome-3-m.jpg?v=3'); }
+.biome--4.is-src { background-image: url('../images/biomes/biome-4-m.jpg?v=3'); }
+.biome--5.is-src { background-image: url('../images/biomes/biome-5-m.jpg?v=3'); }
+.biome--6.is-src { background-image: url('../images/biomes/biome-6-m.jpg?v=3'); }
+.biome--7.is-src { background-image: url('../images/biomes/biome-7-m.jpg?v=3'); }
 
 /* на телефоне текст крупнее относительно кадра, а светлые туманности ярче — слегка притемняем для читаемости */
 @media (max-width: 1279.98px) {
@@ -73,13 +73,13 @@
         --bf: calc(320*var(--du));
     }
 
-    .biome--1.is-src { background-image: url('../images/biomes/biome-1.jpg?v=2'); }
-    .biome--2.is-src { background-image: url('../images/biomes/biome-2.jpg?v=2'); }
-    .biome--3.is-src { background-image: url('../images/biomes/biome-3.jpg?v=2'); }
-    .biome--4.is-src { background-image: url('../images/biomes/biome-4.jpg?v=2'); }
-    .biome--5.is-src { background-image: url('../images/biomes/biome-5.jpg?v=2'); }
-    .biome--6.is-src { background-image: url('../images/biomes/biome-6.jpg?v=2'); }
-    .biome--7.is-src { background-image: url('../images/biomes/biome-7.jpg?v=2'); }
+    .biome--1.is-src { background-image: url('../images/biomes/biome-1.jpg?v=3'); }
+    .biome--2.is-src { background-image: url('../images/biomes/biome-2.jpg?v=3'); }
+    .biome--3.is-src { background-image: url('../images/biomes/biome-3.jpg?v=3'); }
+    .biome--4.is-src { background-image: url('../images/biomes/biome-4.jpg?v=3'); }
+    .biome--5.is-src { background-image: url('../images/biomes/biome-5.jpg?v=3'); }
+    .biome--6.is-src { background-image: url('../images/biomes/biome-6.jpg?v=3'); }
+    .biome--7.is-src { background-image: url('../images/biomes/biome-7.jpg?v=3'); }
 }
 
 @media (prefers-reduced-motion: reduce) {
