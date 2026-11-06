@@ -7,8 +7,8 @@ export function initBiomes() {
     const conn = navigator.connection;
     if (conn && (conn.saveData || /(^|-)2g$/.test(conn.effectiveType || ''))) return;
 
-    const wide = () => window.matchMedia('(min-width: 1280px)').matches;
-    const url = (n) => `./assets/images/biomes/biome-${n}${wide() ? '' : '-m'}.jpg?v=4`;
+    const wide = () => window.matchMedia('(min-width: 520px)').matches;
+    const url = (n) => `./assets/images/biomes/biome-${n}${wide() ? '' : '-m'}.jpg?v=10`;
     const cache = new Map();   // ключ: номер + вариант (широкий/вертикальный)
 
     const load = (el) => {
