@@ -49,13 +49,13 @@
 }
 
 /* телефон и планшет */
-.biome--1.is-src { background-image: url('../images/biomes/biome-1-m.jpg?v=3'); }
-.biome--2.is-src { background-image: url('../images/biomes/biome-2-m.jpg?v=3'); }
-.biome--3.is-src { background-image: url('../images/biomes/biome-3-m.jpg?v=3'); }
-.biome--4.is-src { background-image: url('../images/biomes/biome-4-m.jpg?v=3'); }
-.biome--5.is-src { background-image: url('../images/biomes/biome-5-m.jpg?v=3'); }
-.biome--6.is-src { background-image: url('../images/biomes/biome-6-m.jpg?v=3'); }
-.biome--7.is-src { background-image: url('../images/biomes/biome-7-m.jpg?v=3'); }
+.biome--1.is-src { background-image: url('../images/biomes/biome-1-m.jpg?v=4'); }
+.biome--2.is-src { background-image: url('../images/biomes/biome-2-m.jpg?v=4'); }
+.biome--3.is-src { background-image: url('../images/biomes/biome-3-m.jpg?v=4'); }
+.biome--4.is-src { background-image: url('../images/biomes/biome-4-m.jpg?v=4'); }
+.biome--5.is-src { background-image: url('../images/biomes/biome-5-m.jpg?v=4'); }
+.biome--6.is-src { background-image: url('../images/biomes/biome-6-m.jpg?v=4'); }
+.biome--7.is-src { background-image: url('../images/biomes/biome-7-m.jpg?v=4'); }
 
 /* на телефоне текст крупнее относительно кадра, а светлые туманности ярче — слегка притемняем для читаемости */
 @media (max-width: 1279.98px) {
@@ -73,13 +73,30 @@
         --bf: calc(320*var(--du));
     }
 
-    .biome--1.is-src { background-image: url('../images/biomes/biome-1.jpg?v=3'); }
-    .biome--2.is-src { background-image: url('../images/biomes/biome-2.jpg?v=3'); }
-    .biome--3.is-src { background-image: url('../images/biomes/biome-3.jpg?v=3'); }
-    .biome--4.is-src { background-image: url('../images/biomes/biome-4.jpg?v=3'); }
-    .biome--5.is-src { background-image: url('../images/biomes/biome-5.jpg?v=3'); }
-    .biome--6.is-src { background-image: url('../images/biomes/biome-6.jpg?v=3'); }
-    .biome--7.is-src { background-image: url('../images/biomes/biome-7.jpg?v=3'); }
+    /* тёмный «блюр» между Hero и следующей секцией — как на телефоне: низ Hero плавно уходит в цвет фона;
+       слой стоит над верхом секции и закрывает нижние ~300 px экрана Hero */
+    .sky--biomes::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 100%;
+        height: calc(300*var(--du));
+        background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, .55) 85%, var(--bg) 100%);
+        pointer-events: none;
+    }
+
+    /* экраны Hero (кнопка, заголовки) лежат выше блюра: темнеет планета под ними, а не текст.
+       Липкий контейнер сам создаёт слой, поэтому поднимаем его целиком (он заканчивается там, где начинается секция) */
+    .stage__sticky { z-index: 3; }
+
+    .biome--1.is-src { background-image: url('../images/biomes/biome-1.jpg?v=4'); }
+    .biome--2.is-src { background-image: url('../images/biomes/biome-2.jpg?v=4'); }
+    .biome--3.is-src { background-image: url('../images/biomes/biome-3.jpg?v=4'); }
+    .biome--4.is-src { background-image: url('../images/biomes/biome-4.jpg?v=4'); }
+    .biome--5.is-src { background-image: url('../images/biomes/biome-5.jpg?v=4'); }
+    .biome--6.is-src { background-image: url('../images/biomes/biome-6.jpg?v=4'); }
+    .biome--7.is-src { background-image: url('../images/biomes/biome-7.jpg?v=4'); }
 }
 
 @media (prefers-reduced-motion: reduce) {

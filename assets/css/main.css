@@ -1056,7 +1056,7 @@ button {
     position: relative;
     isolation: isolate;
     min-height: clamp(calc(440*var(--du)), 118vw, calc(620*var(--du)));
-    background: var(--bg) url('../images/stars.png') left top repeat;
+    background: var(--bg);
     overflow: hidden;
 }
 
@@ -1142,7 +1142,7 @@ button {
     position: absolute;
     inset: 0;
     z-index: -1;
-    background: var(--bg) url('../images/stars.png') left top repeat;
+    background: var(--bg);
     pointer-events: none;
 }
 
@@ -3505,13 +3505,13 @@ button {
 
     .hero-static {
         min-height: 0;
+        height: min(104.27vw, 542px);   /* 391px при 375: планета растёт вместе с шириной экрана */
     }
 
     .hero-static__inner {
         min-height: 0;
-        grid-template-rows: auto auto;
-        row-gap: 154px; /* заголовок → кнопка */
-        padding-block: 94px 36px;
+        grid-template-rows: auto;
+        padding-block: 94px 0;    /* хедер 58 + 36 до заголовка */
     }
 
     .hero-static__title {
@@ -3521,32 +3521,71 @@ button {
         text-wrap: nowrap;
     }
 
-    .hero-static__earth {
-        top: auto;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: auto;
-        translate: none;
-    }
-
-    /* комета как в Figma: PNG (blur 1.33, screen) + прямоугольник 9A5F20 (blur 14.05, screen).
-       Теперь комета — готовый PNG (star.png), без оранжевого слоя и фильтров */
-    .hero-static__comet {
-        top: 90px;
-        right: auto;
-        left: 172px;
-        width: 189px;
-        height: auto;
-        z-index: 0;
+    /* планета и комета — один слой с пропорцией макета 375×391: на любом телефоне планета целиком, во всю ширину, без затемнений по бокам */
+    .hero-static__art {
+        position: absolute;
+        z-index: -1;
+        top: 0;
+        left: 50%;
+        width: min(100%, 520px);
+        aspect-ratio: 375 / 391;
+        translate: -50% 0;
         pointer-events: none;
-        transform-origin: 34px 54px;
     }
 
+    .hero-static__earth {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        display: block;
+        width: 100%;
+        height: 100%;
+        max-width: none;
+        translate: none;
+        object-fit: cover;
+    }
+
+    /* комета из макета: вырезана область PNG 2160×3840, экранное смешивание, позиция в долях планеты */
+    .hero-static__comet {
+        position: absolute;
+        top: 23.02%;
+        left: 44%;
+        right: auto;
+        z-index: 1;
+        width: 62.93%;
+        height: auto;
+        mix-blend-mode: screen;
+        opacity: .68;             /* замер по макету: пик яркости головы ~170 из 255 */
+        pointer-events: none;
+    }
+
+    /* шевроны «вниз»: низ героя, по центру */
+    .hero-static__chevrons {
+        position: absolute;
+        z-index: 1;
+        left: 50%;
+        top: 84.8%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        translate: -50% 0;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .hero-static__chevrons svg {
+        display: block;
+        width: 21px;
+        height: 13px;
+        overflow: visible;
+    }
+
+    .hero-static__chevrons svg + svg {
+        margin-top: -1.2px;       /* шаг по макету 11,8px: рамки 21×13 стоят с нахлёстом */
+    }
 
     .hero-static::after {
-        height: 100px;
-        background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, .3) 55%, rgba(0, 0, 0, .6) 100%);
+        height: 59.1%;            /* 231 из 391 по макету */
+        background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, .55) 85%, var(--bg) 100%);
     }
 
     .hero-static .btn-dream {
@@ -3770,23 +3809,11 @@ button {
         --side: max(22px, calc((100vw - 1200px) / 2));
     }
 
-    /* hero: планета 375px по центру, комета привязана к планете */
-    .hero-static__earth {
-        left: 50%;
-        width: 375px;
-        max-width: none;
-        translate: -50% 0;
-    }
-
-    .hero-static__comet {
-        left: calc(50% - 187.5px + 172px);
-    }
-
-    /* шире 375px края планеты плавно уходят в фон, а не обрываются */
-    @media (min-width: 376px) {
-        .hero-static__earth {
-            -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 14%, #000 86%, transparent 100%);
-            mask-image: linear-gradient(90deg, transparent 0, #000 14%, #000 86%, transparent 100%);
+    /* hero: на планшете (шире 520px) планета остаётся колонкой 520px, края мягко уходят в фон */
+    @media (min-width: 521px) {
+        .hero-static__art {
+            -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 12%, #000 88%, transparent 100%);
+            mask-image: linear-gradient(90deg, transparent 0, #000 12%, #000 88%, transparent 100%);
         }
     }
 

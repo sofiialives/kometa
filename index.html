@@ -110,10 +110,10 @@
         }
     </style>
 
-    <link rel="stylesheet" href="./assets/css/main.css?v=10">
+    <link rel="stylesheet" href="./assets/css/main.css?v=12">
     <link rel="stylesheet" href="./assets/css/articles.css?v=4">
     <link rel="stylesheet" href="./assets/css/select.css?v=6">
-    <link rel="stylesheet" href="./assets/css/biomes.css?v=5">
+    <link rel="stylesheet" href="./assets/css/biomes.css?v=9">
 
     <script type="application/ld+json">
     {
@@ -317,24 +317,38 @@
         <h1 class="visually-hidden">КОМЕТА — Web3-агентство полного цикла: маркетинг, дизайн и разработка</h1>
 
         <section class="hero-static" aria-labelledby="hero-static-title">
-            <img class="hero-static__earth" src="./assets/images/hero-earth.png" width="375" height="225" alt=""
-                aria-hidden="true" decoding="async">
-            <img class="hero-static__comet" src="./assets/images/hero-comet.png" width="266" height="219" alt=""
-                aria-hidden="true" decoding="async">
+            <div class="hero-static__art" aria-hidden="true">
+                <img class="hero-static__earth" src="./assets/images/hero-planet-m.jpg?v=2" width="375" height="391" alt="" decoding="async">
+                <img class="hero-static__comet" src="./assets/images/hero-comet-m.jpg?v=1" width="236" height="134" alt="" decoding="async">
+            </div>
 
             <div class="hero-static__inner layout">
                 <h2 class="hero-static__title" id="hero-static-title">
                     <span class="hero-thin title-gradient">Результат —</span><br>
                     <span class="hero-bold"><span class="title-gradient">это наша</span> <span class="hero-orbit">орбита</span></span>
                 </h2>
-
-                <a class="btn-dream" href="#contacts">
-                    <span class="btn-dream__text">Исполни свою мечту</span>
-                    <svg class="icon icon--arrow" aria-hidden="true">
-                        <use href="#arrow"></use>
-                    </svg>
-                </a>
             </div>
+
+            <!-- стрелки «листайте вниз»: 224 / 225 / 226 сверху вниз; у двух верхних, как в макете, светлый контур по краю штриха -->
+            <a class="hero-static__chevrons" href="#directions" aria-label="Листайте вниз">
+                <svg width="21" height="13" viewBox="0 0 21 13" fill="none" aria-hidden="true">
+                    <defs>
+                        <linearGradient id="hg1" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="21" y2="0"><stop offset="0" stop-color="#F4F4F4" stop-opacity=".5"/><stop offset=".5" stop-color="#F4F4F4" stop-opacity=".55"/><stop offset="1" stop-color="#F4F4F4" stop-opacity=".06"/></linearGradient>
+                        <mask id="hc1" maskUnits="userSpaceOnUse" x="-3" y="-3" width="27" height="19"><rect x="-3" y="-3" width="27" height="19" fill="#fff"/><path d="M0.896484 0.895508L10.3965 10.3955L19.8965 0.895508" stroke="#000" stroke-width="1.1"/></mask>
+                    </defs>
+                    <path d="M0.896484 0.895508L10.3965 10.3955L19.8965 0.895508" stroke-width="2.53333" stroke="#F4F4F4" stroke-opacity="0.05"/>
+                    <path d="M0.896484 0.895508L10.3965 10.3955L19.8965 0.895508" stroke-width="2.9" stroke="url(#hg1)" mask="url(#hc1)"/>
+                </svg>
+                <svg width="21" height="13" viewBox="0 0 21 13" fill="none" aria-hidden="true">
+                    <defs>
+                        <linearGradient id="hg2" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="21" y2="0"><stop offset="0" stop-color="#F4F4F4" stop-opacity=".5"/><stop offset=".5" stop-color="#F4F4F4" stop-opacity=".5"/><stop offset="1" stop-color="#F4F4F4" stop-opacity=".18"/></linearGradient>
+                        <mask id="hc2" maskUnits="userSpaceOnUse" x="-3" y="-3" width="27" height="19"><rect x="-3" y="-3" width="27" height="19" fill="#fff"/><path d="M0.896484 0.895508L10.3965 10.3955L19.8965 0.895508" stroke="#000" stroke-width="1.1"/></mask>
+                    </defs>
+                    <path d="M0.896484 0.895508L10.3965 10.3955L19.8965 0.895508" stroke-width="2.53333" stroke="#F4F4F4" stroke-opacity="0.2"/>
+                    <path d="M0.896484 0.895508L10.3965 10.3955L19.8965 0.895508" stroke-width="2.9" stroke="url(#hg2)" mask="url(#hc2)"/>
+                </svg>
+                <svg width="21" height="13" viewBox="0 0 21 13" fill="none" aria-hidden="true"><path d="M0.896484 0.895508L10.3965 10.3955L19.8965 0.895508" stroke-width="2.53333" stroke="#F4F4F4" stroke-opacity="0.45"/></svg>
+            </a>
         </section>
 
         <div class="stage" data-video-scene>
@@ -1007,7 +1021,7 @@
         </style>
     </noscript>
 
-    <script type="module" src="./assets/js/main.js?v=16"></script>
+    <script type="module" src="./assets/js/main.js?v=18"></script>
 </body>
 
 </html>
