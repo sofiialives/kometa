@@ -1542,6 +1542,31 @@ button {
     margin-top: -7%;
 }
 
+.astronaut__glow {
+    position: absolute;
+    z-index: 1;
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: .4;
+}
+
+.astronaut__glow--white {
+    left: calc(-30% - calc(240*var(--du)));
+    bottom: calc(62% - calc(240*var(--du)));
+    width: calc(52vw + calc(480*var(--du)));
+    height: calc(52vw + calc(480*var(--du)));
+    /* мягкий градиент вместо filter:blur — тот же вид, но без дорогого размытия на каждом кадре */
+    background: radial-gradient(closest-side, rgba(255,255,255,.85) 0%, rgba(255,255,255,.6) 25%, rgba(255,255,255,.35) 42%, rgba(255,255,255,.15) 60%, rgba(255,255,255,.05) 78%, rgba(255,255,255,0) 100%);
+}
+
+.astronaut__glow--blue {
+    right: calc(-38% - calc(240*var(--du)));
+    top: calc(-103% - calc(240*var(--du)));
+    width: calc(52vw + calc(480*var(--du)));
+    height: calc(52vw + calc(480*var(--du)));
+    background: radial-gradient(closest-side, rgba(75,188,252,.85) 0%, rgba(75,188,252,.6) 25%, rgba(75,188,252,.35) 42%, rgba(75,188,252,.15) 60%, rgba(75,188,252,.05) 78%, rgba(75,188,252,0) 100%);
+}
+
 .astronaut__stage {
     position: relative;
     z-index: 3;
@@ -1582,6 +1607,16 @@ button {
         0 0 calc(14*var(--du)) rgba(90, 210, 255, .9);
     transform: perspective(calc(1400*var(--du))) rotateY(54deg) rotateZ(9deg);
     transform-origin: center center;
+    pointer-events: none;
+}
+
+.astronaut__title::before {
+    content: "";
+    position: absolute;
+    inset: calc(-70*var(--du)) calc(-90*var(--du));
+    z-index: -1;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgba(60, 190, 255, .38), rgba(40, 170, 255, .18) 55%, rgba(40, 170, 255, 0) 100%);
     pointer-events: none;
 }
 
@@ -5414,6 +5449,8 @@ button {
 }
 
 /* слои с тяжёлым блюром — на своих GPU-слоях, растеризуются один раз */
+.astronaut__glow--white,
+.astronaut__glow--blue,
 .directions__glow {
     will-change: transform;
     transform: translateZ(0);
@@ -5613,6 +5650,18 @@ button {
     .case__open,
     .case__body {
         pointer-events: auto;
+    }
+
+    /* мягкие белые блики по бокам (как в макете): слой выходит за низ секции, чтобы свет не обрезался линией */
+    .cases::before {
+        content: '';
+        position: absolute;
+        z-index: 0;
+        inset: calc(-900 * var(--u)) 0 calc(-900 * var(--u)) 0;
+        pointer-events: none;
+        background:
+            radial-gradient(calc(620 * var(--u)) calc(560 * var(--u)) at 100% calc(1320 * var(--u)), rgba(255, 255, 255, .24) 0%, rgba(255, 255, 255, .12) 38%, rgba(255, 255, 255, 0) 100%),
+            radial-gradient(calc(620 * var(--u)) calc(760 * var(--u)) at 0% calc(2190 * var(--u)), rgba(255, 255, 255, .22) 0%, rgba(255, 255, 255, .11) 38%, rgba(255, 255, 255, 0) 100%);
     }
 
     .cases__list {
@@ -7101,7 +7150,8 @@ html.zg-return .card__visual { overflow: visible; }
 .astronaut,
 .astronaut__stage,
 .astronaut__figure,
-.astronaut__img { pointer-events: none; }
+.astronaut__img,
+.astronaut__glow { pointer-events: none; }
 
 /* Lenis: нативный scroll-behavior не должен конфликтовать с плавным колесом */
 html.lenis, html.lenis body { height: auto; }
