@@ -1,7 +1,7 @@
 import { initLoader } from './modules/loader.js?v=5';
 import { initMediaProgress } from './modules/media-loader.js?v=5';
 import { initScreens } from './modules/screens.js?v=5';
-import { initScrollVideo } from './modules/scroll-video.js?v=6';
+import { initScrollVideo } from './modules/scroll-video.js?v=7';
 import { initNav, initUnknownHash } from './modules/nav.js?v=5';
 import { initMenu } from './modules/menu.js?v=5';
 import { initCarousel } from './modules/carousel.js?v=5';

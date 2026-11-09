@@ -150,8 +150,19 @@ export function initScrollVideo({ video, scene, holder, hint, screens, reduceMot
         }
     };
 
-    window.addEventListener('scroll', sync, { passive: true });
-    window.addEventListener('resize', sync);
+    // sync() висит на 'scroll' до конца жизни страницы (detach() её не снимает — она нужна и после
+    // unlock(), чтобы .is-past переключался при прокрутке обратно к Hero). Раньше она запускала
+    // getBoundingClientRect() (принудительный layout) на КАЖДОЕ scroll-событие, а с плавным скроллом
+    // (Lenis) их в разы больше, чем кадров — отсюда подлагивание при пролистывании секций ниже Hero.
+    // Теперь — не чаще одного раза за кадр.
+    let syncRaf = 0;
+    const onScroll = () => {
+        if (syncRaf) return;
+        syncRaf = requestAnimationFrame(() => { syncRaf = 0; sync(); });
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
 
     window.addEventListener('wheel', onWheel, { passive: false });
     window.addEventListener('touchstart', onTouchStart, { passive: true });
