@@ -12,6 +12,56 @@ export function initModals({ reduceMotion = false } = {}) {
     const roots = [...document.querySelectorAll('[data-modal-root]')];
     if (!roots.length) return;
 
+    /* Стеклянный фон десктопных модалок: слой с backdrop-blur, обрезанный по форме кадра (SVG clipPath).
+       Лежит рядом с кадром, а не внутри него: у кадра opacity/will-change — внутри него блюр не видел бы страницу позади.
+       clipPath, а не mask: в Safari mask на элементе с backdrop-filter отключает размытие. */
+    const NS = 'http://www.w3.org/2000/svg';
+    const clipHost = document.createElementNS(NS, 'svg');
+    clipHost.setAttribute('width', '0');
+    clipHost.setAttribute('height', '0');
+    clipHost.setAttribute('aria-hidden', 'true');
+    clipHost.style.cssText = 'position:absolute;width:0;height:0;pointer-events:none';
+    roots.forEach((modal, i) => {
+        const stage = modal.querySelector('.modal__stage');
+        const svg = modal.querySelector('.modal__shape');
+        const d = svg?.querySelector('path')?.getAttribute('d');
+        const vb = (svg?.getAttribute('viewBox') || '').trim().split(/\s+/).map(Number);
+        if (!stage || !d || vb.length < 4 || stage.querySelector('.modal__glass')) return;
+        const id = `modal-glass-clip-${i}`;
+        const clip = document.createElementNS(NS, 'clipPath');
+        clip.setAttribute('id', id);
+        clip.setAttribute('clipPathUnits', 'objectBoundingBox');
+        const path = document.createElementNS(NS, 'path');
+        path.setAttribute('d', d);
+        path.setAttribute('transform', `translate(${-vb[0] / vb[2]} ${-vb[1] / vb[3]}) scale(${1 / vb[2]} ${1 / vb[3]})`);
+        clip.appendChild(path);
+        clipHost.appendChild(clip);
+        const glass = document.createElement('div');
+        glass.className = 'modal__glass';
+        glass.setAttribute('aria-hidden', 'true');
+        glass.style.clipPath = `url(#${id})`;
+        glass.style.webkitClipPath = `url(#${id})`;
+        stage.insertBefore(glass, stage.firstChild);
+        /* кромка стекла: свет из левого верхнего угла (-45°), к правому нижнему затухает и снова чуть светлеет */
+        const grad = document.createElementNS(NS, 'linearGradient');
+        grad.setAttribute('id', `modal-rim-${i}`);
+        grad.setAttribute('gradientUnits', 'userSpaceOnUse');
+        grad.setAttribute('x1', vb[0]); grad.setAttribute('y1', vb[1]);
+        grad.setAttribute('x2', vb[0] + vb[2]); grad.setAttribute('y2', vb[1] + vb[3]);
+        [['0', .55], ['.28', .12], ['.7', .06], ['1', .3]].forEach(([o, a]) => {
+            const st = document.createElementNS(NS, 'stop');
+            st.setAttribute('offset', o);
+            st.setAttribute('stop-color', '#fff');
+            st.setAttribute('stop-opacity', a);
+            grad.appendChild(st);
+        });
+        const defs = document.createElementNS(NS, 'defs');
+        defs.appendChild(grad);
+        svg.insertBefore(defs, svg.firstChild);
+        svg.querySelector('path').setAttribute('stroke', `url(#modal-rim-${i})`);
+    });
+    if (clipHost.firstChild) document.body.appendChild(clipHost);
+
     const mqPhone = window.matchMedia('(max-width: 1279.98px)');
     let active = null;
     let lastTrigger = null;

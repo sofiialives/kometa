@@ -4367,17 +4367,42 @@ button {
     transition: opacity .26s ease-in, transform .32s cubic-bezier(.4, 0, 1, 1);
 }
 
+/* фон модалки: полупрозрачное стекло в форме кадра — страница позади видна размытой (кроме скрима) */
+.modal__glass {
+    position: absolute;
+    inset: 0;
+    background: rgba(87, 87, 87, .3); /* Figma: fill #575757 · 30% */
+    -webkit-backdrop-filter: blur(calc(16*var(--du))) saturate(.55) brightness(.92);
+    backdrop-filter: blur(calc(16*var(--du))) saturate(.55) brightness(.92);
+    opacity: 0;
+    transform: translate3d(0, calc(28*var(--du)), 0) scale(.94);
+    transition: opacity .38s cubic-bezier(.32, .72, 0, 1), transform .62s cubic-bezier(.32, .72, 0, 1);
+    pointer-events: none;
+}
+
+.modal.is-open .modal__glass {
+    opacity: 1;
+    transform: none;
+}
+
+.modal:not(.is-open) .modal__glass {
+    transition: opacity .26s ease-in, transform .32s cubic-bezier(.4, 0, 1, 1);
+}
+
+/* форма кадра остаётся только тонкой кромкой поверх стекла */
 .modal__shape {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
     overflow: visible;
-    filter: drop-shadow(0 calc(30*var(--du)) calc(60*var(--du)) rgba(0, 0, 0, .55));
 }
 
 .modal__shape path {
-    fill: #1b1b1b;
+    fill: none;
+    stroke: rgba(255, 255, 255, .16); /* запасной цвет; градиент кромки ставит modals.js */
+    stroke-width: 2;
+    vector-effect: non-scaling-stroke;
 }
 
 .modal__lines {
@@ -4609,6 +4634,41 @@ button {
     mask-composite: exclude;
 }
 
+/* десктоп: карточки — нейтральное стекло как в макете Figma (без синей подсветки), яркая кромка с левого верхнего угла */
+@media (min-width: 1280px) {
+    .mcard {
+        background:
+            radial-gradient(calc(260*var(--du)) calc(120*var(--du)) at 8% 0, rgba(255, 255, 255, .12) 0%, rgba(255, 255, 255, 0) 100%),
+            linear-gradient(180deg, rgba(255, 255, 255, .05) 0%, rgba(255, 255, 255, .015) 100%),
+            rgba(150, 150, 150, .05);
+        -webkit-backdrop-filter: blur(calc(9*var(--du))) saturate(.9);
+        backdrop-filter: blur(calc(9*var(--du))) saturate(.9);
+        box-shadow:
+            0 calc(16*var(--du)) calc(32*var(--du)) calc(-14*var(--du)) rgba(0, 0, 0, .45);
+    }
+
+    /* как в макете: содержимое карточки по центру по вертикали, текст чуть крупнее и плотнее */
+    .mcard {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .mcard__list {
+        margin-top: calc(9*var(--du));
+        font-size: calc(calc(12.1*var(--du)) * var(--tl, 1));
+        line-height: calc(calc(11.9*var(--du)) * var(--tl, 1));
+    }
+
+    .mcard__list li + li {
+        margin-top: calc(3*var(--du));
+    }
+
+    .mcard::before {
+        background: linear-gradient(145deg, rgba(255, 255, 255, .55) 0%, rgba(255, 255, 255, .08) 30%, rgba(255, 255, 255, .06) 62%, rgba(255, 255, 255, .5) 100%);
+    }
+}
+
 .mcard__num {
     position: absolute;
     left: calc(29*var(--du));
@@ -4726,6 +4786,7 @@ button {
     }
 
     .modal__shape,
+    .modal__glass,
     .modal__lines {
         display: none;
     }
@@ -4868,6 +4929,7 @@ button {
 @media (prefers-reduced-motion: reduce) {
     .modal__scrim,
     .modal__frame,
+    .modal__glass,
     .mcard,
     .modal__lines,
     .modal {
@@ -5413,18 +5475,6 @@ button {
 
 /* (убрано) пауза всех бесконечных анимаций на время скролла: универсальный селектор на html.is-scrolling пересчитывал стили всего документа при каждом старте/остановке скролла,
    а сами анимации — только transform/opacity на GPU и главный поток не грузят */
-
-/* backdrop-filter на фикс. хедере/кнопке ТГ весь скролл непрерывно пересчитывает блюр того,
-   что под ними (в т.ч. тяжёлые biome-картинки с масками) — заметный вклад в лаг при скролле
-   секций после биомов. На время активного скролла (класс уже выставляет lenis в smooth-scroll.js)
-   выключаем сам блюр, оставляя обычную полупрозрачную подложку — глазом разница не видна,
-   а стоимость каждого кадра скролла падает. Селектор точечный (2 элемента), не трогает остальной
-   документ — в отличие от прежней попытки через универсальный html.is-scrolling (см. выше). */
-html.is-scrolling .header__bar,
-html.is-scrolling .tg-corner {
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-}
 
 /* карусель направлений: нативный scroll-snap (палец и инерция системные, одна карточка за жест),
    мышь — перетаскивание; на время нашей анимации/перетаскивания снап выключен, чтобы не «дёргал» */
@@ -7175,11 +7225,6 @@ html.zg-return .card__visual { overflow: visible; }
 .astronaut__figure,
 .astronaut__img,
 .astronaut__glow { pointer-events: none; }
-
-/* Lenis: нативный scroll-behavior не должен конфликтовать с плавным колесом */
-html.lenis, html.lenis body { height: auto; }
-.lenis.lenis-smooth { scroll-behavior: auto !important; }
-.lenis.lenis-stopped { overflow: clip; }
 
 /* невесомость: слои с летающими плашками поднимаются над соседними секциями (но ниже шапки) */
 .zg-lift { z-index: 39 !important; }
