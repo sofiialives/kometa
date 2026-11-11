@@ -5,21 +5,24 @@ import { initScrollVideo } from './modules/scroll-video.js?v=7';
 import { initNav, initUnknownHash } from './modules/nav.js?v=5';
 import { initMenu } from './modules/menu.js?v=5';
 import { initCarousel } from './modules/carousel.js?v=5';
-import { initCrewSlider } from './modules/crew-slider.js?v=5';
+import { initCrewSlider } from './modules/crew-slider.js?v=8';
 import { initModals } from './modules/modals.js?v=7';
 import { initArticles } from './modules/articles.js?v=4';
 import { initBiomes } from './modules/biomes.js?v=5';
 import { initSelect } from './modules/select.js?v=4';
-import { initGlassClose } from './modules/glass-close.js?v=5';
+import { initGlassClose } from './modules/glass-close.js?v=6';
 import { initNavGlass } from './modules/nav-glass.js?v=5';
 import { initPressSpring } from './modules/press-spring.js?v=6';
 import { initStarLight } from './modules/star-light.js?v=7';
 import { initSmoothScroll } from './modules/smooth-scroll.js?v=7';
+import { initHeroFit } from './modules/hero-fit.js?v=1';
 
 console.info('[kometa] build 18');
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const isPhone = window.matchMedia('(max-width: 1279.98px)').matches;
 const root = document.documentElement;
+
+initHeroFit();
 
 root.classList.remove('no-js');
 root.classList.add('js');

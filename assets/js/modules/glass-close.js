@@ -8,7 +8,7 @@
  */
 // крестики и бургер: круг деформируется отдельным слоем (--sa/--sx/--sy), остальные кнопки — по осям
 const LAYER = '.modal__close, .nav__close, .case__open';
-const GENERIC = '.burger, .card__arrow, .btn-dream, .btn-request, .btn-send, .header__tg, .tg-corner, .crew__btn, .cmodal__nav';
+const GENERIC = '.burger, .card__arrow, .dcard__arrow, .btn-dream, .btn-request, .btn-send, .header__tg, .tg-corner, .crew__btn, .cmodal__nav';
 const SELECTOR = `${LAYER}, ${GENERIC}`;
 export const PRESS_SELECTOR = SELECTOR;   // эти кнопки уже имеют свой «пресс»: общий спринг их не трогает
 const HOLD_SCALE = 1.33;

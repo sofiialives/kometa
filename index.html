@@ -110,7 +110,7 @@
         }
     </style>
 
-    <link rel="stylesheet" href="./assets/css/main.css?v=22">
+    <link rel="stylesheet" href="./assets/css/main.css?v=34">
     <link rel="stylesheet" href="./assets/css/articles.css?v=4">
     <link rel="stylesheet" href="./assets/css/select.css?v=6">
     <link rel="stylesheet" href="./assets/css/biomes.css?v=9">
@@ -176,6 +176,8 @@
 </head>
 
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><filter id="dir-grade" color-interpolation-filters="sRGB"><feComponentTransfer><feFuncR type="table" tableValues="0.012 0.126 0.141 0.159 0.181 0.205 0.233 0.275 0.326 0.395 0.494 0.607 0.736 0.858 0.906 0.953 1.0"/><feFuncG type="table" tableValues="0.012 0.042 0.144 0.195 0.219 0.248 0.284 0.317 0.359 0.412 0.474 0.551 0.641 0.738 0.842 0.94 1.0"/><feFuncB type="table" tableValues="0.012 0.012 0.071 0.167 0.24 0.27 0.303 0.347 0.392 0.436 0.497 0.566 0.646 0.742 0.84 0.925 1.0"/></feComponentTransfer></filter></svg>
+
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs><linearGradient id="plate-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#252525"/><stop offset=".23" stop-color="#262626"/><stop offset=".29" stop-color="#323233"/><stop offset="1" stop-color="#353536"/></linearGradient><linearGradient id="plate-fill-d" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#313132"/><stop offset="1" stop-color="#353536"/></linearGradient><linearGradient id="plate-rim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".30"/><stop offset=".2" stop-color="#fff" stop-opacity=".22"/><stop offset=".37" stop-color="#fff" stop-opacity=".04"/><stop offset=".55" stop-color="#fff" stop-opacity=".05"/><stop offset=".7" stop-color="#fff" stop-opacity=".42"/><stop offset=".85" stop-color="#fff" stop-opacity=".26"/><stop offset="1" stop-color="#fff" stop-opacity=".4"/></linearGradient></defs></svg>
     <a class="skip-link" href="#main">Перейти к содержимому</a>
 
@@ -318,8 +320,12 @@
 
         <section class="hero-static" aria-labelledby="hero-static-title">
             <div class="hero-static__art" aria-hidden="true">
-                <img class="hero-static__earth" src="./assets/images/hero-planet-m.jpg?v=2" width="375" height="391" alt="" decoding="async">
-                <img class="hero-static__comet" src="./assets/images/hero-comet-m.jpg?v=2" width="451" height="245" alt="" decoding="async">
+                <img class="hs-layer hs-earth" src="./assets/images/hero-m-earth.png?v=1" width="1000" height="1066" alt="" decoding="async">
+                <span class="hs-haze"></span>
+                <img class="hs-layer hs-light" src="./assets/images/hero-m-light.jpg?v=1" width="720" height="1280" alt="" decoding="async">
+                <span class="hs-stars hs-stars--top"><img src="./assets/images/hero-m-stars.jpg?v=1" width="1080" height="1920" alt="" decoding="async"></span>
+                <span class="hs-stars hs-stars--bottom"><img src="./assets/images/hero-m-stars.jpg?v=1" width="1080" height="1920" alt="" decoding="async"></span>
+                <img class="hs-layer hs-comet" src="./assets/images/hero-m-comet.jpg?v=1" width="900" height="1600" alt="" decoding="async">
             </div>
 
             <div class="hero-static__inner layout">
@@ -327,6 +333,14 @@
                     <span class="hero-thin title-gradient">Результат —</span><br>
                     <span class="hero-bold"><span class="title-gradient">это наша</span> <span class="hero-orbit">орбита</span></span>
                 </h2>
+            </div>
+
+            <div class="hero-static__card">
+                <span class="hero-static__check" aria-hidden="true">
+                    <svg viewBox="0 0 100 100" fill="none"><defs><linearGradient id="hs-check-g" gradientUnits="userSpaceOnUse" x1="28" y1="0" x2="66.5" y2="0"><stop offset="0" stop-color="#93ACBD"/><stop offset=".08" stop-color="#87A0B0"/><stop offset=".2" stop-color="#667E8E"/><stop offset=".32" stop-color="#6A8291"/><stop offset=".43" stop-color="#ADC6D5"/><stop offset=".56" stop-color="#D9F1FD"/><stop offset=".69" stop-color="#CFE7F7"/><stop offset=".82" stop-color="#687F8F"/><stop offset="1" stop-color="#607887"/></linearGradient></defs><path d="M28.5 49.5L40.5 62.5L66.5 36.5" stroke="url(#hs-check-g)" stroke-width="3.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <p class="hero-static__text">Уже более 5 лет мы закрываем&nbsp;<br>любые запросы <strong>для ведущих бизнесов</strong><br>по всему миру</p>
+                <a class="hero-static__cta" href="#contacts">Исполни свою мечту</a>
             </div>
 
             <!-- стрелки «листайте вниз»: 224 / 225 / 226 сверху вниз; у двух верхних, как в макете, светлый контур по краю штриха -->
@@ -347,7 +361,7 @@
                     <path d="M0.896484 0.895508L10.3965 10.3955L19.8965 0.895508" stroke-width="2.53333" stroke="#F4F4F4" stroke-opacity="0.2"/>
                     <path d="M0.896484 0.895508L10.3965 10.3955L19.8965 0.895508" stroke-width="2.9" stroke="url(#hg2)" mask="url(#hc2)"/>
                 </svg>
-                <svg width="21" height="13" viewBox="0 0 21 13" fill="none" aria-hidden="true"><path d="M0.896484 0.895508L10.3965 10.3955L19.8965 0.895508" stroke-width="2.53333" stroke="#F4F4F4" stroke-opacity="0.45"/></svg>
+                <svg width="21" height="13" viewBox="0 0 21 13" fill="none" aria-hidden="true"><path d="M0.896484 0.895508L10.3965 10.3955L19.8965 0.895508" stroke-width="2.53333" stroke="#F4F4F4" stroke-opacity="0.65"/></svg>
             </a>
         </section>
 
@@ -440,130 +454,54 @@
                     <span class="accent">Направления</span>
                 </h2>
 
-                <ul class="cards" aria-label="Ключевые направления агентства" data-carousel>
-                    <li class="card">
-                            <span class="card__glow" aria-hidden="true"><img loading="lazy" class="card__holo card__holo--star" src="./assets/images/holo-star.png" srcset="./assets/images/holo-star-m.png 720w, ./assets/images/holo-star.png 1014w" sizes="(max-width: 1279.98px) 340px, 503px" width="619" height="619" alt="" aria-hidden="true" decoding="async"></span>
-                        <div class="card__visual">
-                            <svg class="card__plate card__plate--d" viewBox="-.5 -.5 347 425" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M102 0 L322 0 A24 24 0 0 1 346 24 L346 319 A24 24 0 0 1 322 343 L303 343 A24 24 0 0 0 279 367 L279 402 A22 22 0 0 1 257 424 L22 424 A22 22 0 0 1 0 402 L0 130 A24 24 0 0 1 24 106 L54 106 A24 24 0 0 0 78 82 L78 24 A24 24 0 0 1 102 0Z" vector-effect="non-scaling-stroke"/></svg>
-                            <svg class="card__plate card__plate--m" viewBox="-.5 -.5 178 211" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M54 0 L163 0 A14 14 0 0 1 177 14 L177 150 A14 14 0 0 1 163 164 L154 164 A14 14 0 0 0 140 178 L140 196 A14 14 0 0 1 126 210 L14 210 A14 14 0 0 1 0 196 L0 73 A14 14 0 0 1 14 59 L26 59 A14 14 0 0 0 40 45 L40 14 A14 14 0 0 1 54 0Z" vector-effect="non-scaling-stroke"/></svg>
-                            <span class="card__decor card__decor--top" aria-hidden="true"></span>
-                            <span class="card__decor card__decor--bottom" aria-hidden="true"></span>
+                <div class="dirs">
+                    <ul class="dirs__grid" aria-label="Ключевые направления агентства">
+                        <li class="dcard">
+                            <p class="dcard__eyebrow">01 / Дизайн</p>
+                            <h3 class="dcard__title">Визуал<br>и дизайн</h3>
+                            <button class="dcard__arrow" type="button" aria-label="Подробнее: Визуал и дизайн" data-modal="design" aria-haspopup="dialog">
+                            <svg class="icon icon--card-arrow" aria-hidden="true"><use href="#arrow-corner"></use></svg>
+                        </button>
+                            <img class="dcard__img dcard__img--ring" loading="lazy" src="./assets/images/holo-ring.png" srcset="./assets/images/holo-ring-m.png 720w, ./assets/images/holo-ring.png 900w" sizes="(max-width: 1279.98px) 270px, 560px" width="900" height="1043" alt="" decoding="async">
+                        </li>
+                        <li class="dcard">
+                            <p class="dcard__eyebrow">02 / Контент</p>
+                            <h3 class="dcard__title">Контент<br>и SMM</h3>
+                            <button class="dcard__arrow" type="button" aria-label="Подробнее: Контент и SMM">
+                            <svg class="icon icon--card-arrow" aria-hidden="true"><use href="#arrow-corner"></use></svg>
+                        </button>
+                            <img class="dcard__img dcard__img--spring" loading="lazy" src="./assets/images/holo-spring.png" srcset="./assets/images/holo-spring-m.png 720w, ./assets/images/holo-spring.png 1192w" sizes="(max-width: 1279.98px) 280px, 560px" width="1192" height="1145" alt="" decoding="async">
+                        </li>
+                        <li class="dcard">
+                            <p class="dcard__eyebrow">03 / Продвижение</p>
+                            <h3 class="dcard__title">Реклама<br class="dcard__br"> и продвижение</h3>
+                            <button class="dcard__arrow" type="button" aria-label="Подробнее: Реклама и продвижение" data-modal="ads" aria-haspopup="dialog">
+                            <svg class="icon icon--card-arrow" aria-hidden="true"><use href="#arrow-corner"></use></svg>
+                        </button>
+                            <img class="dcard__img dcard__img--flat" loading="lazy" src="./assets/images/holo-star.png" srcset="./assets/images/holo-star-m.png 720w, ./assets/images/holo-star.png 1014w" sizes="(max-width: 1279.98px) 240px, 560px" width="1014" height="1014" alt="" decoding="async">
+                        </li>
+                        <li class="dcard">
+                            <p class="dcard__eyebrow">04 / Разработка</p>
+                            <h3 class="dcard__title">Разработка<br>ПО</h3>
+                            <button class="dcard__arrow" type="button" aria-label="Подробнее: Разработка ПО" data-modal="dev" aria-haspopup="dialog">
+                            <svg class="icon icon--card-arrow" aria-hidden="true"><use href="#arrow-corner"></use></svg>
+                        </button>
+                            <img class="dcard__img dcard__img--pyramid" loading="lazy" src="./assets/images/dir-pyramid.png" srcset="./assets/images/dir-pyramid-m.png 440w, ./assets/images/dir-pyramid.png 720w" sizes="(max-width: 1279.98px) 280px, 560px" width="720" height="658" alt="" decoding="async">
+                        </li>
+                    </ul>
 
-                            <span class="card__num" aria-hidden="true">01</span>
-
-                            <ul class="tags" aria-label="Услуги направления">
-                                <li class="tag">GEO</li>
-                                <li class="tag">SEO</li>
-                                <li class="tag tag--promo">Кросс-промо</li>
-                                <li class="tag tag--wide">Амбассадорские<br class="br-m"> программы</li>
-                                <li class="tag tag--wide">Performance<br class="br-m"> marketing</li>
-                                <li class="tag">Закупка</li>
-                                <li class="tag tag--extra">SEO Статьи</li>
-                                <li class="tag tag--extra tag--wide-end">Баннерная реклама</li>
-                            </ul>
-                        </div>
-
-                        <div class="card__footer">
-                            <h3 class="card__title">Реклама<br>и продвижение:</h3>
-                            <button class="card__arrow" type="button" aria-label="Подробнее" data-modal="ads">
-                                <svg class="icon icon--card-arrow" aria-hidden="true">
-                                    <use href="#arrow-corner"></use>
-                                </svg>
-                            </button>
-                        </div>
-                    </li>
-
-                    <li class="card">
-                            <span class="card__glow" aria-hidden="true"><img loading="lazy" class="card__holo card__holo--ring" src="./assets/images/holo-ring.png" srcset="./assets/images/holo-ring-m.png 720w, ./assets/images/holo-ring.png 900w" sizes="(max-width: 1279.98px) 340px, 446px" width="472" height="472" alt="" aria-hidden="true" decoding="async"></span>
-                        <div class="card__visual">
-                            <svg class="card__plate card__plate--d" viewBox="-.5 -.5 347 425" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M102 0 L322 0 A24 24 0 0 1 346 24 L346 319 A24 24 0 0 1 322 343 L303 343 A24 24 0 0 0 279 367 L279 402 A22 22 0 0 1 257 424 L22 424 A22 22 0 0 1 0 402 L0 130 A24 24 0 0 1 24 106 L54 106 A24 24 0 0 0 78 82 L78 24 A24 24 0 0 1 102 0Z" vector-effect="non-scaling-stroke"/></svg>
-                            <svg class="card__plate card__plate--m" viewBox="-.5 -.5 178 211" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M54 0 L163 0 A14 14 0 0 1 177 14 L177 150 A14 14 0 0 1 163 164 L154 164 A14 14 0 0 0 140 178 L140 196 A14 14 0 0 1 126 210 L14 210 A14 14 0 0 1 0 196 L0 73 A14 14 0 0 1 14 59 L26 59 A14 14 0 0 0 40 45 L40 14 A14 14 0 0 1 54 0Z" vector-effect="non-scaling-stroke"/></svg>
-                            <span class="card__decor card__decor--top" aria-hidden="true"></span>
-                            <span class="card__decor card__decor--bottom" aria-hidden="true"></span>
-
-                            <span class="card__num" aria-hidden="true">02</span>
-
-                            <ul class="tags" aria-label="Услуги направления">
-                                <li class="tag">Упаковка соц сетей</li>
-                                <li class="tag">Motion</li>
-                                <li class="tag">Веб-дизайн</li>
-                                <li class="tag">Баннеры</li>
-                                <li class="tag">Презентации</li>
-                                <li class="tag">3D</li>
-                                <li class="tag">Брендинг</li>
-                                <li class="tag tag--desk">Фирменный стиль</li>
-                            </ul>
-                        </div>
-
-                        <div class="card__footer">
-                            <h3 class="card__title">Визуал<br>и дизайн:</h3>
-                            <button class="card__arrow" type="button" aria-label="Подробнее" data-modal="design">
-                                <svg class="icon icon--card-arrow" aria-hidden="true">
-                                    <use href="#arrow-corner"></use>
-                                </svg>
-                            </button>
-                        </div>
-                    </li>
-
-                    <li class="card">
-                            <span class="card__glow" aria-hidden="true"><img loading="lazy" class="card__holo card__holo--spring" src="./assets/images/holo-spring.png" srcset="./assets/images/holo-spring-m.png 720w, ./assets/images/holo-spring.png 1192w" sizes="(max-width: 1279.98px) 340px, 831px" width="681" height="681" alt="" aria-hidden="true" decoding="async"></span>
-                        <div class="card__visual">
-                            <svg class="card__plate card__plate--d" viewBox="-.5 -.5 347 425" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M102 0 L322 0 A24 24 0 0 1 346 24 L346 319 A24 24 0 0 1 322 343 L303 343 A24 24 0 0 0 279 367 L279 402 A22 22 0 0 1 257 424 L22 424 A22 22 0 0 1 0 402 L0 130 A24 24 0 0 1 24 106 L54 106 A24 24 0 0 0 78 82 L78 24 A24 24 0 0 1 102 0Z" vector-effect="non-scaling-stroke"/></svg>
-                            <svg class="card__plate card__plate--m" viewBox="-.5 -.5 178 211" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M54 0 L163 0 A14 14 0 0 1 177 14 L177 150 A14 14 0 0 1 163 164 L154 164 A14 14 0 0 0 140 178 L140 196 A14 14 0 0 1 126 210 L14 210 A14 14 0 0 1 0 196 L0 73 A14 14 0 0 1 14 59 L26 59 A14 14 0 0 0 40 45 L40 14 A14 14 0 0 1 54 0Z" vector-effect="non-scaling-stroke"/></svg>
-                            <span class="card__decor card__decor--top" aria-hidden="true"></span>
-                            <span class="card__decor card__decor--bottom" aria-hidden="true"></span>
-
-                            <span class="card__num" aria-hidden="true">03</span>
-
-                            <ul class="tags" aria-label="Услуги направления">
-                                <li class="tag">Сайты</li>
-                                <li class="tag">CRM</li>
-                                <li class="tag tag--wide">Мобильные<br class="br-m"> приложения</li>
-                                <li class="tag">Web платформы</li>
-                                <li class="tag">Mini-App</li>
-                                <li class="tag">Экосистемы</li>
-                                <li class="tag">ПО</li>
-                            </ul>
-                        </div>
-
-                        <div class="card__footer">
-                            <h3 class="card__title">Разработка<br>ПО</h3>
-                            <button class="card__arrow" type="button" aria-label="Подробнее" data-modal="dev">
-                                <svg class="icon icon--card-arrow" aria-hidden="true">
-                                    <use href="#arrow-corner"></use>
-                                </svg>
-                            </button>
-                        </div>
-                    </li>
-                </ul>
-
-                <span class="cards__progress" aria-hidden="true" data-carousel-progress></span>
-
-                <div class="personal" aria-labelledby="personal-title">
-                    <span class="personal__glow" aria-hidden="true"><picture class="personal__holo personal__holo--a" aria-hidden="true">
-                        <source media="(max-width: 1279.98px)" srcset="./assets/images/holo-spring-m.png">
-                        <img loading="lazy" src="./assets/images/holo-ring.png" srcset="./assets/images/holo-ring-m.png 720w, ./assets/images/holo-ring.png 900w" sizes="(max-width: 1279.98px) 340px, 446px" width="472" height="472" alt="" decoding="async">
-                    </picture>
-                    <picture class="personal__holo personal__holo--b" aria-hidden="true">
-                        <img loading="lazy" src="./assets/images/holo-spring.png" srcset="./assets/images/holo-spring-m.png 720w, ./assets/images/holo-spring.png 1192w" sizes="(max-width: 1279.98px) 340px, 831px" width="681" height="681" alt="" decoding="async">
-                    </picture></span>
-                    <h3 class="personal__title" id="personal-title">
-                        <span class="accent">Персональное</span><br>решение
-                    </h3>
-
-                    <div class="personal__tags">
-                        <div class="personal__row personal__row--1">
-                            <span class="tag tag--accent tag--events">Организация мероприятий</span>
-                        </div>
-                        <div class="personal__row personal__row--2">
-                            <span class="tag tag--accent tag--podcast">Подкасты</span>
-                            <span class="tag tag--accent tag--smm">SMM/продакшн</span>
-                        </div>
-                        <div class="personal__row personal__row--3">
-                            <span class="tag tag--accent tag--shoot">Съемки</span>
-                            <span class="tag tag--accent tag--edit">Монтаж</span>
-                            <span class="tag tag--accent tag--any">Любое пожелание</span>
-                        </div>
+                    <div class="dpers" aria-labelledby="personal-title">
+                        <p class="dpers__eyebrow"><span class="dpers__dash" aria-hidden="true"></span>Личный запрос</p>
+                        <h3 class="dpers__title" id="personal-title">Персональное<br class="dpers__br"> решение</h3>
+                        <ul class="dpers__pills" aria-label="Услуги по личному запросу">
+                            <li class="pill pill--shoot">Съемки</li>
+                            <li class="pill pill--edit">Монтаж</li>
+                            <li class="pill pill--strategy">Комплексная стратегия</li>
+                            <li class="pill pill--events">Организация мероприятий</li>
+                            <li class="pill pill--podcast">Подкасты</li>
+                            <li class="pill pill--any">Любое пожелание</li>
+                        </ul>
+                        <img class="dcard__img dpers__img" loading="lazy" src="./assets/images/dir-star.png" srcset="./assets/images/dir-star-m.png 539w, ./assets/images/dir-star.png 963w" sizes="(max-width: 1279.98px) 300px, 560px" width="963" height="1000" alt="" decoding="async">
                     </div>
                 </div>
 
@@ -595,6 +533,7 @@
                 </h2>
 
                 <div class="crew__slider" data-crew>
+                    <p class="crew__tag">Топ-менеджмент</p>
                     <ul class="crew__list" data-crew-list>
                     <li class="crew-card">
                         <picture class="crew-card__media">
@@ -604,7 +543,7 @@
                         <div class="crew-card__body">
                             <p class="crew-card__role">CEO</p>
                             <p class="crew-card__name">Ян</p>
-                            <p class="crew-card__text">Ключевое звено взаимодействия, драйвер всех процессов агентства
+                            <p class="crew-card__text">Драйвер всех процессов агентства
                                 — <strong>от стратегии до финального результата</strong></p>
                         </div>
                     </li>
@@ -659,6 +598,12 @@
                                 <use href="#chevron"></use>
                             </svg>
                         </button>
+                        <div class="crew__dots">
+                            <button class="crew__dot" type="button" aria-label="Участник 1" data-crew-dot></button>
+                            <button class="crew__dot" type="button" aria-label="Участник 2" data-crew-dot></button>
+                            <button class="crew__dot" type="button" aria-label="Участник 3" data-crew-dot></button>
+                            <button class="crew__dot" type="button" aria-label="Участник 4" data-crew-dot></button>
+                        </div>
                         <button class="crew__btn crew__btn--next" type="button" aria-label="Следующий участник"
                             data-crew-next>
                             <svg class="icon icon--chevron" aria-hidden="true">
@@ -1021,7 +966,7 @@
         </style>
     </noscript>
 
-    <script type="module" src="./assets/js/main.js?v=22"></script>
+    <script type="module" src="./assets/js/main.js?v=27"></script>
 </body>
 
 </html>

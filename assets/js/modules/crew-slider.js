@@ -1,126 +1,86 @@
 /**
- * «Экипаж Комета» на мобилке: главная карточка + следующая ниже (полупрозрачная).
- * Смена — не «кадр за кадром», а плавное перетекание (FLIP, пружинная кривая как в iOS):
- * следующая поднимается и вырастает в главную, главная уходит вверх и растворяется,
- * новая «следующая» всплывает снизу. Назад — зеркально. Только кнопками-стрелками, жесты по карточкам не листают.
+ * «Экипаж Комета» на мобилке и планшете: горизонтальная карусель.
+ * Главная карточка + следующая сбоку (полупрозрачная), снизу стрелки и точки.
+ * Сдвиг ленты ведёт CSS (--crew-i), здесь — только индекс, активные классы, точки и свайп.
+ * На десктопе карточки лежат сеткой 2×2, класс is-active там ничего не меняет.
  */
-const EASE = 'cubic-bezier(.32, .72, 0, 1)';
-const DUR = 560;
-
 export function initCrewSlider({ root, list, prev, next }) {
     if (!root || !list || !prev || !next) return null;
 
     const cards = [...list.children];
     if (cards.length < 2) return null;
-
-    const mq = window.matchMedia('(max-width: 1279.98px)');
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const dots = [...root.querySelectorAll('[data-crew-dot]')];
+    const n = cards.length;
     let index = 0;
-    let busy = false;
 
-    const setClasses = () => {
+    const render = () => {
+        list.style.setProperty('--crew-i', index);
         cards.forEach((card, i) => {
             card.classList.toggle('is-active', i === index);
-            card.classList.toggle('is-next', i === (index + 1) % cards.length);
+            card.classList.toggle('is-before', i < index);
+        });
+        dots.forEach((dot, i) => {
+            dot.classList.toggle('is-active', i === index);
+            dot.setAttribute('aria-current', i === index ? 'true' : 'false');
         });
         root.setAttribute('aria-live', 'polite');
     };
 
-    const clear = () => {
-        cards.forEach((card) => card.classList.remove('is-active', 'is-next'));
-        root.querySelectorAll('.is-leaving').forEach((n) => n.remove());
-    };
-
-    const rectOf = (el) => (el && el.offsetParent !== null ? el.getBoundingClientRect() : null);
-
-    const flip = (el, from, to, extra = {}) => {
-        if (!el || !from || !to) return null;
-        const dx = from.left - to.left;
-        const dy = from.top - to.top;
-        const sx = from.width / to.width;
-        const sy = from.height / to.height;
-        return el.animate([
-            { transformOrigin: '0 0', transform: `translate(${dx}px, ${dy}px) scale(${sx}, ${sy})`, opacity: extra.from ?? 1 },
-            { transformOrigin: '0 0', transform: 'none', opacity: extra.to ?? 1 }
-        ], { duration: DUR, easing: EASE });
-    };
-
-    const ghost = (card, rect, keyframes) => {
-        const base = root.getBoundingClientRect();
-        const g = card.cloneNode(true);
-        g.classList.add('is-leaving');
-        g.style.left = `${rect.left - base.left}px`;
-        g.style.top = `${rect.top - base.top}px`;
-        g.style.width = `${rect.width}px`;
-        g.style.height = `${rect.height}px`;
-        root.append(g);
-        const a = g.animate(keyframes, { duration: DUR * 0.8, easing: EASE, fill: 'forwards' });
-        a.onfinish = a.oncancel = () => g.remove();
-    };
-
     const go = (step) => {
-        if (!mq.matches || busy) return;
-        const n = cards.length;
-        const oldActive = cards[index];
-        const oldNext = cards[(index + 1) % n];
-        const rA = rectOf(oldActive);
-        const rN = rectOf(oldNext);
-
         index = (index + step + n) % n;
-        const newActive = cards[index];
-        const newNext = cards[(index + 1) % n];
-
-        if (reduce.matches || !rA) { setClasses(); return; }
-
-        // уходящие карточки — призраки в прежних местах
-        if (step > 0) {
-            ghost(oldActive, rA, [
-                { transform: 'none', opacity: 1 },
-                { transform: 'translateY(-36px) scale(.94)', opacity: 0 }
-            ]);
-        } else if (rN) {
-            ghost(oldNext, rN, [
-                { transform: 'none', opacity: .5 },
-                { transform: 'translateY(36px) scale(.94)', opacity: 0 }
-            ]);
-        }
-
-        setClasses();
-
-        const nA = rectOf(newActive);
-        const nN = rectOf(newNext);
-        busy = true;
-        const anims = [];
-
-        if (step > 0) {
-            anims.push(flip(newActive, rN, nA, { from: .5, to: 1 }));                       // следующая → главная
-            anims.push(newNext.animate([                                                     // новая «следующая» всплывает снизу
-                { transform: 'translateY(40px) scale(.94)', opacity: 0 },
-                { transform: 'none', opacity: .5 }
-            ], { duration: DUR, easing: EASE }));
-        } else {
-            anims.push(newActive.animate([                                                   // новая главная приходит сверху
-                { transform: 'translateY(-40px) scale(.94)', opacity: 0 },
-                { transform: 'none', opacity: 1 }
-            ], { duration: DUR, easing: EASE }));
-            anims.push(flip(newNext, rA, nN, { from: 1, to: .5 }));                          // бывшая главная → следующая
-        }
-
-        Promise.allSettled(anims.filter(Boolean).map((a) => a.finished)).then(() => { busy = false; });
-    };
-
-    const apply = (mobile) => {
-        if (mobile) setClasses();
-        else clear();
+        render();
     };
 
     prev.addEventListener('click', () => go(-1));
     next.addEventListener('click', () => go(1));
+    dots.forEach((dot, i) => dot.addEventListener('click', () => { index = i; render(); }));
 
-    // смена карточек — только стрелками: свайп/прокрутка пальцем по карточкам ничего не переключает
+    // свайп: лента идёт за пальцем, на отпускании прилипает к ближайшей карточке; на краях не зацикливаем
+    let x0 = null;
+    let y0 = 0;
+    let t0 = 0;
+    let dragging = false;
+    const step = () => (cards[1].offsetLeft - cards[0].offsetLeft) || cards[0].offsetWidth;
 
-    mq.addEventListener('change', (event) => apply(event.matches));
-    apply(mq.matches);
+    list.addEventListener('touchstart', (e) => {
+        x0 = e.touches[0].clientX;
+        y0 = e.touches[0].clientY;
+        t0 = e.timeStamp;
+        dragging = false;
+    }, { passive: true });
 
+    list.addEventListener('touchmove', (e) => {
+        if (x0 === null) return;
+        const dx = e.touches[0].clientX - x0;
+        const dy = e.touches[0].clientY - y0;
+        if (!dragging) {
+            if (Math.abs(dx) < 8 || Math.abs(dx) < Math.abs(dy) * 1.2) return;
+            dragging = true;
+            list.classList.add('is-dragging');
+        }
+        // на краях — упругое сопротивление
+        const atEdge = (index === 0 && dx > 0) || (index === n - 1 && dx < 0);
+        list.style.setProperty('--crew-drag', `${atEdge ? dx * 0.3 : dx}px`);
+    }, { passive: true });
+
+    const finish = (e) => {
+        if (x0 === null) return;
+        const dx = e.changedTouches[0].clientX - x0;
+        const speed = Math.abs(dx) / Math.max(1, e.timeStamp - t0);
+        x0 = null;
+        if (!dragging) return;
+        dragging = false;
+        list.classList.remove('is-dragging');
+        list.style.removeProperty('--crew-drag');
+        if (Math.abs(dx) > step() * 0.22 || speed > 0.45) {
+            const to = Math.min(n - 1, Math.max(0, index + (dx < 0 ? 1 : -1)));
+            index = to;
+        }
+        render();
+    };
+    list.addEventListener('touchend', finish, { passive: true });
+    list.addEventListener('touchcancel', finish, { passive: true });
+
+    render();
     return { go };
 }
