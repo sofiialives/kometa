@@ -1,8 +1,8 @@
 /**
- * «Экипаж Комета» на мобилке и планшете: горизонтальная карусель.
- * Главная карточка + следующая сбоку (полупрозрачная), снизу стрелки и точки.
- * Сдвиг ленты ведёт CSS (--crew-i), здесь — только индекс, активные классы, точки и свайп.
- * На десктопе карточки лежат сеткой 2×2, класс is-active там ничего не меняет.
+ * «Экипаж Комета» на мобилке и планшете: бесконечная карусель.
+ * Главная карточка по центру, слева и справа — соседние (меньше и приглушены), снизу стрелки и точки.
+ * Позицию каждой карточки задаёт CSS через --p (−1, 0, 1) и --a (модуль), здесь — индекс, классы, точки и свайп.
+ * На десктопе карточки лежат сеткой 2×2, переменные там ничего не меняют.
  */
 export function initCrewSlider({ root, list, prev, next }) {
     if (!root || !list || !prev || !next) return null;
@@ -12,12 +12,28 @@ export function initCrewSlider({ root, list, prev, next }) {
     const dots = [...root.querySelectorAll('[data-crew-dot]')];
     const n = cards.length;
     let index = 0;
+    const lastRel = new Array(n).fill(null);
+
+    // смещение карточки относительно текущей по кругу: −2…1 при n = 4
+    const rel = (i) => {
+        const half = Math.floor(n / 2);
+        return ((i - index + n + half) % n) - half;
+    };
 
     const render = () => {
-        list.style.setProperty('--crew-i', index);
         cards.forEach((card, i) => {
-            card.classList.toggle('is-active', i === index);
-            card.classList.toggle('is-before', i < index);
+            const r = rel(i);
+            const far = Math.abs(r) > 1;
+            // карточка, перелетающая с одного края на другой, не должна проезжать через экран
+            const jump = lastRel[i] !== null && Math.abs(r - lastRel[i]) > 2;
+            if (jump) card.classList.add('is-jump');
+            card.style.setProperty('--p', far ? Math.sign(r) * 2 : r);
+            card.style.setProperty('--a', far ? 1 : Math.abs(r));
+            card.classList.toggle('is-active', r === 0);
+            card.classList.toggle('is-far', far);
+            card.toggleAttribute('inert', r !== 0);
+            if (jump) requestAnimationFrame(() => requestAnimationFrame(() => card.classList.remove('is-jump')));
+            lastRel[i] = r;
         });
         dots.forEach((dot, i) => {
             dot.classList.toggle('is-active', i === index);
@@ -35,12 +51,12 @@ export function initCrewSlider({ root, list, prev, next }) {
     next.addEventListener('click', () => go(1));
     dots.forEach((dot, i) => dot.addEventListener('click', () => { index = i; render(); }));
 
-    // свайп: лента идёт за пальцем, на отпускании прилипает к ближайшей карточке; на краях не зацикливаем
+    // свайп: карточки идут за пальцем, на отпускании встают на место
     let x0 = null;
     let y0 = 0;
     let t0 = 0;
     let dragging = false;
-    const step = () => (cards[1].offsetLeft - cards[0].offsetLeft) || cards[0].offsetWidth;
+    const step = () => cards[0].offsetWidth * 0.96;
 
     list.addEventListener('touchstart', (e) => {
         x0 = e.touches[0].clientX;
@@ -58,9 +74,7 @@ export function initCrewSlider({ root, list, prev, next }) {
             dragging = true;
             list.classList.add('is-dragging');
         }
-        // на краях — упругое сопротивление
-        const atEdge = (index === 0 && dx > 0) || (index === n - 1 && dx < 0);
-        list.style.setProperty('--crew-drag', `${atEdge ? dx * 0.3 : dx}px`);
+        list.style.setProperty('--crew-drag', `${dx}px`);
     }, { passive: true });
 
     const finish = (e) => {
@@ -72,11 +86,8 @@ export function initCrewSlider({ root, list, prev, next }) {
         dragging = false;
         list.classList.remove('is-dragging');
         list.style.removeProperty('--crew-drag');
-        if (Math.abs(dx) > step() * 0.22 || speed > 0.45) {
-            const to = Math.min(n - 1, Math.max(0, index + (dx < 0 ? 1 : -1)));
-            index = to;
-        }
-        render();
+        if (Math.abs(dx) > step() * 0.22 || speed > 0.45) go(dx < 0 ? 1 : -1);
+        else render();
     };
     list.addEventListener('touchend', finish, { passive: true });
     list.addEventListener('touchcancel', finish, { passive: true });

@@ -5,7 +5,7 @@ import { initScrollVideo } from './modules/scroll-video.js?v=7';
 import { initNav, initUnknownHash } from './modules/nav.js?v=5';
 import { initMenu } from './modules/menu.js?v=5';
 import { initCarousel } from './modules/carousel.js?v=5';
-import { initCrewSlider } from './modules/crew-slider.js?v=8';
+import { initCrewSlider } from './modules/crew-slider.js?v=9';
 import { initModals } from './modules/modals.js?v=7';
 import { initArticles } from './modules/articles.js?v=4';
 import { initBiomes } from './modules/biomes.js?v=5';
@@ -15,7 +15,7 @@ import { initNavGlass } from './modules/nav-glass.js?v=5';
 import { initPressSpring } from './modules/press-spring.js?v=6';
 import { initStarLight } from './modules/star-light.js?v=7';
 import { initSmoothScroll } from './modules/smooth-scroll.js?v=7';
-import { initHeroFit } from './modules/hero-fit.js?v=1';
+import { initHeroFit } from './modules/hero-fit.js?v=4';
 
 console.info('[kometa] build 18');
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -250,7 +250,7 @@ const optional = (path, run) => import(path).then(run).catch((err) => console.wa
 
 optional('./modules/toast.js?v=5', (m) => m.initCopy());
 optional('./modules/form-send.js?v=5', (m) => m.initFormSend());
-optional('./modules/live.js?v=5', (m) => m.initLive());
+optional('./modules/live.js?v=6', (m) => m.initLive());
 optional('./modules/eggs.js?v=5', (m) => m.initEggs());
 
 // запрет копирования картинок/видео: перетаскивание и контекстное меню (текст копируется как раньше)

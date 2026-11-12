@@ -8,9 +8,9 @@ import { addBody, initPhysics, setZeroG, isZeroG, onBusy } from './physics.js?v=
 export function initLive() {
     initPhysics();
     const root = document.documentElement;
-    const personal = document.querySelector('.personal');
+    const personal = document.querySelector('.personal, .dpers');
     const astro = document.querySelector('.astronaut');
-    if (personal) personal.querySelectorAll('.tag').forEach((el) => addBody(el, { group: 'tags', boundsEl: personal }));
+    if (personal) personal.querySelectorAll('.tag, .pill').forEach((el) => addBody(el, { group: 'tags', boundsEl: personal }));
 
     onBusy((busy) => {
         // пока плашки двигаются, парящий космонавт за стеклом замирает: его кадры не перерисовывают размытый фон
@@ -57,7 +57,7 @@ export function initLive() {
         lifted = [];
         if (!on) return;
         const set = new Set();
-        document.querySelectorAll('.tag').forEach((tag) => {
+        document.querySelectorAll('.tag, .pill').forEach((tag) => {
             for (let n = tag.parentElement; n && n !== document.body && n !== root; n = n.parentElement) set.add(n);
         });
         set.forEach((n) => n.classList.add('zg-lift'));
